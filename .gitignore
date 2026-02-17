@@ -2,3 +2,5 @@ checkpoints/*
 !checkpoints/.gitkeep
 venv/
 **/__pycache__/
+env*
+bert_checkpoints/
