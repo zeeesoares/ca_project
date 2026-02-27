@@ -46,6 +46,7 @@ participating in the LLM training.
 │   └── train.py                     # Main experiment script
 ├── README.md
 ├── requirements.txt
+├── setup.sh                         # Setup virtual environment and install dependencies
 └── run.sh                           # Local running script (TODO HPC SLURM jobs)
 ```
 
