@@ -47,7 +47,7 @@ participating in the LLM training.
 ├── README.md
 ├── requirements.txt
 ├── setup.sh                         # Setup virtual environment and install dependencies
-└── run.sh                           # Local running script (TODO HPC SLURM jobs)
+└── run-local.sh                     # Local running script (TODO HPC SLURM jobs)
 ```
 
 ### Dependencies
