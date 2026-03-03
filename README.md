@@ -4,7 +4,8 @@
 
 ### Assignment
 
-> **Advisors:** Ricardo Macedo ([d12010@di.uminho.pt](mailto:d12010@di.uminho.pt)), João Paulo ([jtpaulo@di.uminho.pt](mailto:jtpaulo@di.uminho.pt]))
+> **Advisors:** Ricardo Macedo ([d12010@di.uminho.pt](mailto:d12010@di.uminho.pt));
+João Paulo ([jtpaulo@di.uminho.pt](mailto:jtpaulo@di.uminho.pt]))
 >
 > Large Language Models (LLMs) training is a complex workload that can take
 several weeks to complete. The complexity and long execution time are inherent
@@ -26,12 +27,12 @@ participating in the LLM training.
 >
 > **References**
 > - Accelerating Deep Learning Training Through Transparent Storage Tiering.
->   Dantas, M., Leitão, D., Cui, P., Macedo, R., Liu, X., Xu, W., & Paulo, J.
->   In 22nd IEEE/ACM International Symposium on Cluster, Cloud and Internet
->   Computing (CCGrid). IEEE, 2022.
+    Dantas, M., Leitão, D., Cui, P., Macedo, R., Liu, X., Xu, W., & Paulo, J.
+    In 22nd IEEE/ACM International Symposium on Cluster, Cloud and Internet
+    Computing (CCGrid). IEEE, 2022.
 > - Mohan, Jayashree, Amar Phanishayee, and Vijay Chidambaram. "{CheckFreq}:
->   Frequent,{Fine-Grained}{DNN} Checkpointing." In 19th USENIX Conference on
->   File and Storage Technologies (FAST 21), pp. 203-216. 2021.
+    Frequent,{Fine-Grained}{DNN} Checkpointing." In 19th USENIX Conference on
+    File and Storage Technologies (FAST 21), pp. 203-216. 2021.
 
 ### Structure
 
