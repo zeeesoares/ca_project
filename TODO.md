@@ -8,3 +8,4 @@
 - Experimentar modelos (deucalion/local) Bert (Hugging Face)
 - Criar ambiente de testes (?)
 - Instrumentação Python (?)
+- Dataloader custom from pytorch to measure files created, deleted, modified, etc.
