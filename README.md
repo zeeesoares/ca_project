@@ -115,6 +115,15 @@ From the project root:
 python3 -m train.train --enable-async --enable-compression
 ```
 
+To profile:
+```bash
+python3 -m train.train --profile
+```
+```bash
+tensorboard --logdir=logs/profiler_results
+```
+
+
 #### CLI Flags
 
 Flag                      | Description

@@ -4,3 +4,6 @@ datasets>=2.14.0
 accelerate>=0.25.0
 tqdm
 numpy
+tensorboard 
+setuptools==69.5.1
+torch-tb-profiler

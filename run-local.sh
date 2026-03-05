@@ -15,7 +15,8 @@ set -e
 echo "Starting training experiment..."
 
 python -m train.train \
-    --enable-async \
-    --enable-compression
+    --profile
+#    --enable-async \
+#    --enable-compression
 
 echo "Experiment finished."
