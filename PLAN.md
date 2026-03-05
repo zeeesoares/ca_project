@@ -25,6 +25,17 @@ We can categorize the state-of-the-art into three main technical approaches:
     - How? - uses a transparent storage tiering system. It uses high-speed local tiers (NVMe/PMEM) to accelerate the write path, abstracting the complexity from the user.
     - Problems? - ...
 
+- D. BitSnap 
+    - How? – It focuses on what is being saved rather than where. It introduces Sparsification and Quantization to the checkpointing process. It identifies which weights are "critical" and compresses the rest (e.g., from 16-bit to 4-bit or less) before the data even reaches the I/O layer.
+
+    - Problems? – While it significantly reduces the size of the files, it introduces a trade-off between compression time (CPU overhead) and accuracy. If the quantization is too aggressive, the model might not converge correctly after a resume. Also, it does not manage the storage hierarchy (PFS congestion) by itself.
+
+E. FastPersist 
+
+    How? – It exploits the tensor immutability during the Forward and Backward passes. While the GPU is busy computing gradients, FastPersist proactively moves the "stale" model state from GPU memory to the Host RAM and Local SSD in the background. It also uses a distributed "sharding" approach to parallelize writes across nodes.
+
+    Problems? – It requires a carefully managed memory buffer on the Host (RAM) to avoid interfering with the training process. While it hides I/O latency, it still ends up pushing the full data volume to the PFS eventually, which can still lead to long-term congestion if the model is massive and the frequency is high.
+
 ## Proposed Solution
 
 We propose a Python-based library that sits between the DL Framework (PyTorch/DeepSpeed) and the storage layer, implementing a Multi-Tiered Reduction Architecture.
@@ -35,7 +46,8 @@ We propose a Python-based library that sits between the DL Framework (PyTorch/De
 
 - B. Temporal/Frequency Control
     - Dynamic Checkpointing Frequency: Inspired by CheckFreq, our library will monitor PFS I/O congestion. If the PFS is busy, it will increase the local checkpoint   frequency.
-    - Asynchronous Execution: Ensuring the training loop never "waits" for the disk.   
+    - Asynchronous Execution: Ensuring the training loop never "waits" for the disk.
+    - Overlap Training/Checkpointing  - ???
 
 - C. Hierarchical Storage Management
     - L1 - Distributed Node RAM?
