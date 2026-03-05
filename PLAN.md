@@ -5,9 +5,9 @@
 We understanded that LLM's with billions of parameters require weeks of Training on massive HPC systems, and to prevent losing those weeks of work, the "state" must be saved in the process of Checkpointing.
 
 ### Motivation
-- Resilience : As cluster size increases, the Mean Time Between Failures decreases. At scale, a failure can occur in a shorts amounts of time.
+- Resilience : As cluster size increases, the Mean Time Between Failures decreases. At scale, a failure can occur in shorts amounts of time.
 - Checkpoint Bottleneck : With the increase of the number of parameters, the checkpoint size increases drastically, and the storage itself is a problem, even in an HPC context.
-- PFS Contention : Writing those massive files in a shared and parallel file system creates a contention effect where the nodes compete for I/O bandwith, leading to significant stalls (training time). e
+- PFS Contention : Writing those massive files in a shared and parallel file system creates a contention effect where the nodes compete for I/O bandwith, leading to significant stalls (training time).
 
 ## Related Work
 
@@ -15,7 +15,7 @@ We can categorize the state-of-the-art into three main technical approaches:
 
 - A. CheckFreq - Adaptative Frequency and Pipelined Checkpointing
     - How? - it uses an algorithmic approach to identify optimal checkpointing boundaries. It pipelines the checkpointing process with training iterations, dynamically adjusting frequency.
-    - Problems? - it optimizes when to save, it still relies on the PFS for the final write, wich concern us beacause of the motivations
+    - Problems? - it optimizes when to save, it still relies on the PFS for the final write, wich concern us beacause of the motivations.
 
 - B. Check-N-Run
     - How? - focuses on "hiding" the cost of I/O by using local node resources (DRAM/SSD) as a temporary staging area, allowing the training to resume immediately while the data is moved.
