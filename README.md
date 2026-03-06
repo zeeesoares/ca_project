@@ -115,6 +115,16 @@ From the project root:
 python3 -m train.train --enable-async --enable-compression
 ```
 
+To enable PyTorch's built-in profiler for checkpointing performance analysis,
+use the `--profile` flag.
+
+This will save profiling results to `logs/profiler_results`, which can be
+visualized with TensorBoard:
+
+```bash
+tensorboard --logdir=logs/profiler_results
+```
+
 #### CLI Flags
 
 Flag                      | Description

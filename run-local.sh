@@ -12,10 +12,20 @@
 # Fail on error
 set -e
 
+# Error on undefined variables
+set -u
+
+# Fail if any command in a pipeline fails
+set -o pipefail
+
+# Print commands as they are executed
+set -x
+
 echo "Starting training experiment..."
 
 python -m train.train \
-    --enable-async \
-    --enable-compression
+    --profile
+#    --enable-async \
+#    --enable-compression
 
-echo "Experiment finished."
+exit 0

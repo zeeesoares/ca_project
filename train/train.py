@@ -31,6 +31,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--enable-async", action="store_true")
     parser.add_argument("--enable-compression", action="store_true")
+    parser.add_argument("--profile", action="store_true")
     args = parser.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -40,7 +41,7 @@ def main():
 
     optimizer = AdamW(model.parameters(), lr=5e-5)
 
-    total_steps = 100
+    total_steps = 50
     scheduler = get_linear_schedule_with_warmup(
         optimizer,
         num_warmup_steps=10,
@@ -60,7 +61,8 @@ def main():
         dataloader=dataloader,
         checkpoint=checkpoint,
         device=device,
-        checkpoint_interval=total_steps // 5,  # every 20 steps
+        checkpoint_interval=total_steps // 5,
+        enable_profiler=args.profile,
     )
 
     trainer.train(max_steps=total_steps)
