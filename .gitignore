@@ -1,7 +1,7 @@
+**/__pycache__/
+venv/
 checkpoints/*
 !checkpoints/.gitkeep
-venv/
-**/__pycache__/
-env*
 bert_checkpoints/
 logs/*
+!logs/.gitkeep

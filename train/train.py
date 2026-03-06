@@ -61,7 +61,7 @@ def main():
         dataloader=dataloader,
         checkpoint=checkpoint,
         device=device,
-        checkpoint_interval=total_steps // 5, 
+        checkpoint_interval=total_steps // 5,
         enable_profiler=args.profile,
     )
 

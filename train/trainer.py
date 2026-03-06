@@ -3,8 +3,10 @@ import torch
 from torch.profiler import profile, record_function, ProfilerActivity
 from contextlib import nullcontext
 
+
 class Trainer:
-    def __init__(self, model, optimizer, scheduler, dataloader, checkpoint, device="cpu", checkpoint_interval=500, enable_profiler=False):
+    def __init__(self, model, optimizer, scheduler, dataloader, checkpoint,
+                 device="cpu", checkpoint_interval=500, enable_profiler=False):
         self.model = model.to(device)
         self.optimizer = optimizer
         self.scheduler = scheduler
