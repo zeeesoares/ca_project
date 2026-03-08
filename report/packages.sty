@@ -1,0 +1,103 @@
+% Packages
+
+%% Font set up
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+
+%% Changes language of some packages protocols
+\usepackage[english]{babel}
+
+%% Geometry and margin settings
+\usepackage{geometry}
+    \geometry{a4paper,left=14mm,right=14mm,top=16mm,bottom=21mm}
+
+%% Define custom environments
+\usepackage{environ}
+
+%% More colors and color options
+\usepackage[dvipsnames]{xcolor}
+\usepackage{colortbl}
+
+%% List of acronyms
+\usepackage[intoc]{nomencl}
+    \makenomenclature
+
+%% More images options/settings
+\usepackage{graphics}
+    \graphicspath{{images}}
+
+%% Hyperref for cross-referencing and links
+\usepackage{hyperref}
+%     \hypersetup{
+%         colorlinks,
+%         citecolor=black,
+%         filecolor=black,
+%         linkcolor=black,
+%         urlcolor=black
+%     }
+
+%% Defining backgrounds, used to make the cover
+\usepackage[some]{background}
+
+%% Used to make drawings or complex graphics
+\usepackage{tikz}
+    \usetikzlibrary{calc}
+
+%% Tables with multirows and other options, like dashed/dotted lines
+\usepackage{pbox, longtable, multirow, hhline, array, arydshln, diagbox}
+
+%% Manipulate lists entries spacings
+\usepackage{enumitem}
+
+%% Include code snippets
+\usepackage{listings}
+    \lstset{
+        captionpos=b, % Places caption below listing
+        numberbychapter=true, % Optional: Number listings by chapter (4.1, 4.2, ...)
+        frame=tb,
+        aboveskip=3mm,
+        belowskip=3mm,
+        showstringspaces=false,
+        columns=flexible,
+        basicstyle={\small\ttfamily},
+        numbers=left,
+        numberstyle=\small\color{gray},
+        keywordstyle=\color{blue},
+        commentstyle=\color{gray},
+        stringstyle=\color{Green},
+        breaklines=true,
+        breakatwhitespace=true,
+        tabsize=4
+    }
+    \renewcommand{\lstlistingname}{\textit{Snippet}} % Changes "Listing" to "Snippet"
+
+%% Change chapter and section title style and spacing
+% \usepackage{titlesec}
+%     \titleformat{\chapter}[hang]%
+%         {\sffamily\Huge\bfseries}% format applied to label+text
+%         {\thechapter}%% label
+%         {0.5em}% horizontal separation between label and title body
+%         {}% before the title body
+%         []% after the title body
+%     \titleformat{\section}[hang]%
+%         {\sffamily\Large\bfseries}% format applied to label+text
+%         {\thesection}%% label
+%         {0.5em}% horizontal separation between label and title body
+%         {}% before the title body
+%         []% after the title body
+%     \titlespacing*{\chapter}{0pt}{*0}{*0}
+%     \titlespacing*{\section}{0pt}{*0}{*0}
+
+%% Change Paragraph vertical spacing
+% \usepackage{parskip}
+%     \setlength{\parskip}{5pt}
+
+%% Math environments
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[all]{xy}
+
+%% Markdown framed boxes
+% \usepackage{mdframed}
