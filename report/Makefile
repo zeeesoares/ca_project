@@ -1,4 +1,4 @@
-TEX = xelatex
+TEX = pdflatex
 FLAGS = -output-directory=$(OUTPUT_DIR) -shell-restricted
 OUTPUT_DIR = output
 FILE_NAME = main
