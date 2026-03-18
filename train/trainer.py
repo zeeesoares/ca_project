@@ -26,7 +26,8 @@ class Trainer:
             schedule=torch.profiler.schedule(wait=2, warmup=2, active=max_steps, repeat=1),
             on_trace_ready=torch.profiler.tensorboard_trace_handler('./logs/profiler_results'),
             record_shapes=True,
-            with_stack=True
+            with_stack=True,
+            profile_memory=True
         ) if self.enable_profiler else nullcontext()
 
         with prof_context as prof:
