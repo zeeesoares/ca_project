@@ -83,6 +83,8 @@ process:
 - Communicates with the orchestrator: reports checkpoint-ready events and receives flush authorization.
 - Performs **background asynchronous flush** of staged checkpoints to Lustre when instructed by the orchestrator.
 
+<div style="page-break-after: always;"></div>
+
 #### Local SSD Staging Tier
  
 Each node's local NVMe SSD acts as a **fast intermediate buffer**. Checkpoint writes land here first — with low latency and no contention — then drain to Lustre asynchronously without blocking training.
@@ -99,29 +101,44 @@ transparent below this point.
 
 ## Activity Plan
 
-| **#** | **Task** | **Owner** | **Status** |
-|---|---|---|---|
-| **Phase 1: Foundation & Setup (Weeks 1--2)** | | | |
-| 1 | Study PAIO and PADLL source code and papers | Team | Planned |
-| 2 | Set up HPC cluster environment and Lustre access | Team | Planned |
-| 3 | Run existing PAIO benchmarks (baseline I/O performance) | Team | Planned |
-| 4 | Define checkpoint classification rules (path patterns) | Team | Planned |
-| **Phase 2: Client Integration (Weeks 3--4)** | | | |
-| 1 | Implement checkpoint-aware PAIO client stage | Team | Planned |
-| 2 | Redirect PyTorch `torch.save()` writes to local SSD via PAIO | Team | Planned |
-| 3 | Validate correctness: reload checkpoint from local SSD | Team | Planned |
-| 4 | Measure write latency: direct Lustre vs. local SSD (single node) | Team | Planned |
-| **Phase 3: Orchestrator & Policies (Weeks 5--7)** | | | |
-| 1 | Design orchestrator-client communication protocol (gRPC/socket) | Team | Planned |
-| 2 | Implement orchestrator (checkpoint state tracking per node) | Team | Planned |
-| 3 | Implement pluggable policy interface | Team | Planned |
-| 4 | Implement rate-limiting policy to reduce Lustre pressure | Team | Planned |
-| 5 | Test with multiple concurrent training jobs (noisy neighbour) | Team | Planned |
-| **Phase 4: Evaluation & Write-up (Weeks 8--10)** | | | |
-| 1 | Benchmark checkpoint latency across all configurations | Team | Planned |
-| 2 | Measure PFS I/O pressure under concurrent workloads | Team | Planned |
-| 3 | Compare against DeepSpeed and SCR baselines | Team | Planned |
-| 4 | Write final report and prepare presentation | Team | Planned |
+| **#**                                             | **Task**                                                         | **Owner** | **Status** |
+| ---                                               | ---                                                              | ---       | ---        |
+| **Phase 1: Foundation & Setup (Weeks 1--2)**      |                                                                  |           |            |
+| 1                                                 | Study PAIO and PADLL source code and papers                      | Team      | Planned    |
+| 2                                                 | Set up HPC cluster environment and Lustre access                 | Team      | Planned    |
+| 3                                                 | Run existing PAIO benchmarks (baseline I/O performance)          | Team      | Planned    |
+| 4                                                 | Define checkpoint classification rules (path patterns)           | Team      | Planned    |
+
+<div style="page-break-after: always;"></div>
+
+| **#**                                             | **Task**                                                         | **Owner** | **Status** |
+| ---                                               | ---                                                              | ---       | ---        |
+| **Phase 2: Client Integration (Weeks 3--4)**      |                                                                  |           |            |
+| 1                                                 | Implement checkpoint-aware PAIO client stage                     | Team      | Planned    |
+| 2                                                 | Redirect PyTorch `torch.save()` writes to local SSD via PAIO     | Team      | Planned    |
+| 3                                                 | Validate correctness: reload checkpoint from local SSD           | Team      | Planned    |
+| 4                                                 | Measure write latency: direct Lustre vs. local SSD (single node) | Team      | Planned    |
+
+<div style="page-break-after: always;"></div>
+
+| **#**                                             | **Task**                                                         | **Owner** | **Status** |
+| ---                                               | ---                                                              | ---       | ---        |
+| **Phase 3: Orchestrator & Policies (Weeks 5--7)** |                                                                  |           |            |
+| 1                                                 | Design orchestrator-client communication protocol (gRPC/socket)  | Team      | Planned    |
+| 2                                                 | Implement orchestrator (checkpoint state tracking per node)      | Team      | Planned    |
+| 3                                                 | Implement pluggable policy interface                             | Team      | Planned    |
+| 4                                                 | Implement rate-limiting policy to reduce Lustre pressure         | Team      | Planned    |
+| 5                                                 | Test with multiple concurrent training jobs (noisy neighbour)    | Team      | Planned    |
+
+<div style="page-break-after: always;"></div>
+
+| **#**                                             | **Task**                                                         | **Owner** | **Status** |
+| ---                                               | ---                                                              | ---       | ---        |
+| **Phase 4: Evaluation & Write-up (Weeks 8--10)**  |                                                                  |           |            |
+| 1                                                 | Benchmark checkpoint latency across all configurations           | Team      | Planned    |
+| 2                                                 | Measure PFS I/O pressure under concurrent workloads              | Team      | Planned    |
+| 3                                                 | Compare against DeepSpeed and SCR baselines                      | Team      | Planned    |
+| 4                                                 | Write final report and prepare presentation                      | Team      | Planned    |
 
 <div style="page-break-after: always;"></div>
 
