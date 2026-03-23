@@ -12,7 +12,7 @@ from torch_ext.checkpoint import Checkpoint
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--enable-async", action="store_true")
+    parser.add_argument("--profile", action="store_true")
     args = parser.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
