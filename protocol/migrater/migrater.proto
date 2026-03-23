@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package migrater;
+
+service MigraterService {
+  rpc NotifyCheckpointSaved (CheckpointSavedRequest)
+  returns (CheckpointSavedResponse);
+}
+
+message CheckpointSavedRequest {
+  string checkpoint_local_path = 1;
+  string checkpoint_pfs_path   = 2;
+  double timestamp             = 3;
+}
+
+message CheckpointSavedResponse {
+  bool ok = 1;
+}
