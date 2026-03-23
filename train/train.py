@@ -7,31 +7,12 @@ from train.model import build_model
 from train.dataset import build_dataloader
 from train.trainer import Trainer
 
-from checkpointing.torch_manager import TorchCheckpointManager
-from checkpointing.async_wrapper import AsyncCheckpointWrapper
-from checkpointing.compression_wrapper import CompressionCheckpointWrapper
-
-
-def build_checkpoint_stack(save_dir,
-                           use_async=False,
-                           use_compression=False):
-
-    checkpoint = TorchCheckpointManager(save_dir)
-
-    if use_compression:
-        checkpoint = CompressionCheckpointWrapper(checkpoint)
-
-    if use_async:
-        checkpoint = AsyncCheckpointWrapper(checkpoint)
-
-    return checkpoint
+from torch_ext.checkpoint import Checkpoint
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--enable-async", action="store_true")
-    parser.add_argument("--enable-compression", action="store_true")
-    parser.add_argument("--profile", action="store_true")
     args = parser.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -48,11 +29,7 @@ def main():
         num_training_steps=total_steps,
     )
 
-    checkpoint = build_checkpoint_stack(
-        save_dir="./checkpoints",
-        use_async=args.enable_async,
-        use_compression=args.enable_compression,
-    )
+    checkpoint = Checkpoint()
 
     trainer = Trainer(
         model=model,
