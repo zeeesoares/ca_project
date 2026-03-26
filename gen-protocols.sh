@@ -5,3 +5,9 @@ python3 -m grpc_tools.protoc \
     --python_out=. \
     --grpc_python_out=. \
     protocol/migrater/migrater.proto
+
+python3 -m grpc_tools.protoc \
+    -I . \
+    --python_out=. \
+    --grpc_python_out=. \
+    protocol/cluster.proto

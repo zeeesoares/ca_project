@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package cluster;
+
+service MigraterService {
+  rpc NotifyCheckpointSaved (CheckpointSavedRequest)
+  returns (CheckpointSavedResponse);
+
+  // TODO : Future integration with logs
+  //rpc SendLogs (stream LogEntry) 
+  //returns (LogSummary);
+
+	// TODO : Future integration with Pluggable schedulers
+	//rpc Watch (stream WatchRequest)
+	//returns (stream WatchResponse);
+}
+
+service OrchestratorService {
+  rpc Monitor (stream HeartbeatRequest)
+  returns (stream InstructionResponse);
+}
+
+
+// MigraterService
+
+message CheckpointSavedRequest {
+	string checkpoint_local_path = 1;
+	string checkpoint_pfs_path   = 2;
+	double timestamp             = 3;
+}
+
+message CheckpointSavedResponse {
+  bool ok = 1;
+  // TODO : Could be useful a message?
+}
+
+
+// OrchestratorService
+
+message HeartbeatRequest {
+  string worker_id         = 1;
+  double pending_data_size = 2;
+  bool is_migrating        = 3;
+}
+
+message InstructionResponse {
+  enum Action {
+      HOLD        = 0;
+      START_FLUSH = 1;
+      CHANGE_RATE = 2;
+      // STOP ??
+  }
+  Action action         = 1;
+  double rate_limit_bps = 2;
+}
