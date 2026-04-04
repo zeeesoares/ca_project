@@ -29,19 +29,7 @@ Migrater running on 50051
 ### Terminal 2 — Orchestrator (porta 50052)
 
 ```bash
-# Policy por omissão: UniformBandwidth com 1 Gbps
 venv/bin/python -m orchestrator.server
-```
-
-```
-Orchestrator running on 50052 | policy=UniformBandwidthPolicy
-```
-
-**Opções disponíveis:**
-
-```bash
-# Mudar o bandwidth total disponível no PFS (em bps)
-venv/bin/python -m orchestrator.server --pfs-bw 500000000   # 500 Mbps
 ```
 
 ### Terminal 3 — Cliente de teste
