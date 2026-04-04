@@ -1,11 +1,11 @@
 import grpc
 from concurrent import futures
 
-from protocol.migrater import migrater_pb2
-from protocol.migrater import migrater_pb2_grpc
+from protocol import cluster_pb2
+from protocol import cluster_pb2_grpc
 
 
-class MigraterService(migrater_pb2_grpc.MigraterServiceServicer):
+class MigraterService(cluster_pb2_grpc.OrchestratorServiceServicer):
 
     def NotifyCheckpointSaved(self, request, context):
 
@@ -14,14 +14,14 @@ class MigraterService(migrater_pb2_grpc.MigraterServiceServicer):
         print("pfs:",       request.checkpoint_pfs_path)
         print("timestamp:", request.timestamp)
 
-        return migrater_pb2.CheckpointSavedResponse(ok=True)
+        return cluster_pb2.CheckpointSavedResponse(ok=True)
 
 
 def serve():
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
 
-    migrater_pb2_grpc.add_MigraterServiceServicer_to_server(
+    cluster_pb2_grpc.add_MigraterServiceServicer_to_server(
         MigraterService(),
         server
     )

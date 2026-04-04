@@ -12,19 +12,7 @@ venv/bin/python -c "import grpc; print(grpc.__version__)"
 
 ---
 
-## 1. Correr os testes automatizados
-
-Não requer servidores externos — cada teste levanta o seu próprio servidor numa thread.
-
-```bash
-venv/bin/python -m unittest tests.test_communication -v
-```
-
-Esperado: **21 tests, 0 failures**.
-
----
-
-## 2. Testar manualmente com servidores reais
+## Testar com servidores
 
 Abre **3 terminais** na raiz do projeto.
 
