@@ -1,18 +1,18 @@
 # Políticas de Escalonamento
 
-## Rate Limiting (Token Bucket)
+## Rate Limiting (Token Bucket) (TO-DO)
 
 O orquestrador define um limite máximo de tokens de bandwitdh que cade job de treino pode submeter ao PFS. Evitando assim que um job com checkpoints muito frequentes sature todo o sistema.
 
 Source: Macedo, R., et al. "PADLL: Taming Metadata-intensive HPC Jobs Through Dynamic, Application-agnostic QoS Control." CCGrid 2023. (arXiv: 2302.06418) — GitHub: github.com/dsrhaslab/padll
 
-## Uniform Fair-Share
+## Uniform Fair-Share (Implemented)
 
 Avaliar diferentes setups de QoS, incluindo uma política "Uniform" em que a taxa máxima de operações é dividida igualmente por todos os jobs. No caso, 4 jobs a fazer checkpoing = 25% da bandwith para cada para o PFS. Muito simples, mas pode ser ineficiente, pouco escalável e em alguns casos injusto.
 
 Source: Source: Macedo, R., et al. "PADLL: Taming Metadata-intensive HPC Jobs Through Dynamic, Application-agnostic QoS Control." CCGrid 2023. (arXiv: 2302.06418)
 
-## Priority-Based Scheduling
+## Priority-Based Scheduling (TO-DO)
 
 Jobs com maior prioridade recebem maior bandwith para o PFS. Podia ser utilizado para dar maior prioridade a jobs que estejam perto de terminar o treino ou a jobs cujo último checkpoint é o mais antigo por exemplo.
 
