@@ -1,12 +1,17 @@
+#!/usr/bin/env python3
+
 import time
 import os
+from typing import Callable, Union
+
+DEFAULT_CHUNK_SIZE = 8  # KB
 
 
 def token_bucket_copy(
     src: str,
     dst: str,
-    throughput: int,
-    chunk_size: int = 8192
+    throughput: Union[int, Callable[[], int]],
+    chunk_size: int = DEFAULT_CHUNK_SIZE * 1024,
 ):
     """
     Copy a file using token bucket rate limiting.
@@ -14,7 +19,11 @@ def token_bucket_copy(
     Parameters:
         src (str): Source file path (local node storage)
         dst (str): Destination file path (PFS)
-        throttle (int): Transfer rate in bytes per second
+        throughput (int | Callable[[], int]):
+            Transfer rate in bytes per second. Can be:
+                - int: fixed throughput
+                - Callable: dynamic throughput provider
+            Asserted to be positive.
         chunk_size (int): Size of each read/write chunk (default: 8KB)
 
     Raises:
@@ -22,18 +31,42 @@ def token_bucket_copy(
             to the destination.
 
     TODO:
-        - Handle exceptions more gracefully, possibly with retries or logging,
-            and update docstring Exceptions section.
         - Dynamically adjust the chunk size based on the observed throughput
             and latency.
-        - Dynamic adjustment of throughput based on orchestrator orders.
+
+    Possible improvements:
+        - Allow partial writes
     """
+    # Check if source file exists
+    if not os.path.isfile(src):
+        raise IOError(f"Source file does not exist: {src}")
 
-    capacity = throughput  # set as chunk_size to make this a leaky bucket
-    tokens = throughput
+    # Ensure destination directory exists
+    dst_dir = os.path.dirname(dst)
+    if dst_dir:
+        os.makedirs(dst_dir, exist_ok=True)
+
+    # INFO destination file check is skipped to slighty reduce initial overhead
+    # Check if destination file can be written
+    # try:
+    #     with open(dst, "wb"):
+    #         pass
+    # except Exception as e:
+    #     raise IOError(f"Cannot write to destination: {dst}") from e
+
+    def get_throughput() -> int:
+        return throughput() if callable(throughput) else throughput
+
+    # Initial throughput check
+    rate = get_throughput()
+    assert rate > 0, "Throughput must be positive"
+
+    # Chunk size check
+    assert chunk_size > 0, "Chunk size must be positive"
+
+    capacity = rate  # burst-limited token bucket with 1-second capacity
+    tokens = rate
     last = time.monotonic()
-
-    # os.makedirs(os.path.dirname(dst), exist_ok=True)
 
     with open(src, "rb") as src_f, open(dst, "wb") as dst_f:
         while True:
@@ -41,13 +74,26 @@ def token_bucket_copy(
             elapsed = now - last
             last = now
 
-            tokens = min(capacity, tokens + elapsed * throughput)
+            rate = get_throughput()
+            assert rate > 0, "Throughput must be positive"
+
+            capacity = rate
+
+            # Refill tokens
+            tokens = min(capacity, tokens + elapsed * rate)
+
+            # Clamp tokens if rate decreased
+            tokens = min(tokens, capacity)
 
             if tokens < chunk_size:
-                # time.sleep(0.005)  # Constant sleep time
                 # Dynamic sleep time
                 missing = chunk_size - tokens
-                time.sleep(missing / throughput)
+                sleep_time = missing / rate
+
+                # Cap sleep to improve responsiveness to dynamic updates
+                # INFO As a improvement we don't sleep the full deficit to
+                # allow for quicker adjustments to dynamic throughput changes.
+                time.sleep(min(sleep_time * 0.5, 0.01))
                 continue
 
             data = src_f.read(chunk_size)
@@ -57,7 +103,7 @@ def token_bucket_copy(
             dst_f.write(data)
             tokens -= len(data)
 
-        # TODO At the end of copy, should we flush dst on the PFS?
+        # Ensure data is flushed to disk
         dst_f.flush()
         os.fsync(dst_f.fileno())
 
@@ -73,8 +119,37 @@ if __name__ == "__main__":
                            help="Destination file path (PFS)")
     argparser.add_argument("throughput", type=int,
                            help="Transfer rate in bytes per second")
-    argparser.add_argument("--chunk-size", type=int, default=8192,
-                           help="Size of each read/write chunk (default: 8KB)")
+    argparser.add_argument("--chunk-size", type=int,
+                           default=DEFAULT_CHUNK_SIZE * 1024,
+                           help="Size of each read/write chunk "
+                                f"(default: {DEFAULT_CHUNK_SIZE}KB)")
     args = argparser.parse_args()
 
+    print(f"Starting token bucket copy:\n"
+          f"  - Source:      {args.src}\n"
+          f"  - Destination: {args.dst}\n"
+          f"  - Throughput:  {args.throughput} (B/s)\n"
+          f"  - Chunk size:  {args.chunk_size} (B)")
+
+    start = time.monotonic()
+
     token_bucket_copy(args.src, args.dst, args.throughput, args.chunk_size)
+
+    end = time.monotonic()
+
+    print()
+    print("Token bucket copy completed.")
+
+    file_size = os.path.getsize(args.src)
+    effective_throughput = file_size / (end - start)
+    print()
+    print(f"Expected throughput:  {args.throughput} (B/s)")
+    print(f"Effective throughput: {effective_throughput:.0f} (B/s)")
+
+    print()
+    print(f"Expected time: {file_size / args.throughput:.2f} seconds")
+    print(f"Actual time:   {end - start:.2f} seconds")
+
+    print()
+    print("Ratio (actual/expected): "
+          f"{effective_throughput / args.throughput:.2%}")
