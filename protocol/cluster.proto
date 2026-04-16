@@ -7,12 +7,12 @@ service MigraterService {
   returns (CheckpointSavedResponse);
 
   // TODO : Future integration with logs
-  //rpc SendLogs (stream LogEntry) 
+  //rpc SendLogs (stream LogEntry)
   //returns (LogSummary);
 
-	// TODO : Future integration with Pluggable schedulers
-	//rpc Watch (stream WatchRequest)
-	//returns (stream WatchResponse);
+  // TODO : Future integration with Pluggable schedulers
+  //rpc Watch (stream WatchRequest)
+  //returns (stream WatchResponse);
 }
 
 service OrchestratorService {
@@ -24,9 +24,9 @@ service OrchestratorService {
 // MigraterService
 
 message CheckpointSavedRequest {
-	string checkpoint_local_path = 1;
-	string checkpoint_pfs_path   = 2;
-	double timestamp             = 3;
+  string checkpoint_local_path = 1;
+  string checkpoint_pfs_path   = 2;
+  double timestamp             = 3;
 }
 
 message CheckpointSavedResponse {
@@ -45,10 +45,10 @@ message HeartbeatRequest {
 
 message InstructionResponse {
   enum Action {
-      HOLD        = 0;
-      START_FLUSH = 1;
-      CHANGE_RATE = 2;
-      // STOP ??
+    HOLD        = 0;
+    START_FLUSH = 1;
+    CHANGE_RATE = 2;
+    // STOP ??
   }
   Action action         = 1;
   double rate_limit_bps = 2;
