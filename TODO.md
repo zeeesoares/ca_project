@@ -13,3 +13,4 @@
 - Research flush
 - Check min time sleep
 - Add logs for benchmarking
+- Explore token bucket configuration for better performance
