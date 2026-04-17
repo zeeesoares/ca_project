@@ -3,10 +3,15 @@ from concurrent import futures
 
 from protocol import cluster_pb2
 from protocol import cluster_pb2_grpc
+from protocol.orchestrator.client import OrchestratorClient
 
 
-class MigraterService(cluster_pb2_grpc.OrchestratorServiceServicer):
+class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
 
+    def __init__(self):
+        super().__init__()
+        self.orchestrator_client = OrchestratorClient()
+        
     def NotifyCheckpointSaved(self, request, context):
 
         print("Checkpoint notification received")
