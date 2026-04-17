@@ -10,7 +10,6 @@
 - Instrumentação Python
 - Dataloader custom from pytorch to measure files created, deleted, modified, etc.
 - Use strace on token bucket
-- Research flush
 - Check min time sleep
 - Add logs for benchmarking
 - Explore token bucket configuration for better performance

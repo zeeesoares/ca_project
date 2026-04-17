@@ -104,7 +104,6 @@ def token_bucket_copy(
             tokens -= len(data)
 
         # Ensure data is flushed to disk
-        # TODO check this flush is necessary (docs)
         dst_f.flush()
         os.fsync(dst_f.fileno())
 
