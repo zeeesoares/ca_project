@@ -9,14 +9,13 @@ To add a new policy:
 
 from __future__ import annotations
 
-import threading
 import time
+import threading
+
+from typing import Dict
+from protocol import cluster_pb2
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Dict
-
-from protocol import cluster_pb2
-
 
 # Cluster state — shared, thread-safe snapshot of all connected workers
 
@@ -83,14 +82,14 @@ class NoLimitPolicy(SchedulerPolicy):
     def decide(self, worker_id, workers):
         return cluster_pb2.InstructionResponse(
             action=cluster_pb2.InstructionResponse.START_FLUSH,
-            rate_limit_bps=0.0,  # 0 = unlimited
+            rate_limit_bps= 1 * 1024 * 1024 * 1024,  # 1 GB/s 
         )
 
 class FixedRatePolicy(SchedulerPolicy):
     """
     Each worker flushes at the same fixed rate, regardless of cluster state.
     """
-    def __init__(self, rate_bps: float = 500 * 1024 * 1024):  # 500 MB/s default
+    def __init__(self, rate_bps: float = 10 * 1024 * 1024):  # 1 MB/s default
         self.rate = rate_bps
 
     def decide(self, worker_id, workers):
