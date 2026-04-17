@@ -89,7 +89,7 @@ class FixedRatePolicy(SchedulerPolicy):
     """
     Each worker flushes at the same fixed rate, regardless of cluster state.
     """
-    def __init__(self, rate_bps: float = 10 * 1024 * 1024):  # 1 MB/s default
+    def __init__(self, rate_bps: float = 1 * 1024 * 1024 * 1024):  # 1 GB/s default
         self.rate = rate_bps
 
     def decide(self, worker_id, workers):

@@ -16,7 +16,14 @@ venv/bin/python -c "import grpc; print(grpc.__version__)"
 
 Abre **3 terminais** na raiz do projeto.
 
-### Terminal 1 — Migrater (porta 50051)
+### Terminal 1 — Orchestrator (porta 50052)
+
+```bash
+venv/bin/python -m orchestrator.server --policy uniform-fair-share --pfs-bw 100000000
+```
+
+
+### Terminal 2 — Migrater (porta 50051)
 
 ```bash
 venv/bin/python -m migrater.server
@@ -26,11 +33,6 @@ venv/bin/python -m migrater.server
 Migrater running on 50051
 ```
 
-### Terminal 2 — Orchestrator (porta 50052)
-
-```bash
-venv/bin/python -m orchestrator.server
-```
 
 ### Terminal 3 — Cliente de teste
 
@@ -38,30 +40,15 @@ venv/bin/python -m orchestrator.server
 venv/bin/python -c "
 import time
 from protocol.migrater.client import MigraterClient
-from protocol.orchestrator.client import OrchestratorClient
-
-# --- Migrater ---
-m = MigraterClient()  # localhost:50051
-m.notify_checkpoint_saved('/tmp/ckpt.pt', '/pfs/ckpt.pt', time.time())
-print('Migrater: notificacao enviada')
-
-# --- Orchestrator ---
-o = OrchestratorClient(worker_id='worker-0')  # localhost:50052
-
-MB = 1024 * 1024
-heartbeats = [
-    (0.0,        False),  # sem dados        -> HOLD
-    (50  * MB,   False),  # abaixo threshold -> HOLD
-    (200 * MB,   False),  # acima threshold  -> START_FLUSH (com rate limit)
-    (200 * MB,   True),   # a migrar         -> CHANGE_RATE
-]
-
-actions = {0: 'HOLD', 1: 'START_FLUSH', 2: 'CHANGE_RATE'}
-for instruction in o.monitor(heartbeats):
-    name  = actions.get(instruction.action, '?')
-    rate  = f' @ {instruction.rate_limit_bps/1e6:.1f} Mbps' if instruction.rate_limit_bps else ''
-    print(f'Orchestrator: {name}{rate}')
-
-o.close()
+m = MigraterClient()
+m.notify_checkpoint_saved('/tmp/ckpt.pt', '/tmp/ckpt_pfs.pt', time.time())
+print('notification sent')
 "
+```
+
+
+### Verificar Resultados
+
+```bash
+md5sum /tmp/ckpt.pt /tmp/ckpt_pfs.pt
 ```
