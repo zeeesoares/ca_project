@@ -31,11 +31,10 @@ class OrchestratorService(cluster_pb2_grpc.OrchestratorServiceServicer):
 
                 action_name = cluster_pb2.InstructionResponse.Action.Name(instruction.action)
                 print(
-                    f"[orchestrator] {worker_id!r}"
+                    f"[orchestrator] worker={worker_id!r}"
                     f" | pending={heartbeat.pending_data_size:.0f} B"
                     f" | migrating={heartbeat.is_migrating}"
-                    f" → {action_name}"
-                    + (f" @ {instruction.rate_limit_bps/1e6:.1f} Mbps" if instruction.rate_limit_bps else "")
+                    f" | rate={instruction.rate_limit_bps:.0f} bps"
                 )
 
                 yield instruction

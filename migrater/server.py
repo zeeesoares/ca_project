@@ -32,6 +32,7 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
                 with self.lock:
                     pending   = self.pending_size
                     migrating = self.transfer_active
+                    print(f"[migrater] migrating={migrating}, pending={pending}")
                 yield (pending, migrating)
                 time.sleep(HEARTBEAT_INTERVAL)
 
