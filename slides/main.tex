@@ -1,0 +1,141 @@
+\documentclass[handout]{beamer}
+
+\usetheme{Frankfurt}
+\setbeamertemplate{footline}[frame number]
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}[period]
+
+\usecolortheme{beaver}
+\setbeamercolor{item}{fg=darkred}
+\setbeamercolor{caption name}{fg=darkred}
+
+\urlstyle{same}
+\def\arraystretch{1.5}
+
+
+% PACKAGES -----------------------------------------------------------------------------------------
+
+\usepackage{graphicx}
+\usepackage{ragged2e}
+
+
+% DOCUMENT INFORMATION -----------------------------------------------------------------------------
+
+\title
+    [Title]
+    {Storage system for optimizing LLM checkpointing in HPC}
+\subtitle{\color{black} \small Advanced Computing Project 25/26}
+
+\author[André Miranda, Gustavo Barros, José Soares, Miguel Carvalho]{
+    \scriptsize
+    \begin{tabular}{lc}
+        André Miranda   & \color{gray} PG60238    \\
+        Gustavo Barros  & \color{gray} PG61527    \\
+        José Soares     & \color{gray} PG60277    \\
+        Miguel Carvalho & \color{gray} PG61153    
+    \end{tabular}
+}
+
+\institute[DIUM]{Department of Informatics -- School of Engineering -- University of Minho}
+
+\date[2026/04/24]{\scriptsize April 24\textsuperscript{st} 2026}
+
+
+
+% Document Content ---------------------------------------------------------------------------------
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}{Table of contents}
+    \tableofcontents
+\end{frame}
+
+\section{Introduction}
+
+\subsection{Context}
+\begin{frame}{Context}
+    LLM training spans several weeks, requiring periodic checkpointing to a Parallel File System (PFS) to prevent total state loss during node failures.
+    
+    \vspace{4ex}
+    However, checkpointing directly to the PFS creates two problems:
+    \begin{itemize}
+        \small
+        \item Simultaneous writes create heavy I/O contention, causing the "noisy neighbor" problem for other jobs.
+        \item High write latency stalls training, leading to significant compute time being wasted.
+    \end{itemize}
+
+\end{frame}
+
+\subsection{Problem}
+\begin{frame}{Problem}
+    \centering
+    \small
+    \begin{tabular}{l p{0.6\textwidth}}
+        \hline
+        \textbf{Challenge} & \textbf{Impact} \\ \hline
+        \noalign{\smallskip}
+        PFS Contention & I/O bottlenecks slow training as nodes compete for bandwidth. \\ 
+        \noalign{\smallskip}
+        Resilience & Hardware failures at scale risk losing weeks of training progress. \\ 
+        \noalign{\smallskip}
+        Checkpointing & Larger models $\rightarrow$ larger checkpoints $\rightarrow$ higher storage costs/time. \\ 
+        \noalign{\smallskip}
+        Storage Costs & Frequent PFS writes increase costs and operational overhead. \\ \noalign{\smallskip}
+        \hline
+    \end{tabular}
+    
+    \vspace{1em}
+    \footnotesize
+    \textit{Table 1: Challenges of LLM Checkpointing to Parallel File Systems}
+\end{frame}
+
+\subsection{Motivation}
+\begin{frame}{Motivation}
+    \justifying
+    The goal is to ... to achieve:
+    
+    \begin{itemize}
+        \item \textbf{TODO:} TODO
+    \end{itemize}
+\end{frame}
+
+
+\section{Approach and Architecture}
+\subsection{Approach}
+\begin{frame}{Approach}
+    \begin{itemize}
+        \small
+        \item TODO
+    \end{itemize}
+\end{frame}
+
+\subsection{Architecture}
+\begin{frame}{Architecture}
+    \begin{itemize}
+        \small
+        \item TODO
+    \end{itemize}
+\end{frame}
+
+
+
+\section{Results}
+\begin{frame}{Results}
+    \begin{itemize}
+        \small
+        \item TODO
+    \end{itemize}
+\end{frame}
+
+\section{Next Steps}
+\begin{frame}{Next Steps}
+    \begin{itemize}
+        \small
+        \item TODO
+    \end{itemize}
+\end{frame}
+
+\end{document}
