@@ -66,8 +66,6 @@
     \vspace{1em}
     To ensure resilience against hardware failures and prevent total progress loss, model states must be periodically saved to a Parallel File System (PFS).
     
-    \vspace{1em}
-    The challenge lies in optimizing this persistence process without compromising data integrity or resources utilization.
 \end{frame}
 
 \subsection{Problem}
@@ -83,8 +81,6 @@
         Training Stalls & Heavy I/O operations block the training process, leading to significant idling. \\ 
         \noalign{\smallskip}
         Noisy Neighbor & Large-scale checkpointing bursts degrade performance for all concurrent HPC jobs.  \\
-        \noalign{\smallskip}
-        Storage Costs & Frequent writes escalate operational overhead and costs as model size grows. \\
         \hline
     \end{tabular}
 
@@ -103,7 +99,7 @@
         \small
         \item Mitigates I/O contention on the PFS, ensuring fair resource sharing and Cluster Harmony.
         \item Provides resilience against hardware failures, minimizing training disruptions.
-        \item Optimizes checkpointing process and storage strategies to balance performance and costs.
+        \item Ensures QoS policies for checkpoint reliability with overall cluster performance. 
     \end{itemize}
 \end{frame}
 
