@@ -83,9 +83,7 @@
         \noalign{\smallskip}
         Resilience & Hardware failures at scale risk losing weeks of training progress. \\ 
         \noalign{\smallskip}
-        Checkpointing & Larger models $\rightarrow$ larger checkpoints $\rightarrow$ higher storage costs/time. \\ 
-        \noalign{\smallskip}
-        Storage Costs & Frequent PFS writes increase costs and operational overhead. \\ \noalign{\smallskip}
+        Storage Costs & Frequent PFS writes increase costs and operational overhead, which scales with larger models. \\ \noalign{\smallskip}
         \hline
     \end{tabular}
     
@@ -104,7 +102,7 @@
         \small
         \item Mitigates I/O contention on the PFS, ensuring fair resource sharing and Cluster Harmony.
         \item Provides resilience against hardware failures, minimizing training disruptions.
-        \item Optimizes checkpointing frequency and storage strategies to balance performance and costs.
+        \item Optimizes checkpointing process and storage strategies to balance performance and costs.
     \end{itemize}
 \end{frame}
 
@@ -151,7 +149,7 @@
 
         \includegraphics[width=0.8\textwidth]{assets/arch.png}
         \caption{
-            A sample image for the presentation.
+            System Architecture.
         }
     \end{figure}
 \end{frame}
@@ -174,7 +172,7 @@
     \begin{columns}[t]
         \begin{column}{0.35\textwidth}
             \begin{block}{Deucalion Deployment}
-                \footnotesize Transition from local testing to the \textbf{Deucalion supercomputer} to validate scalability across multiple ARM nodes.
+                \footnotesize Transition from local testing to the \textbf{Deucalion supercomputer} to validate scalability across multiple ARM/X86 nodes.
             \end{block}
         \end{column}
         \begin{column}{0.35\textwidth}
