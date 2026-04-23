@@ -14,7 +14,8 @@
 
 \urlstyle{same}
 \def\arraystretch{1.5}
-
+\def\singleitem#1{\begin{itemize}\item #1\end{itemize}}
+\def\red#1{\textcolor{red}{#1}}
 
 % PACKAGES -----------------------------------------------------------------------------------------
 
@@ -35,7 +36,7 @@
         André Miranda   & \color{gray} PG60238    \\
         Gustavo Barros  & \color{gray} PG61527    \\
         José Soares     & \color{gray} PG60277    \\
-        Miguel Carvalho & \color{gray} PG61153    
+        Miguel Carvalho & \color{gray} PG61153
     \end{tabular}
 }
 
@@ -60,7 +61,7 @@
 \subsection{Context}
 \begin{frame}{Context}
     LLM training spans several weeks, requiring periodic checkpointing to a Parallel File System (PFS) to prevent total state loss during node failures.
-    
+
     \vspace{4ex}
     However, checkpointing directly to the PFS creates two problems:
     \begin{itemize}
@@ -79,14 +80,14 @@
         \hline
         \textbf{Challenge} & \textbf{Impact} \\ \hline
         \noalign{\smallskip}
-        PFS Contention & I/O bottlenecks slow training as nodes compete for bandwidth. \\ 
+        PFS Contention & I/O bottlenecks slow training as nodes compete for bandwidth. \\
         \noalign{\smallskip}
-        Resilience & Hardware failures at scale risk losing weeks of training progress. \\ 
+        Resilience & Hardware failures at scale risk losing weeks of training progress. \\
         \noalign{\smallskip}
         Storage Costs & Frequent PFS writes increase costs and operational overhead, which scales with larger models. \\ \noalign{\smallskip}
         \hline
     \end{tabular}
-    
+
     \vspace{1em}
     \footnotesize
     \textit{Table 1: Challenges of LLM Checkpointing to Parallel File Systems}
@@ -96,7 +97,7 @@
 \begin{frame}{Motivation}
     \small
     The goal is to design a checkpointing system that:
-    
+
     \centering
     \begin{itemize}
         \small
@@ -124,9 +125,9 @@
             \end{block}
         \end{column}
     \end{columns}
-    
+
     \vspace{1em}
-    
+
     \begin{columns}[t]
         \begin{column}{0.31\textwidth}
             \begin{block}{Traffic Shaping}
@@ -155,10 +156,45 @@
 \end{frame}
 
 \section{Results}
+
 \begin{frame}{Results}
     \begin{itemize}
-        \small
-        \item TODO
+        % \small
+
+        \item \textbf{End-to-end checkpointing pipeline}:
+        \begin{itemize}
+            \item Checkpoints saved locally with asynchronous support for \texttt{torch.save}.
+            \item Fallback to direct PFS copy if Migrater notification fails, \red{preserving checkpoint durability}.
+            \item Background migration to PFS, \red{decoupling training from I/O latency}.
+        \end{itemize}
+
+        \item \textbf{gRPC-based coordination layer}:
+        \begin{itemize}
+            \item PyTorch $\rightarrow$ Migrater: notify checkpoint completion + timestamp.
+            \item Migrater $\rightarrow$ Orchestrator: checkpoint metadata + node state.
+            \item Orchestrator $\rightarrow$ Migrater: \texttt{START\_FLUSH / CHANGE\_RATE / HOLD}.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Results}
+    \begin{itemize}
+        % \small
+
+        \item \textbf{Traffic shaping (Token Bucket)}:
+        \begin{itemize}
+            \item Enforces per-node rate limiting for checkpoint flushes to PFS.
+            \item Smooths bursts and reduces noisy neighbor effects.
+        \end{itemize}
+
+        \item \textbf{Policy-driven scheduling}:
+        \begin{itemize}
+            \small
+            \item \textbf{No-Limit}: \red{baseline policy for direct-to-PFS benchmarking.}
+            \item \textbf{Fixed-Rate}: same bandwidth cap for every worker.
+            \item \textbf{Uniform Fair-Share}: equal split across all registered workers.
+            \item \textbf{Active Fair-Share}: equal split across workers with pending data only.
+        \end{itemize}
     \end{itemize}
 \end{frame}
 
