@@ -148,24 +148,24 @@
         \setlength{\abovecaptionskip}{0pt}
         \setlength{\belowcaptionskip}{0pt}
 
-        \includegraphics[width=0.95\textwidth]{assets/arch.png}
+        \includegraphics[width=\textwidth]{assets/arch.png}
         \caption{
             System Architecture.
         }
     \end{figure}
 \end{frame}
 
-\section{Results}
+\section{Current Work}
 
-\begin{frame}{Results}
+\begin{frame}{Current Work}
     \begin{itemize}
         % \small
 
         \item \textbf{End-to-end checkpointing pipeline}:
         \begin{itemize}
             \item Checkpoints saved locally with asynchronous support for \texttt{torch.save}.
-            \item Fallback to direct PFS copy if Migrater notification fails, \red{preserving checkpoint durability}.
-            \item Background migration to PFS, \red{decoupling training from I/O latency}.
+            \item Fallback to direct PFS copy if Migrater notification fails.
+            \item Background migration to PFS.
         \end{itemize}
 
         \item \textbf{gRPC-based coordination layer}:
@@ -177,20 +177,13 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Results}
+\begin{frame}{Current Work (Cont.)}
     \begin{itemize}
         % \small
-
-        \item \textbf{Traffic shaping (Token Bucket)}:
-        \begin{itemize}
-            \item Enforces per-node rate limiting for checkpoint flushes to PFS.
-            \item Smooths bursts and reduces noisy neighbor effects.
-        \end{itemize}
 
         \item \textbf{Policy-driven scheduling}:
         \begin{itemize}
             \small
-            \item \textbf{No-Limit}: \red{baseline policy for direct-to-PFS benchmarking.}
             \item \textbf{Fixed-Rate}: same bandwidth cap for every worker.
             \item \textbf{Uniform Fair-Share}: equal split across all registered workers.
             \item \textbf{Active Fair-Share}: equal split across workers with pending data only.
