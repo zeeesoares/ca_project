@@ -59,37 +59,37 @@
 
 \subsection{Context}
 \begin{frame}{Context}
-    LLM training spans several weeks, requiring periodic checkpointing to a Parallel File System (PFS) to prevent total state loss during node failures.
+    \justifying
+    Training Large Language Models (LLMs) involves refining billions of parameters over several weeks of continuous computation.
     
-    \vspace{4ex}
-    However, checkpointing directly to the PFS creates two problems:
-    \begin{itemize}
-        \small
-        \item Simultaneous writes create heavy I/O contention, causing the "noisy neighbor" problem for other jobs.
-        \item High write latency stalls training, leading to significant compute time being wasted.
-    \end{itemize}
-
+    \vspace{1em}
+    To ensure resilience against hardware failures and prevent total progress loss, model states must be periodically saved to a Parallel File System (PFS).
+    
+    \vspace{1em}
+    The challenge lies in optimizing this persistence process without compromising data integrity or resources utilization.
 \end{frame}
 
 \subsection{Problem}
-\begin{frame}{Problem}
+\begin{frame}{Problem: The Checkpointing Overhead}
     \centering
     \small
     \begin{tabular}{l p{0.6\textwidth}}
         \hline
         \textbf{Challenge} & \textbf{Impact} \\ \hline
         \noalign{\smallskip}
-        PFS Contention & I/O bottlenecks slow training as nodes compete for bandwidth. \\ 
+        PFS Contention & Simultaneous writes from multiple nodes saturate the shared storage bandwidth. \\ 
         \noalign{\smallskip}
-        Resilience & Hardware failures at scale risk losing weeks of training progress. \\ 
+        Training Stalls & Heavy I/O operations block the training process, leading to significant idling. \\ 
         \noalign{\smallskip}
-        Storage Costs & Frequent PFS writes increase costs and operational overhead, which scales with larger models. \\ \noalign{\smallskip}
+        Noisy Neighbor & Large-scale checkpointing bursts degrade performance for all concurrent HPC jobs.  \\
+        \noalign{\smallskip}
+        Storage Costs & Frequent writes escalate operational overhead and costs as model size grows. \\
         \hline
     \end{tabular}
     
     \vspace{1em}
     \footnotesize
-    \textit{Table 1: Challenges of LLM Checkpointing to Parallel File Systems}
+    \textit{Table 1: Technical bottlenecks of direct checkpointing to PFS.}
 \end{frame}
 
 \subsection{Motivation}
@@ -114,13 +114,13 @@
 
     \begin{columns}[t]
         \begin{column}{0.31\textwidth}
-            \begin{block}{Controlled PFS Access}
-                \footnotesize Mitigate I/O contention via a centralized \textbf{Orchestrator}.
+            \begin{block}{Tiered Persistence}
+                \footnotesize \textbf{Local Storage} as a buffer, decoupling training from PFS latency.
             \end{block}
         \end{column}
         \begin{column}{0.31\textwidth}
-            \begin{block}{Policy-Driven}
-                \footnotesize Dynamic migration based on cluster-wide scheduling policies.
+            \begin{block}{Controlled PFS Access}
+                \footnotesize Mitigate I/O contention via a centralized \textbf{Orchestrator}.
             \end{block}
         \end{column}
     \end{columns}
@@ -129,13 +129,13 @@
     
     \begin{columns}[t]
         \begin{column}{0.31\textwidth}
-            \begin{block}{Traffic Shaping}
-                \footnotesize \textbf{Token Bucket} to smooth traffic and eliminate noisy neighbors.
+            \begin{block}{Policy-Driven}
+                \footnotesize Dynamic migration based on cluster-wide scheduling policies.
             \end{block}
         \end{column}
         \begin{column}{0.31\textwidth}
-            \begin{block}{Tiered Persistence}
-                \footnotesize \textbf{Local SSDs} as a buffer, decoupling training from PFS latency.
+            \begin{block}{Traffic Shaping}
+                \footnotesize \textbf{Token Bucket} to smooth traffic and eliminate noisy neighbors.
             \end{block}
         \end{column}
     \end{columns}
