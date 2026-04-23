@@ -12,7 +12,7 @@ class Checkpoint:
 
         self.migrater = MigraterClient()
 
-        # INFO instead of passing both path at each save, alternatively we can
+        # INFO instead of passing both paths at each save, alternatively we can
         # pass one or both of them in the constructor
 
     def _save_handler(self,
