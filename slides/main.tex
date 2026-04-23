@@ -145,10 +145,15 @@
 
 \subsection{Architecture}
 \begin{frame}{Architecture}
-    \begin{itemize}
-        \small
-        \item TODO
-    \end{itemize}
+    \begin{figure}
+        \setlength{\abovecaptionskip}{0pt}
+        \setlength{\belowcaptionskip}{0pt}
+
+        \includegraphics[width=0.8\textwidth]{assets/arch.png}
+        \caption{
+            A sample image for the presentation.
+        }
+    \end{figure}
 \end{frame}
 
 \section{Results}
@@ -159,12 +164,40 @@
     \end{itemize}
 \end{frame}
 
-\section{Next Steps}
-\begin{frame}{Next Steps}
-    \begin{itemize}
-        \small
-        \item TODO
-    \end{itemize}
+\section{Evaluation \& Future Work}
+
+\subsection{Next Steps}
+\begin{frame}{Next Steps: Scaling and Benchmarking}
+    \centering
+    \small
+
+    \begin{columns}[t]
+        \begin{column}{0.35\textwidth}
+            \begin{block}{Deucalion Deployment}
+                \footnotesize Transition from local testing to the \textbf{Deucalion supercomputer} to validate scalability across multiple ARM nodes.
+            \end{block}
+        \end{column}
+        \begin{column}{0.35\textwidth}
+            \begin{block}{Policy Refinement}
+                \footnotesize Evaluate different \textbf{scheduling policies} within the Orchestrator to find the optimal balance for PFS throughput.
+            \end{block}
+        \end{column}
+    \end{columns}
+
+    \vspace{1em}
+
+    \begin{columns}[t]
+        \begin{column}{0.35\textwidth}
+            \begin{block}{Profiling}
+                \footnotesize Extract performance data using the \textbf{PyTorch Profiler} during large-scale runs (already configured).
+            \end{block}
+        \end{column}
+        \begin{column}{0.35\textwidth}
+            \begin{block}{System Robustness}
+                \footnotesize Ensure the Token Bucket performs reliably during massive concurrent transfers, preventing any bypass of the defined I/O policies.
+            \end{block}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \end{document}
