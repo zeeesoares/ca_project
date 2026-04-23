@@ -9,6 +9,8 @@
 \usecolortheme{beaver}
 \setbeamercolor{item}{fg=darkred}
 \setbeamercolor{caption name}{fg=darkred}
+\setbeamercolor{block title}{bg=darkred, fg=white}
+\setbeamercolor{block body}{bg=gray!10, fg=black}
 
 \urlstyle{same}
 \def\arraystretch{1.5}
@@ -24,7 +26,7 @@
 
 \title
     [Title]
-    {Storage system for optimizing LLM checkpointing in HPC}
+    {Orchestration for efficient LLM Checkpointing within HPC}
 \subtitle{\color{black} \small Advanced Computing Project 25/26}
 
 \author[André Miranda, Gustavo Barros, José Soares, Miguel Carvalho]{
@@ -94,22 +96,51 @@
 
 \subsection{Motivation}
 \begin{frame}{Motivation}
-    \justifying
-    The goal is to ... to achieve:
+    \small
+    The goal is to design a checkpointing system that:
     
+    \centering
     \begin{itemize}
-        \item \textbf{TODO:} TODO
+        \small
+        \item Mitigates I/O contention on the PFS, ensuring fair resource sharing and Cluster Harmony.
+        \item Provides resilience against hardware failures, minimizing training disruptions.
+        \item Optimizes checkpointing frequency and storage strategies to balance performance and costs.
     \end{itemize}
 \end{frame}
 
-
 \section{Approach and Architecture}
 \subsection{Approach}
-\begin{frame}{Approach}
-    \begin{itemize}
-        \small
-        \item TODO
-    \end{itemize}
+\begin{frame}{Approach: Policy-Driven Checkpointing}
+    \centering
+    \small
+
+    \begin{columns}[t]
+        \begin{column}{0.31\textwidth}
+            \begin{block}{Controlled PFS Access}
+                \footnotesize Mitigate I/O contention via a centralized \textbf{Orchestrator}.
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{Policy-Driven}
+                \footnotesize Dynamic migration based on cluster-wide scheduling policies.
+            \end{block}
+        \end{column}
+    \end{columns}
+    
+    \vspace{1em}
+    
+    \begin{columns}[t]
+        \begin{column}{0.31\textwidth}
+            \begin{block}{Traffic Shaping}
+                \footnotesize \textbf{Token Bucket} to smooth traffic and eliminate noisy neighbors.
+            \end{block}
+        \end{column}
+        \begin{column}{0.31\textwidth}
+            \begin{block}{Tiered Persistence}
+                \footnotesize \textbf{Local SSDs} as a buffer, decoupling training from PFS latency.
+            \end{block}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \subsection{Architecture}
@@ -119,8 +150,6 @@
         \item TODO
     \end{itemize}
 \end{frame}
-
-
 
 \section{Results}
 \begin{frame}{Results}
