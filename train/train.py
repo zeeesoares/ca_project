@@ -10,7 +10,7 @@ from train.trainer import Trainer
 from torch_ext.checkpoint import Checkpoint
 
 
-def main():
+def main(total_steps, checkpoint_interval):
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", action="store_true")
     args = parser.parse_args()
@@ -22,7 +22,7 @@ def main():
 
     optimizer = AdamW(model.parameters(), lr=5e-5)
 
-    total_steps = 50
+    total_steps = total_steps
     scheduler = get_linear_schedule_with_warmup(
         optimizer,
         num_warmup_steps=10,
@@ -38,7 +38,7 @@ def main():
         dataloader=dataloader,
         checkpoint=checkpoint,
         device=device,
-        checkpoint_interval=total_steps // 5,
+        checkpoint_interval=checkpoint_interval,
         enable_profiler=args.profile,
     )
 
@@ -46,4 +46,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--total-steps", type=int, default=50)
+    parser.add_argument("--checkpoint-interval", type=int, default=10)
+
+    args = parser.parse_args()
+    main(args.total_steps, args.checkpoint_interval)

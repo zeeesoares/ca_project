@@ -1,3 +1,4 @@
+import argparse
 import os
 import grpc
 import time
@@ -14,9 +15,13 @@ HEARTBEAT_INTERVAL = 0.5
 
 class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
 
-    def __init__(self):
+    def __init__(self, orch_addr, orch_port):
         super().__init__()
-        self.orchestrator_client = OrchestratorClient(socket.gethostname())
+        orch_full_addr = f"{orch_addr}:{orch_port}"
+        self.orchestrator_client = OrchestratorClient(
+            worker_id=socket.gethostname(), 
+            addr=orch_full_addr
+        )
 
         self.lock             = threading.Lock()
         self.pending_size     = 0      # bytes waiting to be transferred; 0 = idle
@@ -94,12 +99,12 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
                 self.current_rate    = 0
 
 
-def serve():
+def serve(orchestrator_addr, orchestrator_port):
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
 
     cluster_pb2_grpc.add_MigraterServiceServicer_to_server(
-        MigraterService(),
+        MigraterService(orchestrator_addr, orchestrator_port),
         server,
     )
 
@@ -112,7 +117,13 @@ def serve():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--orchestrator-addr", type=str, default="localhost")
+    parser.add_argument("--orchestrator-port", type=int, default=50052)
+    
+    args = parser.parse_args()
+
     try:
-        serve()
+        serve(args.orchestrator_addr, args.orchestrator_port)
     except KeyboardInterrupt:
         print("Migrater shutting down")

@@ -12,6 +12,10 @@ from orchestrator.scheduler import (
     ORCHESTRATOR_PORT,
 )
 
+# Logger Configuration
+from orchestrator.utils import setup_log_metrics
+metrics = setup_log_metrics("qos_metrics", "logs/orchestrator_metrics.json")
+
 
 class OrchestratorService(cluster_pb2_grpc.OrchestratorServiceServicer):
 
@@ -30,12 +34,13 @@ class OrchestratorService(cluster_pb2_grpc.OrchestratorServiceServicer):
                 instruction = self.policy.decide(worker_id, workers)
 
                 action_name = cluster_pb2.InstructionResponse.Action.Name(instruction.action)
-                print(
-                    f"[orchestrator] worker={worker_id!r}"
-                    f" | pending={heartbeat.pending_data_size:.0f} B"
-                    f" | migrating={heartbeat.is_migrating}"
-                    f" | rate={instruction.rate_limit_bps:.0f} bps"
-                )
+               
+                metrics.info({
+                    "worker_id": worker_id,
+                    "pending_data_size": heartbeat.pending_data_size,
+                    "is_migrating": heartbeat.is_migrating,
+                    "action": action_name
+                })
 
                 yield instruction
         finally:

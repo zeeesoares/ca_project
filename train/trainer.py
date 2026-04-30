@@ -7,7 +7,7 @@ from contextlib import nullcontext
 class Trainer:
     def __init__(self, model, optimizer, scheduler, dataloader, checkpoint,
                  device="cpu", checkpoint_interval=500, enable_profiler=False,
-                 checkpoint_local_dir="/tmp", checkpoint_pfs_dir="/projects"):
+                 checkpoint_local_dir="/tmp", checkpoint_pfs_dir="/tmp"):
         self.model = model.to(device)
         self.optimizer = optimizer
         self.scheduler = scheduler
@@ -66,7 +66,7 @@ class Trainer:
                             }
 
                             checkpoint_local_path = f"{self.checkpoint_local_dir}/checkpoint_{step}.pt"
-                            checkpoint_pfs_path   = f"{self.checkpoint_pfs_dir}/checkpoint_{step}.pt"
+                            checkpoint_pfs_path   = f"{self.checkpoint_pfs_dir}/checkpoint_save_{step}.pt"
 
                             self.checkpoint.save(state,
                                                  checkpoint_local_path,
