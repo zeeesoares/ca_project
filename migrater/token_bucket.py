@@ -8,6 +8,9 @@ DEFAULT_CHUNK_SIZE = 8  # KB
 SLEEP_CAP = 1  # percentage of the calculated sleep time to actually sleep
 assert 0 < SLEEP_CAP <= 1, "Invalid sleep cap value"
 
+PAUSE_SLEEP = 0.05  # 50 ms pause between checks when throughput is zero
+assert PAUSE_SLEEP > 0, "Pause sleep time must be positive"
+
 
 def token_bucket_copy(
     src: str,
@@ -61,7 +64,7 @@ def token_bucket_copy(
 
     # Initial throughput check
     rate = get_throughput()
-    assert rate > 0, "Throughput must be positive"
+    assert rate >= 0, "Throughput must be non-negative"
 
     # Chunk size check
     assert chunk_size > 0, "Chunk size must be positive"
@@ -77,7 +80,12 @@ def token_bucket_copy(
             last = now
 
             rate = get_throughput()
-            assert rate > 0, "Throughput must be positive"
+            assert rate >= 0, "Throughput must be non-negative"
+
+            if rate == 0:
+                tokens = 0
+                time.sleep(PAUSE_SLEEP)
+                continue
 
             capacity = rate
 
