@@ -70,7 +70,7 @@ def token_bucket_copy(
     assert chunk_size > 0, "Chunk size must be positive"
 
     capacity = rate  # burst-limited token bucket with 1-second capacity
-    tokens = rate
+    tokens = 0  # start with empty bucket to avoid initial burst
     last = time.monotonic()
 
     with open(src, "rb") as src_f, open(dst, "wb") as dst_f:
