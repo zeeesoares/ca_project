@@ -15,7 +15,7 @@ source venv/bin/activate
 
 python3 -m migrater.server \
     --orchestrator-addr "$ORCH_ADDR" \
-    --orchestrator-port "$ORCH_PORT" > logs/migrater_$(hostname).log 2>&1 &
+    --orchestrator-port "$ORCH_PORT" > "logs/migrater_$(hostname).log" 2>&1 &
 MIGRATER_PID=$!
 
 echo "Migrater on host $(hostname) with PID $MIGRATER_PID"
