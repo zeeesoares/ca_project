@@ -5,6 +5,8 @@ import os
 from typing import Callable, Union
 
 DEFAULT_CHUNK_SIZE = 8  # KB
+SLEEP_CAP = 1  # percentage of the calculated sleep time to actually sleep
+assert 0 < SLEEP_CAP <= 1, "Invalid sleep cap value"
 
 
 def token_bucket_copy(
@@ -93,7 +95,7 @@ def token_bucket_copy(
                 # Cap sleep to improve responsiveness to dynamic updates
                 # INFO As a improvement we don't sleep the full deficit to
                 # allow for quicker adjustments to dynamic throughput changes.
-                time.sleep(min(sleep_time * 0.5, 0.01))
+                time.sleep(min(sleep_time * SLEEP_CAP, 0.01))
                 continue
 
             data = src_f.read(chunk_size)
@@ -129,7 +131,8 @@ if __name__ == "__main__":
           f"  - Source:      {args.src}\n"
           f"  - Destination: {args.dst}\n"
           f"  - Throughput:  {args.throughput} (B/s)\n"
-          f"  - Chunk size:  {args.chunk_size} (B)")
+          f"  - Chunk size:  {args.chunk_size} (B)\n"
+          f"  - Sleep cap:   {SLEEP_CAP * 100:.0f}% of calculated sleep time")
 
     start = time.monotonic()
 
