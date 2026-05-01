@@ -22,5 +22,5 @@ echo "Orchestrator running on host: $HOST"
 source venv/bin/activate
 python3 -m orchestrator.server \
     --policy "$POLICY" \
-    --bandwidth "$BW"
+    --bandwidth "$BW" \
     --port "$ORCHESTRATOR_PORT"
