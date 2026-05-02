@@ -136,4 +136,24 @@ Flag                      | Description
 
 ### Benchmarking
 
-TODO
+```sh
+RESULTS_DIR="benchmarks/token_bucket/results"
+```
+
+```sh
+python3 -m benchmarks.token_bucket.benchmark \
+    --src checkpoints/random_small.bin \
+    --local-dir /tmp/token_bucket_local \
+    --pfs-dir checkpoints/token_bucket_pfs \
+    --results-file "$RESULTS_DIR/results.jsonl" \
+    --metrics-dir "$RESULTS_DIR/per_run" \
+    --dry-run  # Remove for actual benchmarking
+```
+
+```sh
+python3 -m benchmarks.token_bucket.plot \
+    --results-file "$RESULTS_DIR/results.jsonl" \
+    --output-dir "$RESULTS_DIR/plots"
+```
+
+**TODO** update `--pfs-dir` when Deucalion is up again.

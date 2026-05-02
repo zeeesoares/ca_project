@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 
-import time
+import json
 import os
+import platform
+import time
 from typing import Callable, Union
 
+###
+# Token bucket constants and implementation
+###
+
 DEFAULT_CHUNK_SIZE = 8  # KB
+
 SLEEP_CAP = 1  # percentage of the calculated sleep time to actually sleep
 assert 0 < SLEEP_CAP <= 1, "Invalid sleep cap value"
 
@@ -118,49 +125,190 @@ def token_bucket_copy(
         os.fsync(dst_f.fileno())
 
 
+###
+# Auxiliary functions for metrics collection and reporting
+###
+
+def expected_copy_time(file_size: int, throughput: int) -> float:
+    assert throughput > 0, "Throughput must be positive for expected time"
+    return file_size / throughput
+
+
+def build_metrics(
+    *,
+    src: str,
+    dst: str,
+    file_size: int,
+    throughput: int,
+    chunk_size: int,
+    expected_time: float,
+    actual_time: float,
+    dry_run: bool,
+) -> dict:
+    expected_effective_throughput = file_size / expected_time
+    actual_effective_throughput = file_size / actual_time
+
+    return {
+        "src": src,
+        "dst": dst,
+        "file_size_bytes": file_size,
+        "throughput_bytes_per_second": throughput,
+        "chunk_size_bytes": chunk_size,
+        "expected_time_seconds": expected_time,
+        "actual_time_seconds": actual_time,
+        "expected_effective_throughput_bytes_per_second": expected_effective_throughput,
+        "actual_effective_throughput_bytes_per_second": actual_effective_throughput,
+        "time_ratio_actual_expected": actual_time / expected_time,
+        "throughput_ratio_actual_expected": (
+            actual_effective_throughput / expected_effective_throughput
+        ),
+        "dry_run": dry_run,
+        "arch": platform.machine(),
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+    }
+
+
+def write_json_metrics(path: str, metrics: dict):
+    dst_dir = os.path.dirname(path)
+    if dst_dir:
+        os.makedirs(dst_dir, exist_ok=True)
+
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(metrics, f, indent=2)
+        f.write("\n")
+
+
+###
+# Main function for command-line execution, testing and benchmarking
+###
+
 if __name__ == "__main__":
     import argparse
+
     argparser = argparse.ArgumentParser(
         description="Copy a file using token bucket rate limiting."
     )
-    argparser.add_argument("src", type=str,
-                           help="Source file path (local node storage)")
-    argparser.add_argument("dst", type=str,
-                           help="Destination file path (PFS)")
-    argparser.add_argument("throughput", type=int,
-                           help="Transfer rate in bytes per second")
-    argparser.add_argument("--chunk-size", type=int,
-                           default=DEFAULT_CHUNK_SIZE * 1024,
-                           help="Size of each read/write chunk "
-                                f"(default: {DEFAULT_CHUNK_SIZE}KB)")
+    argparser.add_argument(
+        "src",
+        type=str,
+        help="Source file path",
+    )
+    argparser.add_argument(
+        "dst",
+        type=str,
+        help="Destination file path",
+    )
+    argparser.add_argument(
+        "throughput",
+        type=int,
+        help="Transfer rate in bytes per second",
+    )
+    argparser.add_argument(
+        "--chunk-size",
+        type=int,
+        default=DEFAULT_CHUNK_SIZE * 1024,
+        help=(
+            "Size of each read/write chunk "
+            f"(default: {DEFAULT_CHUNK_SIZE}KB)"
+        ),
+    )
+    argparser.add_argument(
+        "--json-output",
+        type=str,
+        default=None,
+        help="Write copy metrics to this JSON file",
+    )
+    argparser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=(
+            "Do not copy or sleep. Produce fake metrics. "
+            "Useful for testing benchmark orchestration."
+        ),
+    )
+
     args = argparser.parse_args()
 
-    print(f"Starting token bucket copy:\n"
-          f"  - Source:      {args.src}\n"
-          f"  - Destination: {args.dst}\n"
-          f"  - Throughput:  {args.throughput} (B/s)\n"
-          f"  - Chunk size:  {args.chunk_size} (B)\n"
-          f"  - Sleep cap:   {SLEEP_CAP * 100:.0f}% of calculated sleep time")
+    file_size = os.path.getsize(args.src)
+    expected_time = expected_copy_time(file_size, args.throughput)
 
-    start = time.monotonic()
+    print(
+        f"Starting token bucket copy:\n"
+        f"  - Source:      {args.src}\n"
+        f"  - Destination: {args.dst}\n"
+        f"  - Throughput:  {args.throughput} B/s\n"
+        f"  - Chunk size:  {args.chunk_size} B\n"
+        f"  - Sleep cap:   {SLEEP_CAP * 100:.0f}% of calculated sleep time\n"
+        f"  - Dry run:     {args.dry_run}"
+    )
 
-    token_bucket_copy(args.src, args.dst, args.throughput, args.chunk_size)
+    if args.dry_run:
+        # Fake metrics:
+        # - actual time is 105% of expected
+        # - actual throughput is therefore roughly below expected
+        actual_time = expected_time * 1.05
 
-    end = time.monotonic()
+        # Optional: make fake throughput exactly 95%.
+        # This makes the fake metrics intentionally illustrative rather than
+        # physically consistent with file_size / actual_time.
+        actual_effective_throughput = args.throughput * 0.95
+        actual_time = file_size / actual_effective_throughput
+
+    else:
+        start = time.monotonic()
+
+        token_bucket_copy(
+            args.src,
+            args.dst,
+            args.throughput,
+            args.chunk_size,
+        )
+
+        end = time.monotonic()
+        actual_time = end - start
+
+    metrics = build_metrics(
+        src=args.src,
+        dst=args.dst,
+        file_size=file_size,
+        throughput=args.throughput,
+        chunk_size=args.chunk_size,
+        expected_time=expected_time,
+        actual_time=actual_time,
+        dry_run=args.dry_run,
+    )
 
     print()
     print("Token bucket copy completed.")
 
-    file_size = os.path.getsize(args.src)
-    effective_throughput = file_size / (end - start)
     print()
-    print(f"Expected throughput:  {args.throughput} (B/s)")
-    print(f"Effective throughput: {effective_throughput:.0f} (B/s)")
+    print(f"File size:                     {metrics['file_size_bytes']} B")
 
     print()
-    print(f"Expected time: {file_size / args.throughput:.2f} seconds")
-    print(f"Actual time:   {end - start:.2f} seconds")
+    print(f"Expected time:                 {metrics['expected_time_seconds']:.2f} s")
+    print(f"Actual time:                   {metrics['actual_time_seconds']:.2f} s")
 
     print()
-    print("Ratio (actual/expected): "
-          f"{effective_throughput / args.throughput:.2%}")
+    print(
+        f"Expected effective throughput: "
+        f"{metrics['expected_effective_throughput_bytes_per_second']:.0f} B/s"
+    )
+    print(
+        f"Actual effective throughput:   "
+        f"{metrics['actual_effective_throughput_bytes_per_second']:.0f} B/s"
+    )
+
+    print()
+    print(
+        f"{'Time ratio actual/expected:':<36}"
+        f"{metrics['time_ratio_actual_expected']:>8.2%}"
+    )
+    print(
+        f"{'Throughput ratio actual/expected:':<36}"
+        f"{metrics['throughput_ratio_actual_expected']:>8.2%}"
+    )
+
+    if args.json_output:
+        write_json_metrics(args.json_output, metrics)
+        print()
+        print(f"Wrote metrics JSON: {args.json_output}")
