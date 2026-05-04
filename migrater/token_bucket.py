@@ -76,7 +76,8 @@ def token_bucket_copy(
     # Chunk size check
     assert chunk_size > 0, "Chunk size must be positive"
 
-    capacity = rate  # burst-limited token bucket with 1-second capacity
+    capacity = max(rate, chunk_size)  # burst-limited token bucket with at least one chunk
+                                      # capacity = rate => burst-limited token bucket with 1-second capacity
     tokens = 0  # start with empty bucket to avoid initial burst
     last = time.monotonic()
 
@@ -94,7 +95,7 @@ def token_bucket_copy(
                 time.sleep(PAUSE_SLEEP)
                 continue
 
-            capacity = rate
+            capacity = max(rate, chunk_size)
 
             # Refill tokens
             tokens = min(capacity, tokens + elapsed * rate)
