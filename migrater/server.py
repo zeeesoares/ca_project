@@ -10,6 +10,7 @@ from concurrent                   import futures
 from protocol                     import cluster_pb2
 from protocol                     import cluster_pb2_grpc
 from migrater.token_bucket        import token_bucket_copy
+from migrater.progress            import ProgressBuffer
 from protocol.orchestrator.client import OrchestratorClient
 
 HEARTBEAT_INTERVAL = 0.5
@@ -20,28 +21,66 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
         super().__init__()
         orch_full_addr = f"{orch_addr}:{orch_port}"
         self.orchestrator_client = OrchestratorClient(
-            worker_id=socket.gethostname(), 
+            worker_id=socket.gethostname(),
             addr=orch_full_addr
         )
 
         self.lock             = threading.Lock()
-        self.checkpoint_size     = 0      # bytes waiting to be transferred; 0 = idle
-        self.transfer_active  = False  # True while token_bucket_copy is running
-        self.current_rate     = 0      # bytes/s; updated by orchestrator instructions
+        self.pending_size     = 0                  # bytes waiting to be transferred; 0 = idle
+        self.transfer_active  = False              # True while token_bucket_copy is running
+        self.current_rate     = 0                  # bytes/s; updated by orchestrator instructions
         self.transfer_allowed = threading.Event()  # set when orchestrator permits transfer
-        self.epoch = 0
-        self.total_epochs = 0
+        self.progress         = ProgressBuffer(maxlen=128)
+        self.last_progress    = None
+        self.epoch            = 0
+        self.total_epochs     = 0
 
         threading.Thread(target=self._heartbeat_loop, daemon=True).start()
 
     def _heartbeat_loop(self):
         def stream():
             while True:
+                progress_items = self.progress.pop()
+
                 with self.lock:
-                    size   = self.checkpoint_size
+                    pending = self.pending_size
                     migrating = self.transfer_active
-                    print(f"[migrater] migrating={migrating}, size={format_size(size)}, epoch={self.epoch}, total_epochs={self.total_epochs}")
-                yield (size, migrating, self.epoch, self.total_epochs)
+
+                progress_proto = [
+                    self._progress_to_proto(item)
+                    for item in progress_items
+                ]
+
+                if progress_items:
+                    latest = progress_items[-1]
+
+                    with self.lock:
+                        self.pending_size = latest["remaining_bytes"]
+                        pending = self.pending_size
+
+                    print(
+                        "[migrater] "
+                        f"migrating={migrating}, "
+                        f"epoch={self.epoch}, total_epochs={self.total_epochs}, "
+                        f"configured={latest['configured_rate_bps']:.0f} B/s, "
+                        f"rate={latest['interval_throughput_bps']:.0f} B/s, "
+                        f"pending={pending} bytes "
+                        f"([{(latest['bytes_copied'] / latest['total_bytes']) * 100 :.2f}%] "
+                        f"{latest['bytes_copied']}/{latest['total_bytes']} bytes copied)"
+                    )
+                else:
+                    print(f"[migrater] migrating={migrating}, pending={pending}, "
+                          f"epoch={self.epoch}, total_epochs={self.total_epochs}")
+
+                yield cluster_pb2.HeartbeatRequest(
+                    worker_id=socket.gethostname(),
+                    checkpoint_size=float(pending),
+                    is_migrating=migrating,
+                    progress=progress_proto,
+                    epoch=self.epoch,
+                    total_epochs=self.total_epochs
+                )
+
                 time.sleep(HEARTBEAT_INTERVAL)
 
         for instruction in self.orchestrator_client.monitor(stream()):
@@ -52,12 +91,12 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
 
         if action == cluster_pb2.InstructionResponse.START_FLUSH:
             with self.lock:
-                self.current_rate = int(instruction.rate_limit_bps) 
+                self.current_rate = int(instruction.rate_limit_bps)
             self.transfer_allowed.set()
 
         elif action == cluster_pb2.InstructionResponse.CHANGE_RATE:
             with self.lock:
-                self.current_rate = max(1, int(instruction.rate_limit_bps))
+                self.current_rate = max(0, int(instruction.rate_limit_bps))
             self.transfer_allowed.set()
 
         # HOLD: do not touch transfer_allowed; once a transfer is running it continues
@@ -89,6 +128,9 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
 
         return cluster_pb2.CheckpointSavedResponse(ok=True)
 
+    def get_current_rate(self) -> int:
+        with self.lock:
+            return self.current_rate
 
     def _do_transfer(self, local, pfs):
         # Block until the orchestrator permission (START_FLUSH or CHANGE_RATE)
@@ -98,12 +140,31 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
             self.transfer_active = True
 
         try:
-            token_bucket_copy(local, pfs, throughput=lambda: self.current_rate)
+            token_bucket_copy(
+                local,
+                pfs,
+                throughput=self.get_current_rate,
+                progress_update_interval=HEARTBEAT_INTERVAL,
+                progress_callback=self.progress.add
+            )
         finally:
             with self.lock:
                 self.transfer_active = False
                 self.checkpoint_size    = 0
                 self.current_rate    = 0
+
+    def _progress_to_proto(self, item: dict):
+        return cluster_pb2.TransferProgress(
+            timestamp=item["timestamp"],
+            bytes_copied=int(item["bytes_copied"]),
+            total_bytes=int(item["total_bytes"]),
+            remaining_bytes=int(item["remaining_bytes"]),
+            interval_seconds=float(item["interval_seconds"]),
+            interval_throughput_bps=float(item["interval_throughput_bps"]),
+            average_throughput_bps=float(item["average_throughput_bps"]),
+            configured_rate_bps=float(item["configured_rate_bps"]),
+            chunk_size_bytes=int(item["chunk_size_bytes"]),
+        )
 
 
 def serve(orchestrator_addr, orchestrator_port):
@@ -127,7 +188,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--orchestrator-addr", type=str, default="localhost")
     parser.add_argument("--orchestrator-port", type=int, default=50052)
-    
+
     args = parser.parse_args()
 
     try:

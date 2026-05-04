@@ -4,7 +4,8 @@ import json
 import os
 import platform
 import time
-from typing import Callable, Union
+from typing import Callable, Union, Optional, Any
+
 
 ###
 # Token bucket constants and implementation
@@ -18,12 +19,17 @@ assert 0 < SLEEP_CAP <= 1, "Invalid sleep cap value"
 PAUSE_SLEEP = 0.05  # 50 ms pause between checks when throughput is zero
 assert PAUSE_SLEEP > 0, "Pause sleep time must be positive"
 
+PROGRESS_UPDATE_INTERVAL = 0.5  # seconds between progress updates
+assert PROGRESS_UPDATE_INTERVAL > 0, "Progress update interval must be positive"
+
 
 def token_bucket_copy(
     src: str,
     dst: str,
     throughput: Union[int, Callable[[], int]],
     chunk_size: int = DEFAULT_CHUNK_SIZE * 1024,
+    progress_update_interval: Optional[float] = PROGRESS_UPDATE_INTERVAL,
+    progress_callback: Optional[Callable[[dict[str, Any]], None]] = None
 ):
     """
     Copy a file using token bucket rate limiting.
@@ -53,19 +59,76 @@ def token_bucket_copy(
     if not os.path.isfile(src):
         raise IOError(f"Source file does not exist: {src}")
 
+    # Check if source file can be read
+    try:
+        with open(src, "rb"):
+            pass
+    except Exception as e:
+        raise IOError(f"Cannot read from source: {src}") from e
+
+    # Get source file size for progress reporting
+    file_size = os.path.getsize(src)
+
     # Ensure destination directory exists
     dst_dir = os.path.dirname(dst)
     if dst_dir:
         os.makedirs(dst_dir, exist_ok=True)
 
-    # INFO destination file check is skipped to slighty reduce initial overhead
     # Check if destination file can be written
-    # try:
-    #     with open(dst, "wb"):
-    #         pass
-    # except Exception as e:
-    #     raise IOError(f"Cannot write to destination: {dst}") from e
+    try:
+        with open(dst, "wb"):
+            pass
+    except Exception as e:
+        raise IOError(f"Cannot write to destination: {dst}") from e
 
+    # Progress tracking variables
+    bytes_copied = 0
+
+    copy_start = time.monotonic()
+    last_progress_time = copy_start
+    last_progress_bytes = 0
+
+    # Helper function to report progress at regular intervals or when forced
+    def maybe_report_progress(force: bool = False) -> None:
+        nonlocal last_progress_time, last_progress_bytes
+
+        if progress_callback is None:
+            return
+
+        now = time.monotonic()
+        interval = now - last_progress_time
+
+        if not force and interval < progress_update_interval:
+            return
+
+        if interval <= 0:
+            return
+
+        copied_since_last = bytes_copied - last_progress_bytes
+        elapsed_total = now - copy_start
+
+        interval_throughput = copied_since_last / interval
+        average_throughput = bytes_copied / elapsed_total if elapsed_total > 0 else 0.0
+        current_rate = get_throughput()
+
+        progress_callback(
+            {
+                "timestamp": time.time(),
+                "bytes_copied": bytes_copied,
+                "total_bytes": file_size,
+                "remaining_bytes": max(0, file_size - bytes_copied),
+                "interval_seconds": interval,
+                "interval_throughput_bps": interval_throughput,
+                "average_throughput_bps": average_throughput,
+                "configured_rate_bps": current_rate,
+                "chunk_size_bytes": chunk_size,
+            }
+        )
+
+        last_progress_time = now
+        last_progress_bytes = bytes_copied
+
+    # Define a helper function to get the current throughput
     def get_throughput() -> int:
         return throughput() if callable(throughput) else throughput
 
@@ -92,6 +155,7 @@ def token_bucket_copy(
 
             if rate == 0:
                 tokens = 0
+                maybe_report_progress(force=True)  # report progress even when paused
                 time.sleep(PAUSE_SLEEP)
                 continue
 
@@ -108,6 +172,8 @@ def token_bucket_copy(
                 missing = chunk_size - tokens
                 sleep_time = missing / rate
 
+                maybe_report_progress()  # report progress during sleep periods to show stalling
+
                 # Cap sleep to improve responsiveness to dynamic updates
                 # INFO As a improvement we don't sleep the full deficit to
                 # allow for quicker adjustments to dynamic throughput changes.
@@ -119,11 +185,17 @@ def token_bucket_copy(
                 break
 
             dst_f.write(data)
-            tokens -= len(data)
+            data_length = len(data)
+            bytes_copied += data_length
+            tokens -= data_length
+
+            maybe_report_progress()
 
         # Ensure data is flushed to disk
         dst_f.flush()
         os.fsync(dst_f.fileno())
+
+        maybe_report_progress(force=True)  # Final progress report after completion
 
 
 ###

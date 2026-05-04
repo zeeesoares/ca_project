@@ -54,6 +54,7 @@ def load_priority_map(path: str) -> tuple[dict[str, float], float]:
 
     return priorities, float(default_priority)
 
+
 # Logger Configuration
 from orchestrator.utils import setup_log_metrics
 metrics = setup_log_metrics("qos_metrics", "logs/orchestrator_metrics.json")
@@ -70,23 +71,45 @@ class OrchestratorService(cluster_pb2_grpc.OrchestratorServiceServicer):
         try:
             for heartbeat in request_iterator:
                 worker_id = heartbeat.worker_id
-                self.cluster.update(worker_id, heartbeat.checkpoint_size, heartbeat.is_migrating)
+
+                self.cluster.update(
+                    worker_id,
+                    heartbeat.checkpoint_size,
+                    heartbeat.is_migrating
+                )
 
                 workers = self.cluster.snapshot()
                 instruction = self.policy.decide(worker_id, workers)
 
-                action_name = cluster_pb2.InstructionResponse.Action.Name(instruction.action)
-               
+                action_name = cluster_pb2.InstructionResponse.Action.Name(
+                    instruction.action
+                )
 
-                print(f"[orchestrator] worker={worker_id}, checkpoint_size={heartbeat.checkpoint_size}, "
-                      f"is_migrating={heartbeat.is_migrating}, epoch={heartbeat.epoch}, total_epochs={heartbeat.total_epochs} -> action={action_name}, rate_limit_bps={instruction.rate_limit_bps}")
-                
-                # metrics.info({
-                #     "worker_id": worker_id,
-                #     "checkpoint_size": heartbeat.checkpoint_size,
-                #     "is_migrating": heartbeat.is_migrating,
-                #     "action": action_name
-                # })
+                progress = list(heartbeat.progress)
+                latest_progress = progress[-1] if progress else None
+
+                log_entry = {
+                    "worker_id": worker_id,
+                    "checkpoint_size": heartbeat.checkpoint_size,
+                    "is_migrating": heartbeat.is_migrating,
+                    "action": action_name,
+                }
+
+                if latest_progress is not None:
+                    log_entry.update(
+                        {
+                            "bytes_copied": latest_progress.bytes_copied,
+                            "total_bytes": latest_progress.total_bytes,
+                            "remaining_bytes": latest_progress.remaining_bytes,
+                            "interval_throughput_bps": latest_progress.interval_throughput_bps,
+                            "average_throughput_bps": latest_progress.average_throughput_bps,
+                            "configured_rate_bps": latest_progress.configured_rate_bps,
+                            "chunk_size_bytes": latest_progress.chunk_size_bytes,
+                            "nr_progress_messages": len(progress),
+                        }
+                    )
+
+                metrics.info(log_entry)
 
                 yield instruction
         finally:

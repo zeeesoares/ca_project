@@ -58,7 +58,7 @@ venv/bin/python -c "
 import time
 from protocol.migrater.client import MigraterClient
 m = MigraterClient()
-m.notify_checkpoint_saved('/tmp/ckpt.pt', '/tmp/ckpt_pfs.pt', time.time())
+m.notify_checkpoint_saved('/tmp/ckpt.pt', '/tmp/ckpt_pfs.pt', time.time(), 1, 5)
 print('notification sent')
 "
 ```
