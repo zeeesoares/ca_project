@@ -103,9 +103,6 @@ class UniformFairSharePolicy(SchedulerPolicy):
     """
     Divides total PFS bandwidth equally among all registered workers.
     Every worker gets the same share regardless of whether it has pending data.
-
-    Reference: Macedo, R., et al. "PADLL: Taming Metadata-intensive HPC Jobs
-    Through Dynamic, Application-agnostic QoS Control." CCGrid 2023.
     """
 
     def __init__(self, pfs_bandwidth_bps: float = 1e9):  # 1 GB/s default
@@ -147,6 +144,57 @@ class ActiveFairSharePolicy(SchedulerPolicy):
         )
 
 
+class StaticPriorityPolicy(SchedulerPolicy):
+    """
+    Weighted fair-share among active workers using fixed per-worker priorities.
+
+    Each active worker (pending_data_size > 0) receives a share of the PFS
+    bandwidth proportional to its priority weight:
+
+        rate_i = pfs_bw * priority_i / sum(priority_j for j in active)
+
+    Workers without pending data are told to HOLD. Workers not present in
+    the priority map fall back to default_priority. Non-positive weights are
+    coerced to default_priority (defensive).
+    """
+
+    def __init__(
+        self,
+        pfs_bandwidth_bps: float = 1e9,
+        priorities: Dict[str, float] | None = None,
+        default_priority: float = 1.0,
+    ):
+        assert default_priority > 0, "default_priority must be positive"
+        self.pfs_bandwidth_bps = pfs_bandwidth_bps
+        self.priorities        = dict(priorities) if priorities else {}
+        self.default_priority  = default_priority
+
+    def _weight(self, worker_id: str) -> float:
+        w = self.priorities.get(worker_id, self.default_priority)
+        return w if w > 0 else self.default_priority
+
+    def decide(self, worker_id, workers):
+        worker = workers.get(worker_id)
+        if worker is None or worker.pending_data_size <= 0:
+            return cluster_pb2.InstructionResponse(
+                action=cluster_pb2.InstructionResponse.HOLD,
+                rate_limit_bps=0.0,
+            )
+
+        total = sum(
+            self._weight(w.worker_id)
+            for w in workers.values()
+            if w.pending_data_size > 0
+        )
+
+        rate = self.pfs_bandwidth_bps * self._weight(worker_id) / total
+
+        return cluster_pb2.InstructionResponse(
+            action=cluster_pb2.InstructionResponse.START_FLUSH,
+            rate_limit_bps=rate,
+        )
+
+
 # Registry — map policy names to constructors (used by CLI / config)
 
 POLICIES: Dict[str, type] = {
@@ -154,6 +202,7 @@ POLICIES: Dict[str, type] = {
     "fixed-rate": FixedRatePolicy,
     "uniform-fair-share": UniformFairSharePolicy,
     "active-fair-share": ActiveFairSharePolicy,
+    "static-priority": StaticPriorityPolicy,
 }
 
 DEFAULT_POLICY = "no-limit"
