@@ -9,10 +9,6 @@ service MigraterService {
   // TODO : Future integration with logs
   //rpc SendLogs (stream LogEntry)
   //returns (LogSummary);
-
-  // TODO : Future integration with Pluggable schedulers
-  //rpc Watch (stream WatchRequest)
-  //returns (stream WatchResponse);
 }
 
 service OrchestratorService {
@@ -27,6 +23,8 @@ message CheckpointSavedRequest {
   string checkpoint_local_path = 1;
   string checkpoint_pfs_path   = 2;
   double timestamp             = 3;
+  int64  epoch                 = 4;
+  int64  total_epochs          = 5;
 }
 
 message CheckpointSavedResponse {
@@ -39,8 +37,10 @@ message CheckpointSavedResponse {
 
 message HeartbeatRequest {
   string worker_id         = 1;
-  double pending_data_size = 2;
+  double checkpoint_size   = 2;
   bool is_migrating        = 3;
+  int64 epoch              = 4;
+  int64 total_epochs       = 5;
 }
 
 message InstructionResponse {

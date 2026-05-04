@@ -9,12 +9,14 @@ class MigraterClient:
         self.channel = grpc.insecure_channel(addr)
         self.stub = cluster_pb2_grpc.MigraterServiceStub(self.channel)
 
-    def notify_checkpoint_saved(self, local, pfs, ts):
+    def notify_checkpoint_saved(self, local, pfs, ts, epoch, total_epochs):
 
         request = cluster_pb2.CheckpointSavedRequest(
             checkpoint_local_path=local,
             checkpoint_pfs_path=pfs,
-            timestamp=ts
+            timestamp=ts,
+            epoch=epoch,
+            total_epochs=total_epochs
         )
 
         self.stub.NotifyCheckpointSaved(request)

@@ -69,19 +69,22 @@ class OrchestratorService(cluster_pb2_grpc.OrchestratorServiceServicer):
         try:
             for heartbeat in request_iterator:
                 worker_id = heartbeat.worker_id
-                self.cluster.update(worker_id, heartbeat.pending_data_size, heartbeat.is_migrating)
+                self.cluster.update(worker_id, heartbeat.checkpoint_size, heartbeat.is_migrating)
 
                 workers = self.cluster.snapshot()
                 instruction = self.policy.decide(worker_id, workers)
 
                 action_name = cluster_pb2.InstructionResponse.Action.Name(instruction.action)
                
-                metrics.info({
-                    "worker_id": worker_id,
-                    "pending_data_size": heartbeat.pending_data_size,
-                    "is_migrating": heartbeat.is_migrating,
-                    "action": action_name
-                })
+
+                print(f"[orchestrator] worker={worker_id}, checkpoint_size={heartbeat.checkpoint_size}, "
+                      f"is_migrating={heartbeat.is_migrating}, epoch={heartbeat.epoch}, total_epochs={heartbeat.total_epochs} -> action={action_name}, rate_limit_bps={instruction.rate_limit_bps}")
+                # metrics.info({
+                #     "worker_id": worker_id,
+                #     "checkpoint_size": heartbeat.checkpoint_size,
+                #     "is_migrating": heartbeat.is_migrating,
+                #     "action": action_name
+                # })
 
                 yield instruction
         finally:

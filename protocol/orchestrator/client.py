@@ -14,19 +14,21 @@ class OrchestratorClient:
         self.stub = cluster_pb2_grpc.OrchestratorServiceStub(self.channel)
 
     def _heartbeat_stream(self, heartbeats):
-        """Wrap an iterable of (pending_data_size, is_migrating) tuples into HeartbeatRequests."""
-        for pending_data_size, is_migrating in heartbeats:
+        """Wrap an iterable of (checkpoint_size, is_migrating) tuples into HeartbeatRequests."""
+        for checkpoint_size, is_migrating, epoch, total_epochs in heartbeats:
             yield cluster_pb2.HeartbeatRequest(
                 worker_id=self.worker_id,
-                pending_data_size=pending_data_size,
+                checkpoint_size=checkpoint_size,
                 is_migrating=is_migrating,
+                epoch=epoch,
+                total_epochs=total_epochs,
             )
 
     def monitor(self, heartbeats):
         """Stream heartbeats to the orchestrator and yield back InstructionResponses.
 
         Args:
-            heartbeats: iterable of (pending_data_size: float, is_migrating: bool)
+            heartbeats: iterable of (checkpoint_size: float, is_migrating: bool)
 
         Yields:
             cluster_pb2.InstructionResponse

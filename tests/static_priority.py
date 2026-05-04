@@ -15,10 +15,10 @@ START_FLUSH = cluster_pb2.InstructionResponse.START_FLUSH
 
 
 def make_workers(*specs):
-    """specs: iterable of (worker_id, pending_bytes)."""
+    """specs: iterable of (worker_id, checkpoint_size)."""
     return {
-        wid: WorkerState(worker_id=wid, pending_data_size=pending, is_migrating=False)
-        for wid, pending in specs
+        wid: WorkerState(worker_id=wid, checkpoint_size=size, is_migrating=False)
+        for wid, size in specs
     }
 
 

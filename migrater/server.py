@@ -24,10 +24,12 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
         )
 
         self.lock             = threading.Lock()
-        self.pending_size     = 0      # bytes waiting to be transferred; 0 = idle
+        self.checkpoint_size     = 0      # bytes waiting to be transferred; 0 = idle
         self.transfer_active  = False  # True while token_bucket_copy is running
         self.current_rate     = 0      # bytes/s; updated by orchestrator instructions
         self.transfer_allowed = threading.Event()  # set when orchestrator permits transfer
+        self.epoch = 0
+        self.total_epochs = 0
 
         threading.Thread(target=self._heartbeat_loop, daemon=True).start()
 
@@ -35,10 +37,10 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
         def stream():
             while True:
                 with self.lock:
-                    pending   = self.pending_size
+                    size   = self.checkpoint_size
                     migrating = self.transfer_active
-                    print(f"[migrater] migrating={migrating}, pending={pending}")
-                yield (pending, migrating)
+                    print(f"[migrater] migrating={migrating}, size={size}, epoch={self.epoch}, total_epochs={self.total_epochs}")
+                yield (size, migrating, self.epoch, self.total_epochs)
                 time.sleep(HEARTBEAT_INTERVAL)
 
         for instruction in self.orchestrator_client.monitor(stream()):
@@ -62,6 +64,8 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
     def NotifyCheckpointSaved(self, request, context):
         local     = request.checkpoint_local_path
         pfs       = request.checkpoint_pfs_path
+        epoch     = request.epoch
+        total_epochs = request.total_epochs
         file_size = os.path.getsize(local)
 
         with self.lock:
@@ -71,8 +75,10 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
                 print(f"[migrater] transfer active — checkpoint ignored: {local}")
                 return cluster_pb2.CheckpointSavedResponse(ok=False)
 
-            self.pending_size = file_size
+            self.checkpoint_size = file_size
             self.transfer_allowed.clear()  # require a fresh instruction for this transfer
+            self.epoch = epoch
+            self.total_epochs = total_epochs
 
         threading.Thread(
             target=self._do_transfer,
@@ -95,7 +101,7 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
         finally:
             with self.lock:
                 self.transfer_active = False
-                self.pending_size    = 0
+                self.checkpoint_size    = 0
                 self.current_rate    = 0
 
 
