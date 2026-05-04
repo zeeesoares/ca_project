@@ -20,7 +20,6 @@ service OrchestratorService {
   returns (stream InstructionResponse);
 }
 
-
 // MigraterService
 
 message CheckpointSavedRequest {
@@ -34,13 +33,29 @@ message CheckpointSavedResponse {
   // TODO : Could be useful a message?
 }
 
+// Transfer Progress (Token Bucket Metrics) used in HeatbeatRequest
+message TransferProgress {
+  double timestamp               = 1;
+
+  uint64 bytes_copied            = 2;
+  uint64 total_bytes             = 3;
+  uint64 remaining_bytes         = 4;
+
+  double interval_seconds        = 5;
+  double interval_throughput_bps = 6;
+  double average_throughput_bps  = 7;
+
+  double configured_rate_bps     = 8;
+  uint64 chunk_size_bytes        = 9;
+}
 
 // OrchestratorService
 
 message HeartbeatRequest {
-  string worker_id         = 1;
-  double pending_data_size = 2;
-  bool is_migrating        = 3;
+  string worker_id                   = 1;
+  double pending_data_size           = 2;
+  bool is_migrating                  = 3;
+  repeated TransferProgress progress = 4;
 }
 
 message InstructionResponse {

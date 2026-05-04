@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16protocol/cluster.proto\x12\x07\x63luster\"g\n\x16\x43heckpointSavedRequest\x12\x1d\n\x15\x63heckpoint_local_path\x18\x01 \x01(\t\x12\x1b\n\x13\x63heckpoint_pfs_path\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\x01\"%\n\x17\x43heckpointSavedResponse\x12\n\n\x02ok\x18\x01 \x01(\x08\"V\n\x10HeartbeatRequest\x12\x11\n\tworker_id\x18\x01 \x01(\t\x12\x19\n\x11pending_data_size\x18\x02 \x01(\x01\x12\x14\n\x0cis_migrating\x18\x03 \x01(\x08\"\x98\x01\n\x13InstructionResponse\x12\x33\n\x06\x61\x63tion\x18\x01 \x01(\x0e\x32#.cluster.InstructionResponse.Action\x12\x16\n\x0erate_limit_bps\x18\x02 \x01(\x01\"4\n\x06\x41\x63tion\x12\x08\n\x04HOLD\x10\x00\x12\x0f\n\x0bSTART_FLUSH\x10\x01\x12\x0f\n\x0b\x43HANGE_RATE\x10\x02\x32m\n\x0fMigraterService\x12Z\n\x15NotifyCheckpointSaved\x12\x1f.cluster.CheckpointSavedRequest\x1a .cluster.CheckpointSavedResponse2]\n\x13OrchestratorService\x12\x46\n\x07Monitor\x12\x19.cluster.HeartbeatRequest\x1a\x1c.cluster.InstructionResponse(\x01\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16protocol/cluster.proto\x12\x07\x63luster\"g\n\x16\x43heckpointSavedRequest\x12\x1d\n\x15\x63heckpoint_local_path\x18\x01 \x01(\t\x12\x1b\n\x13\x63heckpoint_pfs_path\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\x01\"%\n\x17\x43heckpointSavedResponse\x12\n\n\x02ok\x18\x01 \x01(\x08\"\xfb\x01\n\x10TransferProgress\x12\x11\n\ttimestamp\x18\x01 \x01(\x01\x12\x14\n\x0c\x62ytes_copied\x18\x02 \x01(\x04\x12\x13\n\x0btotal_bytes\x18\x03 \x01(\x04\x12\x17\n\x0fremaining_bytes\x18\x04 \x01(\x04\x12\x18\n\x10interval_seconds\x18\x05 \x01(\x01\x12\x1f\n\x17interval_throughput_bps\x18\x06 \x01(\x01\x12\x1e\n\x16\x61verage_throughput_bps\x18\x07 \x01(\x01\x12\x1b\n\x13\x63onfigured_rate_bps\x18\x08 \x01(\x01\x12\x18\n\x10\x63hunk_size_bytes\x18\t \x01(\x04\"\x83\x01\n\x10HeartbeatRequest\x12\x11\n\tworker_id\x18\x01 \x01(\t\x12\x19\n\x11pending_data_size\x18\x02 \x01(\x01\x12\x14\n\x0cis_migrating\x18\x03 \x01(\x08\x12+\n\x08progress\x18\x04 \x03(\x0b\x32\x19.cluster.TransferProgress\"\x98\x01\n\x13InstructionResponse\x12\x33\n\x06\x61\x63tion\x18\x01 \x01(\x0e\x32#.cluster.InstructionResponse.Action\x12\x16\n\x0erate_limit_bps\x18\x02 \x01(\x01\"4\n\x06\x41\x63tion\x12\x08\n\x04HOLD\x10\x00\x12\x0f\n\x0bSTART_FLUSH\x10\x01\x12\x0f\n\x0b\x43HANGE_RATE\x10\x02\x32m\n\x0fMigraterService\x12Z\n\x15NotifyCheckpointSaved\x12\x1f.cluster.CheckpointSavedRequest\x1a .cluster.CheckpointSavedResponse2]\n\x13OrchestratorService\x12\x46\n\x07Monitor\x12\x19.cluster.HeartbeatRequest\x1a\x1c.cluster.InstructionResponse(\x01\x30\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,14 +35,16 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_CHECKPOINTSAVEDREQUEST']._serialized_end=138
   _globals['_CHECKPOINTSAVEDRESPONSE']._serialized_start=140
   _globals['_CHECKPOINTSAVEDRESPONSE']._serialized_end=177
-  _globals['_HEARTBEATREQUEST']._serialized_start=179
-  _globals['_HEARTBEATREQUEST']._serialized_end=265
-  _globals['_INSTRUCTIONRESPONSE']._serialized_start=268
-  _globals['_INSTRUCTIONRESPONSE']._serialized_end=420
-  _globals['_INSTRUCTIONRESPONSE_ACTION']._serialized_start=368
-  _globals['_INSTRUCTIONRESPONSE_ACTION']._serialized_end=420
-  _globals['_MIGRATERSERVICE']._serialized_start=422
-  _globals['_MIGRATERSERVICE']._serialized_end=531
-  _globals['_ORCHESTRATORSERVICE']._serialized_start=533
-  _globals['_ORCHESTRATORSERVICE']._serialized_end=626
+  _globals['_TRANSFERPROGRESS']._serialized_start=180
+  _globals['_TRANSFERPROGRESS']._serialized_end=431
+  _globals['_HEARTBEATREQUEST']._serialized_start=434
+  _globals['_HEARTBEATREQUEST']._serialized_end=565
+  _globals['_INSTRUCTIONRESPONSE']._serialized_start=568
+  _globals['_INSTRUCTIONRESPONSE']._serialized_end=720
+  _globals['_INSTRUCTIONRESPONSE_ACTION']._serialized_start=668
+  _globals['_INSTRUCTIONRESPONSE_ACTION']._serialized_end=720
+  _globals['_MIGRATERSERVICE']._serialized_start=722
+  _globals['_MIGRATERSERVICE']._serialized_end=831
+  _globals['_ORCHESTRATORSERVICE']._serialized_start=833
+  _globals['_ORCHESTRATORSERVICE']._serialized_end=926
 # @@protoc_insertion_point(module_scope)
