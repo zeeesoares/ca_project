@@ -45,6 +45,7 @@ def read_jsonl(path: Path) -> pd.DataFrame:
                     "pfs_local_throughput_ratio": overhead.get(
                         "throughput_ratio_pfs_local"
                     ),
+                    "nr_of_concurrent_jobs": row.get("nr_of_concurrent_jobs"),
                     "dry_run": row.get("dry_run", False),
                 }
             )
@@ -94,7 +95,18 @@ def plot_heatmap(
     cbar = fig.colorbar(image, ax=ax)
     cbar.set_label(value_col)
 
-    fig.tight_layout()
+    description = describe_concurrent_jobs(df)
+
+    if description:
+        fig.text(
+            0.5,
+            0.01,
+            description.strip(),
+            ha="center",
+            fontsize=9,
+        )
+
+    fig.tight_layout(rect=(0, 0.04, 1, 1))
     fig.savefig(output)
     plt.close(fig)
 
@@ -124,9 +136,42 @@ def plot_lines(
     ax.set_xscale("log", base=2)
     ax.legend()
 
-    fig.tight_layout()
+    description = describe_concurrent_jobs(df)
+
+    if description:
+        fig.text(
+            0.5,
+            0.01,
+            description.strip(),
+            ha="center",
+            fontsize=9,
+        )
+
+    fig.tight_layout(rect=(0, 0.04, 1, 1))
     fig.savefig(output)
     plt.close(fig)
+
+
+def describe_concurrent_jobs(df: pd.DataFrame) -> str:
+    if "nr_of_concurrent_jobs" not in df.columns:
+        return ""
+
+    jobs = df["nr_of_concurrent_jobs"].dropna()
+
+    if jobs.empty:
+        return ""
+
+    min_jobs = int(jobs.min())
+    max_jobs = int(jobs.max())
+    mean_jobs = jobs.mean()
+
+    if min_jobs == max_jobs:
+        return f"\nConcurrent jobs: {min_jobs}"
+
+    return (
+        f"\nConcurrent jobs: min={min_jobs}, "
+        f"mean={mean_jobs:.1f}, max={max_jobs}"
+    )
 
 
 def main():

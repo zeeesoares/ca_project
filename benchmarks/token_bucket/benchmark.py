@@ -3,10 +3,12 @@
 import argparse
 import json
 import platform
+import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import Optional
 
 
 THROUGHPUTS_MIB_PER_SECOND = [
@@ -168,6 +170,35 @@ def add_overhead_metrics(
     return row
 
 
+def get_nr_of_concurrent_jobs() -> Optional[int]:
+    """
+    Returns the number of currently queued/running SLURM jobs visible to squeue.
+
+    If squeue is not available, returns None.
+    """
+    if shutil.which("squeue") is None:
+        return None
+
+    try:
+        output = subprocess.check_output(
+            ["bash", "-c", "squeue --noheader --format=%i | wc -l"],
+            text=True,
+        )
+        return int(output.strip())
+
+    except Exception as e:
+        print(f"WARNING: failed to collect squeue job count: {e}")
+        return None
+
+
+def print_banner(message: str):
+    print("\033[36m")
+    print("=" * 80)
+    print(message)
+    print("=" * 80)
+    print("\033[0m")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Benchmark token bucket copy across targets, rates and chunk sizes."
@@ -273,6 +304,13 @@ def main():
             for target_name, target_dir in targets:
                 run_index += 1
 
+                print_banner(
+                    f"Running benchmark {run_index}/{total_runs} "
+                    f"target={target_name} "
+                    f"throughput={throughput_mib} MiB/s "
+                    f"chunk={chunk_size} B"
+                )
+
                 run_id = build_run_id(
                     benchmark_id=benchmark_id,
                     arch=arch,
@@ -294,6 +332,13 @@ def main():
 
                 remove_if_exists(dst)
                 remove_if_exists(per_run_json)
+
+                nr_of_concurrent_jobs = get_nr_of_concurrent_jobs()
+
+                if nr_of_concurrent_jobs is None:
+                    print("Concurrent jobs: unavailable, squeue not found or failed")
+                else:
+                    print(f"Concurrent jobs: {nr_of_concurrent_jobs}")
 
                 print(
                     f"[{run_index}/{total_runs}] "
@@ -334,6 +379,9 @@ def main():
                     "dst": str(dst),
                     "dry_run": args.dry_run,
                 }
+
+                if nr_of_concurrent_jobs is not None:
+                    row["nr_of_concurrent_jobs"] = nr_of_concurrent_jobs
 
                 key = (throughput_mib, chunk_size)
 
