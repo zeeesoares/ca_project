@@ -5,6 +5,7 @@ import time
 import socket
 import threading
 
+from utils.size_parser            import format_size
 from concurrent                   import futures
 from protocol                     import cluster_pb2
 from protocol                     import cluster_pb2_grpc
@@ -39,7 +40,7 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
                 with self.lock:
                     size   = self.checkpoint_size
                     migrating = self.transfer_active
-                    print(f"[migrater] migrating={migrating}, size={size}, epoch={self.epoch}, total_epochs={self.total_epochs}")
+                    print(f"[migrater] migrating={migrating}, size={format_size(size)}, epoch={self.epoch}, total_epochs={self.total_epochs}")
                 yield (size, migrating, self.epoch, self.total_epochs)
                 time.sleep(HEARTBEAT_INTERVAL)
 

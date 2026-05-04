@@ -4,6 +4,7 @@ import sys
 import grpc
 from concurrent import futures
 
+from utils.size_parser import parse_size, format_size
 from protocol import cluster_pb2, cluster_pb2_grpc
 from orchestrator.scheduler import (
     ClusterState,
@@ -79,6 +80,7 @@ class OrchestratorService(cluster_pb2_grpc.OrchestratorServiceServicer):
 
                 print(f"[orchestrator] worker={worker_id}, checkpoint_size={heartbeat.checkpoint_size}, "
                       f"is_migrating={heartbeat.is_migrating}, epoch={heartbeat.epoch}, total_epochs={heartbeat.total_epochs} -> action={action_name}, rate_limit_bps={instruction.rate_limit_bps}")
+                
                 # metrics.info({
                 #     "worker_id": worker_id,
                 #     "checkpoint_size": heartbeat.checkpoint_size,
@@ -92,7 +94,7 @@ class OrchestratorService(cluster_pb2_grpc.OrchestratorServiceServicer):
                 self.cluster.remove(worker_id)
 
 
-def serve(port=ORCHESTRATOR_PORT, policy: SchedulerPolicy = None):
+def serve(port=ORCHESTRATOR_PORT, policy: SchedulerPolicy = None, pfs_bw: int = None):
     if policy is None:
         policy = NoLimitPolicy()
 
@@ -106,7 +108,7 @@ def serve(port=ORCHESTRATOR_PORT, policy: SchedulerPolicy = None):
 
     server.add_insecure_port(f"[::]:{port}")
     server.start()
-    print(f"Orchestrator running on {port} | policy={policy.__class__.__name__}")
+    print(f"Orchestrator running on {port} | policy={policy.__class__.__name__} | pfs_bandwidth={format_size(pfs_bw) if pfs_bw else 'N/A'}")
     server.wait_for_termination()
 
 
@@ -114,7 +116,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--port",   type=int,   default=ORCHESTRATOR_PORT)
     parser.add_argument("--policy", type=str,   default=DEFAULT_POLICY, choices=POLICIES.keys())
-    parser.add_argument("--pfs-bw", type=float, default=1e9, help="PFS bandwidth in bps")
+    parser.add_argument(
+        "--pfs-bw", 
+        type=parse_size, 
+        default="1GB", 
+        help="PFS bandwidth (ex: 1GB, 500MB, 1000000)"
+    )
     parser.add_argument(
         "--priority-map",
         type=str,
@@ -149,6 +156,6 @@ if __name__ == "__main__":
             policy = policy_cls()
 
     try:
-        serve(port=args.port, policy=policy)
+        serve(port=args.port, policy=policy, pfs_bw=args.pfs_bw)
     except KeyboardInterrupt:
         print("Orchestrator shutting down")
