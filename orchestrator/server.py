@@ -89,7 +89,7 @@ class OrchestratorService(cluster_pb2_grpc.OrchestratorServiceServicer):
 
                 log_entry = {
                     "worker_id": worker_id,
-                    "pending_data_size": heartbeat.pending_data_size,
+                    "checkpoint_size": heartbeat.checkpoint_size,
                     "is_migrating": heartbeat.is_migrating,
                     "action": action_name,
                 }

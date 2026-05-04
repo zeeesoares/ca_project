@@ -73,7 +73,7 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
 
                 yield cluster_pb2.HeartbeatRequest(
                     worker_id=socket.gethostname(),
-                    pending_data_size=float(pending),
+                    checkpoint_size=float(pending),
                     is_migrating=migrating,
                     progress=progress_proto,
                     epoch=self.epoch,
