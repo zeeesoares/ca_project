@@ -10,7 +10,7 @@
 
 set -eux
 
-EXECUTABLE="./scripts/benchmark-token-bucket-arm.sh"
+EXECUTABLE="./scripts/benchmark-token-bucket.sh"
 
 if [ ! -f $EXECUTABLE ]; then
     echo "Error: $EXECUTABLE not found."
