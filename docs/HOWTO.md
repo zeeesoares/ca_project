@@ -34,7 +34,9 @@ venv/bin/python -m orchestrator.server      \
 ### Terminal 2 — Migrater (porta 50051)
 
 ```bash
-venv/bin/python -m migrater.server --orchestrator-addr localhost --orchestrator-port 50052
+venv/bin/python -m migrater.server            \
+                --orchestrator-addr localhost \
+                --orchestrator-port 50052     
 ```
 
 ```
@@ -44,7 +46,9 @@ Migrater running on 50051
 ### Terminal 3 — Cliente de teste
 
 ```bash
-venv/bin/python -m train.train --checkpoint-interval 10
+venv/bin/python -m train.train 
+                --total-steps         50
+                --checkpoint-interval 10
 ```
 
 Or:

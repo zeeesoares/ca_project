@@ -31,6 +31,8 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
         self.transfer_allowed = threading.Event()  # set when orchestrator permits transfer
         self.progress         = ProgressBuffer(maxlen=128)
         self.last_progress    = None
+        self.epoch            = 0
+        self.total_epochs     = 0
 
         threading.Thread(target=self._heartbeat_loop, daemon=True).start()
 
@@ -58,6 +60,7 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
                     print(
                         "[migrater] "
                         f"migrating={migrating}, "
+                        f"epoch={self.epoch}, total_epochs={self.total_epochs}, "
                         f"configured={latest['configured_rate_bps']:.0f} B/s, "
                         f"rate={latest['interval_throughput_bps']:.0f} B/s, "
                         f"pending={pending} bytes "
@@ -65,13 +68,16 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
                         f"{latest['bytes_copied']}/{latest['total_bytes']} bytes copied)"
                     )
                 else:
-                    print(f"[migrater] migrating={migrating}, pending={pending}")
+                    print(f"[migrater] migrating={migrating}, pending={pending}, "
+                          f"epoch={self.epoch}, total_epochs={self.total_epochs}")
 
                 yield cluster_pb2.HeartbeatRequest(
                     worker_id=socket.gethostname(),
                     pending_data_size=float(pending),
                     is_migrating=migrating,
                     progress=progress_proto,
+                    epoch=self.epoch,
+                    total_epochs=self.total_epochs
                 )
 
                 time.sleep(HEARTBEAT_INTERVAL)
@@ -97,6 +103,8 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
     def NotifyCheckpointSaved(self, request, context):
         local     = request.checkpoint_local_path
         pfs       = request.checkpoint_pfs_path
+        epoch     = request.epoch
+        total_epochs = request.total_epochs
         file_size = os.path.getsize(local)
 
         with self.lock:
@@ -106,8 +114,10 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
                 print(f"[migrater] transfer active — checkpoint ignored: {local}")
                 return cluster_pb2.CheckpointSavedResponse(ok=False)
 
-            self.pending_size = file_size
+            self.checkpoint_size = file_size
             self.transfer_allowed.clear()  # require a fresh instruction for this transfer
+            self.epoch = epoch
+            self.total_epochs = total_epochs
 
         threading.Thread(
             target=self._do_transfer,
@@ -139,7 +149,7 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
         finally:
             with self.lock:
                 self.transfer_active = False
-                self.pending_size    = 0
+                self.checkpoint_size    = 0
                 self.current_rate    = 0
 
     def _progress_to_proto(self, item: dict):

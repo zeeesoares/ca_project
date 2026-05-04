@@ -29,7 +29,7 @@ def main(total_steps, checkpoint_interval):
         num_training_steps=total_steps,
     )
 
-    checkpoint = Checkpoint()
+    checkpoint = Checkpoint(total_epochs=total_steps // checkpoint_interval)
 
     trainer = Trainer(
         model=model,

@@ -8,9 +8,11 @@ from protocol.migrater.client import MigraterClient
 
 class Checkpoint:
 
-    def __init__(self):
+    def __init__(self, total_epochs: int):
 
         self.migrater = MigraterClient()
+        self.total_epochs =  total_epochs
+        self.epoch = 0
 
         # INFO instead of passing both paths at each save, alternatively we can
         # pass one or both of them in the constructor
@@ -22,12 +24,15 @@ class Checkpoint:
         # Associate a timestamp with the checkpoint completion time,
         # which can be used by the migrater to determine checkpoint freshness.
         timestamp = time.time()
+        self.epoch += 1
 
         # Send the checkpoint info to migrater service
         try:
             self.migrater.notify_checkpoint_saved(checkpoint_local_path,
                                                   checkpoint_pfs_path,
-                                                  timestamp)
+                                                  timestamp,
+                                                  self.epoch,
+                                                  self.total_epochs)
         except Exception as e:
             print(f"Error notifying migrater: {e}")
 

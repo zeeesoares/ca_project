@@ -73,7 +73,7 @@ class OrchestratorService(cluster_pb2_grpc.OrchestratorServiceServicer):
 
                 self.cluster.update(
                     worker_id,
-                    heartbeat.pending_data_size,
+                    heartbeat.checkpoint_size,
                     heartbeat.is_migrating
                 )
 

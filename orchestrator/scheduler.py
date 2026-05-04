@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 @dataclass
 class WorkerState:
     worker_id:         str
-    pending_data_size: float  # bytes
+    checkpoint_size: float  # bytes
     is_migrating:      bool
     last_seen:         float = field(default_factory=time.time)
 
@@ -34,11 +34,11 @@ class ClusterState:
         self._lock    = threading.Lock()
         self._workers: Dict[str, WorkerState] = {}
 
-    def update(self, worker_id: str, pending_data_size: float, is_migrating: bool):
+    def update(self, worker_id: str, checkpoint_size: float, is_migrating: bool):
         with self._lock:
             self._workers[worker_id] = WorkerState(
                 worker_id=worker_id,
-                pending_data_size=pending_data_size,
+                checkpoint_size=checkpoint_size,
                 is_migrating=is_migrating,
             )
 
@@ -129,13 +129,13 @@ class ActiveFairSharePolicy(SchedulerPolicy):
 
     def decide(self, worker_id, workers):
         worker = workers.get(worker_id)
-        if worker is None or worker.pending_data_size <= 0:
+        if worker is None or worker.checkpoint_size <= 0:
             return cluster_pb2.InstructionResponse(
                 action=cluster_pb2.InstructionResponse.HOLD,
                 rate_limit_bps=0.0,
             )
 
-        active = sum(1 for w in workers.values() if w.pending_data_size > 0)
+        active = sum(1 for w in workers.values() if w.checkpoint_size > 0)
         rate = self.pfs_bandwidth_bps / active
 
         return cluster_pb2.InstructionResponse(
@@ -148,7 +148,7 @@ class StaticPriorityPolicy(SchedulerPolicy):
     """
     Weighted fair-share among active workers using fixed per-worker priorities.
 
-    Each active worker (pending_data_size > 0) receives a share of the PFS
+    Each active worker (checkpoint_size > 0) receives a share of the PFS
     bandwidth proportional to its priority weight:
 
         rate_i = pfs_bw * priority_i / sum(priority_j for j in active)
@@ -175,7 +175,7 @@ class StaticPriorityPolicy(SchedulerPolicy):
 
     def decide(self, worker_id, workers):
         worker = workers.get(worker_id)
-        if worker is None or worker.pending_data_size <= 0:
+        if worker is None or worker.checkpoint_size <= 0:
             return cluster_pb2.InstructionResponse(
                 action=cluster_pb2.InstructionResponse.HOLD,
                 rate_limit_bps=0.0,
@@ -184,7 +184,7 @@ class StaticPriorityPolicy(SchedulerPolicy):
         total = sum(
             self._weight(w.worker_id)
             for w in workers.values()
-            if w.pending_data_size > 0
+            if w.checkpoint_size > 0
         )
 
         rate = self.pfs_bandwidth_bps * self._weight(worker_id) / total
