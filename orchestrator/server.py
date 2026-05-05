@@ -11,6 +11,7 @@ from orchestrator.scheduler import (
     SchedulerPolicy,
     NoLimitPolicy,
     StaticPriorityPolicy,
+    AgePriorityPolicy,
     POLICIES,
     DEFAULT_POLICY,
     ORCHESTRATOR_PORT,
@@ -152,6 +153,18 @@ if __name__ == "__main__":
         help="Path to JSON priority map for static-priority policy "
              "(schema: {\"default\": float, \"workers\": {worker_id: weight}})",
     )
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        default=0.5,
+        help="age-priority: weight of normalized checkpoint size (default 0.5)",
+    )
+    parser.add_argument(
+        "--beta",
+        type=float,
+        default=0.5,
+        help="age-priority: weight of normalized pending age (default 0.5)",
+    )
     args = parser.parse_args()
 
     policy_cls = POLICIES[args.policy]
@@ -166,6 +179,17 @@ if __name__ == "__main__":
             pfs_bandwidth_bps=args.pfs_bw,
             priorities=priorities,
             default_priority=default_priority,
+        )
+    elif policy_cls is AgePriorityPolicy:
+        if args.priority_map:
+            print(
+                f"warning: --priority-map ignored for policy {args.policy!r}",
+                file=sys.stderr,
+            )
+        policy = AgePriorityPolicy(
+            pfs_bandwidth_bps=args.pfs_bw,
+            alpha=args.alpha,
+            beta=args.beta,
         )
     else:
         if args.priority_map:
