@@ -22,9 +22,12 @@ from dataclasses import dataclass, field
 @dataclass
 class WorkerState:
     worker_id:         str
-    checkpoint_size: float  # bytes
+    checkpoint_size:   float  # bytes
     is_migrating:      bool
-    last_seen:         float = field(default_factory=time.time)
+    last_seen:         float        = field(default_factory=time.time)
+    # Wall-clock time at which checkpoint_size transitioned from 0 to >0.
+    # None when the worker is idle. Used by age-aware policies.
+    pending_since:     float | None = None
 
 
 class ClusterState:
@@ -35,11 +38,25 @@ class ClusterState:
         self._workers: Dict[str, WorkerState] = {}
 
     def update(self, worker_id: str, checkpoint_size: float, is_migrating: bool):
+        now  = time.time()
         with self._lock:
+            prev = self._workers.get(worker_id)
+
+            if checkpoint_size > 0:
+                pending_since = (
+                    prev.pending_since
+                    if prev is not None and prev.pending_since is not None
+                    else now
+                )
+            else:
+                pending_since = None
+
             self._workers[worker_id] = WorkerState(
                 worker_id=worker_id,
                 checkpoint_size=checkpoint_size,
                 is_migrating=is_migrating,
+                last_seen=now,
+                pending_since=pending_since,
             )
 
     def remove(self, worker_id: str):
@@ -195,6 +212,74 @@ class StaticPriorityPolicy(SchedulerPolicy):
         )
 
 
+class AgePriorityPolicy(SchedulerPolicy):
+    """
+    Dynamic priority based on pending checkpoint size and pending age.
+
+    For each active worker (checkpoint_size > 0) the orchestrator computes:
+
+        size_norm_i = checkpoint_size_i / max_size
+        age_i       = now - pending_since_i
+        age_norm_i  = age_i / max_age           (0 if max_age == 0)
+        priority_i  = alpha * size_norm_i + beta * age_norm_i
+        priority_i  = max(priority_i, EPS)      (avoid degenerate zero)
+
+        rate_i      = pfs_bw * priority_i / sum(priority_j for j in active)
+
+    Workers without pending data receive HOLD. Larger pending checkpoints get
+    more bandwidth (drain faster); older pending checkpoints get more
+    bandwidth (anti-starvation).
+    """
+
+    EPS = 1e-6
+
+    def __init__(
+        self,
+        pfs_bandwidth_bps: float = 1e9,
+        alpha: float = 0.5,
+        beta: float = 0.5,
+    ):
+        assert alpha >= 0 and beta >= 0, "alpha and beta must be non-negative"
+        assert alpha + beta > 0,         "alpha + beta must be positive"
+        self.pfs_bandwidth_bps = pfs_bandwidth_bps
+        self.alpha = alpha
+        self.beta  = beta
+
+    def _priority(self, w: WorkerState, now: float, max_size: float, max_age: float) -> float:
+        size_norm = w.checkpoint_size / max_size if max_size > 0 else 0.0
+        age       = (now - w.pending_since) if w.pending_since is not None else 0.0
+        age_norm  = age / max_age if max_age > 0 else 0.0
+        priority  = self.alpha * size_norm + self.beta * age_norm
+        return max(priority, self.EPS)
+
+    def decide(self, worker_id, workers):
+        worker = workers.get(worker_id)
+        if worker is None or worker.checkpoint_size <= 0:
+            return cluster_pb2.InstructionResponse(
+                action=cluster_pb2.InstructionResponse.HOLD,
+                rate_limit_bps=0.0,
+            )
+
+        now    = time.time()
+        active = [w for w in workers.values() if w.checkpoint_size > 0]
+
+        max_size = max(w.checkpoint_size for w in active)
+        max_age  = max(
+            (now - w.pending_since) if w.pending_since is not None else 0.0
+            for w in active
+        )
+
+        total_priority = sum(self._priority(w, now, max_size, max_age) for w in active)
+        my_priority    = self._priority(worker, now, max_size, max_age)
+
+        rate = self.pfs_bandwidth_bps * my_priority / total_priority
+
+        return cluster_pb2.InstructionResponse(
+            action=cluster_pb2.InstructionResponse.START_FLUSH,
+            rate_limit_bps=rate,
+        )
+
+
 # Registry — map policy names to constructors (used by CLI / config)
 
 POLICIES: Dict[str, type] = {
@@ -203,6 +288,7 @@ POLICIES: Dict[str, type] = {
     "uniform-fair-share": UniformFairSharePolicy,
     "active-fair-share": ActiveFairSharePolicy,
     "static-priority": StaticPriorityPolicy,
+    "age-priority": AgePriorityPolicy,
 }
 
 DEFAULT_POLICY = "no-limit"
