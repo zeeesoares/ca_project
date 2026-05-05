@@ -4,7 +4,7 @@
 #SBATCH --exclusive
 #SBATCH --partition=dev-arm
 #SBATCH --account=f202500010hpcvlabuminhoa
-#SBATCH --time=00:10:00
+#SBATCH --time=01:00:00
 #SBATCH --output=out/llm_checkpointing_orchestrator_%j.out
 
 module load "Python/3.12.3-GCCcore-13.3.0"
@@ -22,5 +22,5 @@ echo "Orchestrator running on host: $HOST"
 source venv/bin/activate
 python3 -m orchestrator.server \
     --policy "$POLICY" \
-    --bandwidth "$BW" \
+    --pfs-bw "$BW" \
     --port "$ORCHESTRATOR_PORT"

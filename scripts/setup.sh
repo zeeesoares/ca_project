@@ -1,4 +1,11 @@
 #!/bin/bash
+#SBATCH --job-name=create_venv
+#SBATCH --nodes=1
+#SBATCH --exclusive
+#SBATCH --partition=dev-arm
+#SBATCH --account=f202500010hpcvlabuminhoa
+#SBATCH --time=00:10:00
+#SBATCH --output=out/chk_arm_%j.out
 
 set -e  # Exit immediately if a command exits with a non-zero status
 

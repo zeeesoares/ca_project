@@ -10,11 +10,7 @@ from train.trainer import Trainer
 from torch_ext.checkpoint import Checkpoint
 
 
-def main(total_steps, checkpoint_interval):
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--profile", action="store_true")
-    args = parser.parse_args()
-
+def main(profile, total_steps, checkpoint_interval):
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     model = build_model()
@@ -39,7 +35,7 @@ def main(total_steps, checkpoint_interval):
         checkpoint=checkpoint,
         device=device,
         checkpoint_interval=checkpoint_interval,
-        enable_profiler=args.profile,
+        enable_profiler=profile,
     )
 
     trainer.train(max_steps=total_steps)
@@ -47,8 +43,9 @@ def main(total_steps, checkpoint_interval):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--profile", action="store_true")
     parser.add_argument("--total-steps", type=int, default=50)
     parser.add_argument("--checkpoint-interval", type=int, default=10)
 
     args = parser.parse_args()
-    main(args.total_steps, args.checkpoint_interval)
+    main(args.profile, args.total_steps, args.checkpoint_interval)
