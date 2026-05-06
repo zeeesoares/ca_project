@@ -13,8 +13,8 @@ from torch_ext.checkpoint import Checkpoint
 def main(profile, total_steps, checkpoint_interval):
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    model = build_model()
-    dataloader = build_dataloader(batch_size=8)
+    model = build_model("bert-base-uncased")
+    dataloader = build_dataloader(batch_size=8, model_name="bert-base-uncased", dataset_name="wikitext")
 
     optimizer = AdamW(model.parameters(), lr=5e-5)
 

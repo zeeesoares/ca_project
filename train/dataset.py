@@ -1,14 +1,23 @@
-from datasets import load_dataset
-from transformers import BertTokenizer
-from transformers import DataCollatorForLanguageModeling
+from datasets import load_dataset, load_from_disk
+from transformers import AutoTokenizer, DataCollatorForLanguageModeling
 from torch.utils.data import DataLoader
 
+def build_dataloader(batch_size=8, model_name="bert-base-uncased", dataset_name="wikitext"):
+    base_path = "/projects/F202500010HPCVLABUMINHO/josesoares/pca/assets"
+    tokenizer_path = f"{base_path}/models/{model_name}"
+    dataset_path = f"{base_path}/datasets/{dataset_name}"
 
-def build_dataloader(batch_size=8):
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
+    except Exception:
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        tokenizer.save_pretrained(tokenizer_path)
 
-    dataset = load_dataset("wikitext", "wikitext-2-raw-v1")
-
-    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+    try:
+        raw_dataset = load_from_disk(dataset_path)
+    except Exception:
+        print(f"A descarregar dataset {dataset_name}...")
+        raw_dataset = load_dataset(dataset_name, "wikitext-2-raw-v1")
 
     def tokenize(example):
         return tokenizer(
@@ -18,7 +27,7 @@ def build_dataloader(batch_size=8):
             max_length=128,
         )
 
-    tokenized = dataset["train"].map(
+    tokenized = raw_dataset["train"].map(
         tokenize,
         batched=True,
         remove_columns=["text"],
@@ -32,11 +41,4 @@ def build_dataloader(batch_size=8):
         mlm_probability=0.15,
     )
 
-    dataloader = DataLoader(
-        tokenized,
-        batch_size=batch_size,
-        shuffle=True,
-        collate_fn=collator,
-    )
-
-    return dataloader
+    return DataLoader(tokenized, batch_size=batch_size, shuffle=True, collate_fn=collator)
