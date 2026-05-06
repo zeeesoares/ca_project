@@ -28,6 +28,9 @@ class WorkerState:
     # Wall-clock time at which checkpoint_size transitioned from 0 to >0.
     # None when the worker is idle. Used by age-aware policies.
     pending_since:     float | None = None
+    # Training progress reported by the migrater. 0/0 when unknown.
+    epoch:             int          = 0
+    total_epochs:      int          = 0
 
 
 class ClusterState:
@@ -37,7 +40,14 @@ class ClusterState:
         self._lock    = threading.Lock()
         self._workers: Dict[str, WorkerState] = {}
 
-    def update(self, worker_id: str, checkpoint_size: float, is_migrating: bool):
+    def update(
+        self,
+        worker_id: str,
+        checkpoint_size: float,
+        is_migrating: bool,
+        epoch: int = 0,
+        total_epochs: int = 0,
+    ):
         now  = time.time()
         with self._lock:
             prev = self._workers.get(worker_id)
@@ -57,6 +67,8 @@ class ClusterState:
                 is_migrating=is_migrating,
                 last_seen=now,
                 pending_since=pending_since,
+                epoch=epoch,
+                total_epochs=total_epochs,
             )
 
     def remove(self, worker_id: str):
@@ -280,6 +292,64 @@ class AgePriorityPolicy(SchedulerPolicy):
         )
 
 
+class EpochPriorityPolicy(SchedulerPolicy):
+    """
+    Dynamic priority based on training progress (epoch / total_epochs).
+
+    Jobs closer to the end of training have invested more compute and have
+    fewer remaining checkpoints to protect their state, so they receive a
+    proportionally larger share of the PFS bandwidth.
+
+    Linear-with-floor weight:
+
+        progress_i  = clamp(epoch_i / total_epochs_i, 0.0, 1.0)
+        priority_i  = floor + (1 - floor) * progress_i
+
+        rate_i      = pfs_bw * priority_i / sum(priority_j for j in active)
+
+    Workers with total_epochs == 0 (training side did not report progress)
+    are treated as progress = 0 -> priority = floor. Workers without
+    pending data receive HOLD.
+    """
+
+    def __init__(
+        self,
+        pfs_bandwidth_bps: float = 1e9,
+        floor: float = 0.2,
+    ):
+        assert 0.0 <= floor <= 1.0, "floor must be in [0, 1]"
+        self.pfs_bandwidth_bps = pfs_bandwidth_bps
+        self.floor             = floor
+
+    def _priority(self, w: WorkerState) -> float:
+        if w.total_epochs <= 0:
+            progress = 0.0
+        else:
+            progress = w.epoch / w.total_epochs
+            progress = max(0.0, min(progress, 1.0))
+        return self.floor + (1.0 - self.floor) * progress
+
+    def decide(self, worker_id, workers):
+        worker = workers.get(worker_id)
+        if worker is None or worker.checkpoint_size <= 0:
+            return cluster_pb2.InstructionResponse(
+                action=cluster_pb2.InstructionResponse.HOLD,
+                rate_limit_bps=0.0,
+            )
+
+        active = [w for w in workers.values() if w.checkpoint_size > 0]
+
+        total_priority = sum(self._priority(w) for w in active)
+        my_priority    = self._priority(worker)
+
+        rate = self.pfs_bandwidth_bps * my_priority / total_priority
+
+        return cluster_pb2.InstructionResponse(
+            action=cluster_pb2.InstructionResponse.START_FLUSH,
+            rate_limit_bps=rate,
+        )
+
+
 # Registry — map policy names to constructors (used by CLI / config)
 
 POLICIES: Dict[str, type] = {
@@ -289,6 +359,7 @@ POLICIES: Dict[str, type] = {
     "active-fair-share": ActiveFairSharePolicy,
     "static-priority": StaticPriorityPolicy,
     "age-priority": AgePriorityPolicy,
+    "epoch-priority": EpochPriorityPolicy,
 }
 
 DEFAULT_POLICY = "no-limit"

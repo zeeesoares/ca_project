@@ -12,6 +12,7 @@ from orchestrator.scheduler import (
     NoLimitPolicy,
     StaticPriorityPolicy,
     AgePriorityPolicy,
+    EpochPriorityPolicy,
     POLICIES,
     DEFAULT_POLICY,
     ORCHESTRATOR_PORT,
@@ -76,7 +77,9 @@ class OrchestratorService(cluster_pb2_grpc.OrchestratorServiceServicer):
                 self.cluster.update(
                     worker_id,
                     heartbeat.checkpoint_size,
-                    heartbeat.is_migrating
+                    heartbeat.is_migrating,
+                    epoch=heartbeat.epoch,
+                    total_epochs=heartbeat.total_epochs,
                 )
 
                 workers = self.cluster.snapshot()
@@ -165,6 +168,13 @@ if __name__ == "__main__":
         default=0.5,
         help="age-priority: weight of normalized pending age (default 0.5)",
     )
+    parser.add_argument(
+        "--epoch-floor",
+        type=float,
+        default=0.2,
+        help="epoch-priority: minimum priority weight, applied at progress=0 "
+             "(default 0.2)",
+    )
     args = parser.parse_args()
 
     policy_cls = POLICIES[args.policy]
@@ -190,6 +200,16 @@ if __name__ == "__main__":
             pfs_bandwidth_bps=args.pfs_bw,
             alpha=args.alpha,
             beta=args.beta,
+        )
+    elif policy_cls is EpochPriorityPolicy:
+        if args.priority_map:
+            print(
+                f"warning: --priority-map ignored for policy {args.policy!r}",
+                file=sys.stderr,
+            )
+        policy = EpochPriorityPolicy(
+            pfs_bandwidth_bps=args.pfs_bw,
+            floor=args.epoch_floor,
         )
     else:
         if args.priority_map:
