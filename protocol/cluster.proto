@@ -1,3 +1,4 @@
+// vim: set tabstop=2 shiftwidth=2 softtabstop=2 expandtab:
 syntax = "proto3";
 
 package cluster;
@@ -59,6 +60,7 @@ message InstructionResponse {
     HOLD        = 0;
     START_FLUSH = 1;
     CHANGE_RATE = 2;
+    EXIT        = 3;
   }
 
   Action action         = 1;

@@ -1,7 +1,10 @@
 import argparse
-import json
-import sys
 import grpc
+import json
+import signal
+import sys
+import threading
+import time
 from concurrent import futures
 
 from utils.size_parser import parse_size, format_size
@@ -17,6 +20,7 @@ from orchestrator.scheduler import (
     DEFAULT_POLICY,
     ORCHESTRATOR_PORT,
 )
+from migrater.server import HEARTBEAT_INTERVAL
 
 
 def load_priority_map(path: str) -> tuple[dict[str, float], float]:
@@ -65,8 +69,12 @@ metrics = setup_log_metrics("qos_metrics", "logs/orchestrator_metrics.json")
 class OrchestratorService(cluster_pb2_grpc.OrchestratorServiceServicer):
 
     def __init__(self, policy: SchedulerPolicy, cluster: ClusterState):
-        self.policy  = policy
-        self.cluster = cluster
+        self.policy        = policy
+        self.cluster       = cluster
+        self.shutting_down = threading.Event()
+
+    def request_shutdown(self):
+        self.shutting_down.set()
 
     def Monitor(self, request_iterator, context):
         worker_id = None
@@ -81,6 +89,22 @@ class OrchestratorService(cluster_pb2_grpc.OrchestratorServiceServicer):
                     epoch=heartbeat.epoch,
                     total_epochs=heartbeat.total_epochs,
                 )
+
+                if self.shutting_down.is_set():
+                    instruction = cluster_pb2.InstructionResponse(
+                        action=cluster_pb2.InstructionResponse.EXIT,
+                        rate_limit_bps=500_000_000  # 500 MB/s, effectively no limit for typical workloads
+                    )
+
+                    metrics.info({
+                        "worker_id": worker_id,
+                        "checkpoint_size": heartbeat.checkpoint_size,
+                        "is_migrating": heartbeat.is_migrating,
+                        "action": "EXIT",
+                    })
+
+                    yield instruction
+                    break
 
                 workers = self.cluster.snapshot()
                 instruction = self.policy.decide(worker_id, workers)
@@ -116,6 +140,7 @@ class OrchestratorService(cluster_pb2_grpc.OrchestratorServiceServicer):
                 metrics.info(log_entry)
 
                 yield instruction
+
         finally:
             if worker_id:
                 self.cluster.remove(worker_id)
@@ -128,15 +153,28 @@ def serve(port=ORCHESTRATOR_PORT, policy: SchedulerPolicy = None, pfs_bw: int = 
     cluster = ClusterState()
     server  = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
-    cluster_pb2_grpc.add_OrchestratorServiceServicer_to_server(
-        OrchestratorService(policy, cluster),
-        server,
-    )
+    service = OrchestratorService(policy, cluster)
+
+    cluster_pb2_grpc.add_OrchestratorServiceServicer_to_server(service, server)
 
     server.add_insecure_port(f"[::]:{port}")
     server.start()
-    print(f"Orchestrator running on {port} | policy={policy.__class__.__name__} | pfs_bandwidth={format_size(pfs_bw) if pfs_bw else 'N/A'}")
-    server.wait_for_termination()
+
+    print(f"Orchestrator running on {port} | policy={policy.__class__.__name__}"
+          f" | pfs_bandwidth={format_size(pfs_bw) if pfs_bw else 'N/A'}")
+
+    try:
+        server.wait_for_termination()
+    except KeyboardInterrupt:
+        print("Orchestrator shutting down: sending EXIT to migraters")
+        service.request_shutdown()
+
+        # Give migraters time to send another heartbeat and receive EXIT.
+        # HEARTBEAT_INTERVAL is 0.5s on migraters, so 2s is enough margin.
+        time.sleep(HEARTBEAT_INTERVAL * 4)
+
+        server.stop(grace=2)
+        print("Orchestrator stopped")
 
 
 if __name__ == "__main__":
@@ -222,7 +260,4 @@ if __name__ == "__main__":
         except TypeError:
             policy = policy_cls()
 
-    try:
-        serve(port=args.port, policy=policy, pfs_bw=args.pfs_bw)
-    except KeyboardInterrupt:
-        print("Orchestrator shutting down")
+    serve(port=args.port, policy=policy, pfs_bw=args.pfs_bw)
