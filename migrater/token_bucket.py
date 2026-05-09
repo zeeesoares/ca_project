@@ -11,7 +11,7 @@ from typing import Callable, Union, Optional, Any
 # Token bucket constants and implementation
 ###
 
-DEFAULT_CHUNK_SIZE = 8  # KB
+DEFAULT_CHUNK_SIZE = 8 * 1024  # MB
 
 SLEEP_CAP = 1  # percentage of the calculated sleep time to actually sleep
 assert 0 < SLEEP_CAP <= 1, "Invalid sleep cap value"

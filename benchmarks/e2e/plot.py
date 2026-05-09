@@ -69,7 +69,7 @@ def plot_summary_table(agg: pd.DataFrame, pw: pd.DataFrame, output: Path):
     col_labels = [
         "Mode", "Policy", "#W", "PFS BW",
         "Stall (s)", "σ stall", "Migration (s)", "σ migr",
-        "Tput (MB/s)", "σ tput", "Jain", "Jobs",
+        "Tput (MB/s)", "σ tput", "Jobs",
     ]
 
     rows = []
@@ -86,7 +86,6 @@ def plot_summary_table(agg: pd.DataFrame, pw: pd.DataFrame, output: Path):
             f"{r['std_migration_s']:.2f}" if not _nan(r["std_migration_s"]) else "—",
             f"{r['mean_throughput_mbps']:.1f}",
             f"{r['std_throughput_mbps']:.1f}" if not _nan(r["std_throughput_mbps"]) else "—",
-            f"{r['jain_fairness']:.4f}" if not _nan(r["jain_fairness"]) else "—",
             f"{r['concurrent_jobs']:>{COL_W['concurrent_jobs']}}"
         ])
 
@@ -120,10 +119,6 @@ def plot_summary_table(agg: pd.DataFrame, pw: pd.DataFrame, output: Path):
         float(r[4]) for r in rows if r[4] not in ("—", "N/A")
     ]
     stall_max = max(stall_vals) if stall_vals else 1.0
-
-    jain_vals = [
-        float(r[10]) for r in rows if r[10] not in ("—", "N/A")
-    ]
 
     for i, (row_data, (_, agg_row)) in enumerate(zip(rows, agg.iterrows())):
         ri = i + 1  # table row index (0 is header)

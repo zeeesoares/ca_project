@@ -159,8 +159,9 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
                 print("[migrater] shutdown requested — checkpoint rejected")
                 return cluster_pb2.CheckpointSavedResponse(ok=False)
 
-            self.checkpoint_size = file_size
             self.transfer_allowed.clear()  # require a fresh instruction for this transfer
+            self.pending_size = file_size
+            self.checkpoint_size = file_size
             self.epoch = epoch
             self.total_epochs = total_epochs
 

@@ -153,8 +153,3 @@ echo ""
 echo "    python3 -m benchmarks.e2e.collect \\"
 echo "        --results-dir ${RESULTS_DIR}/${EXPERIMENT_TAG} \\"
 echo "        --output-csv  ${RESULTS_DIR}/${EXPERIMENT_TAG}/summary.csv"
-
-
-for POLICY in uniform-fair-share active-fair-share age-priority epoch-priority; do
-    ./scripts/submit-orchestrated.sh --policy $POLICY --pfs-bw 500MB --n-workers 4
-done
