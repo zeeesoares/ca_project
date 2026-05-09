@@ -5,6 +5,12 @@ import torch
 
 from protocol.migrater.client import MigraterClient
 
+def make_big_state(base_state, size_gb=10):
+    num_elements = int(size_gb * 1e9 / 4)  # float32 = 4 bytes
+    big_tensor = torch.ones(num_elements, dtype=torch.float32)
+
+    base_state["__padding__"] = big_tensor
+    return base_state
 
 class Checkpoint:
 

@@ -3,7 +3,7 @@ from transformers import AutoTokenizer, DataCollatorForLanguageModeling
 from torch.utils.data import DataLoader
 
 def build_dataloader(batch_size=8, model_name="bert-base-uncased", dataset_name="wikitext"):
-    base_path = "/projects/F202500010HPCVLABUMINHO/josesoares/pca/assets"
+    base_path = "/tmp"
     tokenizer_path = f"{base_path}/models/{model_name}"
     dataset_path = f"{base_path}/datasets/{dataset_name}"
 

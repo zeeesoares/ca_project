@@ -321,13 +321,15 @@ class EpochPriorityPolicy(SchedulerPolicy):
         self.pfs_bandwidth_bps = pfs_bandwidth_bps
         self.floor             = floor
 
+    EPS = 1e-6
+
     def _priority(self, w: WorkerState) -> float:
         if w.total_epochs <= 0:
             progress = 0.0
         else:
             progress = w.epoch / w.total_epochs
             progress = max(0.0, min(progress, 1.0))
-        return self.floor + (1.0 - self.floor) * progress
+        return max(self.floor + (1.0 - self.floor) * progress, self.EPS)
 
     def decide(self, worker_id, workers):
         worker = workers.get(worker_id)

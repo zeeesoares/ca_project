@@ -60,6 +60,7 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
 
                     print(
                         "[migrater] "
+                        f"timestamp={time.time():.2f}s, "
                         f"migrating={migrating}, "
                         f"epoch={self.epoch}, total_epochs={self.total_epochs}, "
                         f"configured={latest['configured_rate_bps']:.0f} B/s, "
@@ -69,7 +70,7 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
                         f"{latest['bytes_copied']}/{latest['total_bytes']} bytes copied)"
                     )
                 else:
-                    print(f"[migrater] migrating={migrating}, pending={pending}, "
+                    print(f"[migrater] timestamp={time.time()}: migrating={migrating}, pending={pending}, "
                           f"epoch={self.epoch}, total_epochs={self.total_epochs}")
 
                 yield cluster_pb2.HeartbeatRequest(

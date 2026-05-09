@@ -1,7 +1,7 @@
 from transformers import AutoModelForMaskedLM
 
 def build_model(model_name="bert-base-uncased"):
-    model_path = f"/projects/F202500010HPCVLABUMINHO/josesoares/pca/assets/models/{model_name}"
+    model_path = f"/tmp/{model_name}"
 
     try:
         print(f"Loading model from: {model_path}")
