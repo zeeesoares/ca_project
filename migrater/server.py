@@ -35,11 +35,14 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
         self.epoch            = 0
         self.total_epochs     = 0
 
+        self.shutdown_requested = threading.Event()
+        self.shutdown_complete  = threading.Event()
+
         threading.Thread(target=self._heartbeat_loop, daemon=True).start()
 
     def _heartbeat_loop(self):
         def stream():
-            while True:
+            while not self.shutdown_complete.is_set():
                 progress_items = self.progress.pop()
 
                 with self.lock:
@@ -60,7 +63,7 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
 
                     print(
                         "[migrater] "
-                        f"timestamp={time.time():.2f}s, "
+                        f"timestamp={latest['timestamp']:.2f}, "
                         f"migrating={migrating}, "
                         f"epoch={self.epoch}, total_epochs={self.total_epochs}, "
                         f"configured={latest['configured_rate_bps']:.0f} B/s, "
@@ -70,7 +73,8 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
                         f"{latest['bytes_copied']}/{latest['total_bytes']} bytes copied)"
                     )
                 else:
-                    print(f"[migrater] timestamp={time.time()}: migrating={migrating}, pending={pending}, "
+                    print(f"[migrater] timestamp={time.time():.2f}, "
+                          f"migrating={migrating}, pending={pending}, "
                           f"epoch={self.epoch}, total_epochs={self.total_epochs}")
 
                 yield cluster_pb2.HeartbeatRequest(
@@ -84,8 +88,24 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
 
                 time.sleep(HEARTBEAT_INTERVAL)
 
-        for instruction in self.orchestrator_client.monitor(stream()):
-            self._handle_instruction(instruction)
+        try:
+            for instruction in self.orchestrator_client.monitor(stream()):
+                self._handle_instruction(instruction)
+
+                if instruction.action == cluster_pb2.InstructionResponse.EXIT:
+                    break
+
+        except grpc.RpcError as e:
+            print(f"[migrater] heartbeat stream ended: {e}")
+
+        finally:
+            if self.shutdown_requested.is_set():
+                with self.lock:
+                    active = self.transfer_active
+                    pending = self.pending_size
+
+                if not active and pending == 0:
+                    self.shutdown_complete.set()
 
     def _handle_instruction(self, instruction):
         action = instruction.action
@@ -100,20 +120,43 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
                 self.current_rate = max(0, int(instruction.rate_limit_bps))
             self.transfer_allowed.set()
 
+        elif action == cluster_pb2.InstructionResponse.EXIT:
+            print("[migrater] received EXIT instruction from orchestrator")
+            self.shutdown_requested.set()
+
+            with self.lock:
+                if not self.transfer_active:
+                    self.shutdown_complete.set()
+
+                # If a transfer is pending but not yet started, allow it to start.
+                # If current_rate is 0, it would otherwise wait forever.
+                if self.pending_size > 0 and self.current_rate <= 0:
+                    self.current_rate = int(instruction.rate_limit_bps) or 500_000_000
+
+            self.transfer_allowed.set()
+
         # HOLD: do not touch transfer_allowed; once a transfer is running it continues
 
     def NotifyCheckpointSaved(self, request, context):
-        local     = request.checkpoint_local_path
-        pfs       = request.checkpoint_pfs_path
-        epoch     = request.epoch
+        if self.shutdown_requested.is_set():
+            print("[migrater] shutdown requested — checkpoint rejected")
+            return cluster_pb2.CheckpointSavedResponse(ok=False)
+
+        local        = request.checkpoint_local_path
+        pfs          = request.checkpoint_pfs_path
+        epoch        = request.epoch
         total_epochs = request.total_epochs
-        file_size = os.path.getsize(local)
+        file_size    = os.path.getsize(local)
 
         with self.lock:
             if self.transfer_active:
                 # TODO: notify orchestrator and let it decide whether to preempt
                 #       the current transfer in favour of this newer checkpoint.
                 print(f"[migrater] transfer active — checkpoint ignored: {local}")
+                return cluster_pb2.CheckpointSavedResponse(ok=False)
+
+            if self.shutdown_requested.is_set():
+                print("[migrater] shutdown requested — checkpoint rejected")
                 return cluster_pb2.CheckpointSavedResponse(ok=False)
 
             self.checkpoint_size = file_size
@@ -151,8 +194,12 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
         finally:
             with self.lock:
                 self.transfer_active = False
-                self.checkpoint_size    = 0
+                self.checkpoint_size = 0
                 self.current_rate    = 0
+
+            if self.shutdown_requested.is_set():
+                print("[migrater] transfer completed after EXIT")
+                self.shutdown_complete.set()
 
     def _progress_to_proto(self, item: dict):
         return cluster_pb2.TransferProgress(
@@ -172,17 +219,35 @@ def serve(orchestrator_addr, orchestrator_port):
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
 
-    cluster_pb2_grpc.add_MigraterServiceServicer_to_server(
-        MigraterService(orchestrator_addr, orchestrator_port),
-        server,
-    )
+    service = MigraterService(orchestrator_addr, orchestrator_port)
+
+    cluster_pb2_grpc.add_MigraterServiceServicer_to_server(service, server)
 
     server.add_insecure_port("[::]:50051")
     server.start()
 
     print("Migrater running on 50051")
 
-    server.wait_for_termination()
+    try:
+        while True:
+            if service.shutdown_complete.wait(timeout=0.5):
+                print("[migrater] graceful shutdown complete")
+                server.stop(grace=2)
+                break
+
+    except KeyboardInterrupt:
+        print("Migrater shutting down")
+        service.shutdown_requested.set()
+
+        with service.lock:
+            active = service.transfer_active
+            pending = service.pending_size
+
+        if not active and pending == 0:
+            service.shutdown_complete.set()
+
+        service.shutdown_complete.wait()
+        server.stop(grace=2)
 
 
 if __name__ == "__main__":

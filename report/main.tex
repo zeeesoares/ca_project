@@ -35,20 +35,121 @@ control. Our evaluation on the Deucalion supercomputer demonstrates that ...
 \end{abstract}
 
 \begin{IEEEkeywords}
-\red{High-Performance Computing, Deucalion, A64FX, AMD EPYC 7742, NVIDIA A100, Memory Hierarchy.}
+\red{High-Performance Computing, Deucalion, A64FX, AMD EPYC 7742, NVIDIA A100, Memory Hierarchy, Large Language Models, Checkpointing, Parallel File Systems, I/O Contention, Quality of Service (QoS), Distributed Systems, Resource Management..}
 \end{IEEEkeywords}
 
 \section{Introduction}
 
-\red{TODO}
+The rapid growth of Large Language Models (LLMs) has significantly increased the computational and storage demands of modern High-Performance Computing (HPC) systems. Training such models requires long-running jobs over distributed infrastructures, where fault tolerance becomes essential. Checkpointing—periodically saving the model state—is the standard mechanism to ensure progress is not lost due to failures. However, as model sizes scale to billions of parameters, checkpoint operations generate massive I/O workloads.
 
-\section{...}
+In shared HPC environments, these workloads are typically directed to a Parallel File System (PFS), which is simultaneously accessed by multiple users and applications. This leads to contention, particularly when several jobs attempt to write checkpoints concurrently. The resulting "noisy neighbor" effect can degrade performance cluster-wide, increasing latency and even stalling training processes.
 
-\red{TODO}
+Existing approaches either optimize checkpoint size or leverage faster intermediate storage, but often lack coordination mechanisms to regulate global I/O pressure. This paper proposes a policy-driven, two-tier storage orchestration system that combines node-local SSD staging with centralized rate control. By decoupling checkpoint generation from persistent storage and introducing a Token Bucket-based migration strategy, the system provides predictable Quality of Service (QoS) while maintaining transparency to user applications.
+
+We evaluate the proposed system on the Deucalion supercomputer, demonstrating its ability to reduce I/O contention and improve overall system stability during large-scale LLM training.
+
+\section{Background and Motivation}
+
+\subsection{Checkpointing in HPC}
+
+Checkpointing is a fundamental technique for fault tolerance in HPC applications. In distributed deep learning, checkpoints typically include model weights, optimizer states, and training metadata. As model sizes increase, checkpoint sizes can reach tens or hundreds of gigabytes, making frequent persistence costly.
+
+\subsection{Parallel File Systems and Contention}
+
+Parallel File Systems such as Lustre are designed for high throughput, but their performance degrades under bursty and uncoordinated workloads. Concurrent checkpointing from multiple jobs creates synchronized I/O spikes, overwhelming metadata servers and storage targets.
+
+\subsection{Motivation}
+
+The main motivation of this work is that checkpointing is not latency-critical for persistence, but it is latency-critical for training continuation. This distinction enables decoupling the checkpoint write path into fast local operations and controlled background transfers.
+
+\section{System Design}
+
+The proposed system adopts a two-tier storage architecture combined with a centralized control plane.
+
+\subsection{Design Overview}
+
+The system consists of three main components:
+\begin{itemize}
+    \item \textbf{Interception Layer}: Transparently redirects checkpoint writes.
+    \item \textbf{Local Storage Tier}: Node-local SSDs for fast staging.
+    \item \textbf{Control Plane}: Central orchestrator managing global I/O behavior.
+\end{itemize}
+
+\subsection{I/O Interception Mechanism}
+
+The system intercepts POSIX write calls associated with checkpoint operations and redirects them to local SSD storage.
+
+\subsection{Local Storage Tier}
+
+Each compute node uses its local SSD as a staging area. This eliminates immediate contention on the PFS and enables high-throughput writes.
+
+\subsection{Global Orchestrator}
+
+The orchestrator maintains system-wide state, including:
+\begin{itemize}
+    \item Active jobs and checkpoint queues
+    \item Current PFS load
+    \item Token allocation per job
+\end{itemize}
+
+\section{QoS-Aware Data Migration}
+
+\subsection{Token Bucket Model}
+
+To regulate PFS access, each job is assigned a token bucket defining its allowed write rate. Tokens accumulate over time and are consumed during data transfers.
+
+\subsection{Scheduling Policy}
+
+The orchestrator schedules checkpoint flushes based on:
+\begin{itemize}
+    \item Token availability
+    \item Queue size
+    \item System load
+\end{itemize}
+
+\subsection{Fairness and Isolation}
+
+The Token Bucket mechanism ensures that no job exceeds its allocated bandwidth, providing fairness and mitigating interference.
+
+\section{Implementation}
+
+\subsection{Prototype Design}
+
+The system is implemented as a user-space middleware layer, avoiding kernel modifications. The interception layer is realized using dynamic linking techniques.
+
+\subsection{Data Management}
+
+Checkpoint files are stored locally with metadata tracking their migration status. A background daemon handles transfers to the PFS.
+
+\subsection{Fault Tolerance}
+
+To ensure reliability, the system maintains redundancy metadata and guarantees that checkpoints are eventually persisted to the PFS.
+
+\subsection{Integration with HPC Workflows}
+
+The system is compatible with existing job schedulers and deep learning frameworks, requiring no changes to user applications.
+
 
 \section{Benchmarking}
 
-\red{TODO}
+Experiments were conducted on the Deucalion supercomputer, featuring heterogeneous compute nodes and a shared PFS. Workloads simulate LLM checkpointing behavior with varying sizes and frequencies.
+
+\subsection{Workloads}
+We evaluate the system using synthetic and realistic checkpointing workloads designed to mimic Large Language Model (LLM) training behavior:
+\begin{itemize}
+    \item TODO
+\end{itemize}
+
+\subsection{Metrics}
+
+\begin{itemize}
+    \item Checkpoint latency
+    \item Training stall duration
+    \item PFS throughput and variability
+    \item Fairness index across jobs
+    \item I/O congestion
+    \item CPU/GPU and memory usage
+\end{itemize}
 
 \section{Related Work}
 
@@ -76,7 +177,25 @@ control plane coordinates I/O rates across all jobs. While PADLL is a general-pu
 the specific lifecycle of LLM checkpoints—integrating node-local SSD staging with PADLL-inspired Token Bucket rate limiting to ensure cluster harmony 
 during massive model state migrations.
 
+\section{Results}
+
+\red{Colocar resultados em geral e em específico para cada métrica?}
+
+\section{Discussion}
+
+\subsection{Trade-offs}
+
+\subsection{Scalability}
+
+\subsection{Limitations}
+
 \section{Conclusions}
+
+\red{TODO}
+
+\section{Future Work}
+
+Future work will focus on...
 
 \red{TODO}
 
