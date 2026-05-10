@@ -67,7 +67,7 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
                         f"migrating={migrating}, "
                         f"epoch={self.epoch}, total_epochs={self.total_epochs}, "
                         f"configured={latest['configured_rate_bps']:.0f} B/s, "
-                        f"rate={latest['interval_throughput_bps']:.0f} B/s, "
+                        f"rate={latest['average_throughput_bps']:.0f} B/s, "
                         f"pending={pending} bytes "
                         f"([{(latest['bytes_copied'] / latest['total_bytes']) * 100 :.2f}%] "
                         f"{latest['bytes_copied']}/{latest['total_bytes']} bytes copied)"
