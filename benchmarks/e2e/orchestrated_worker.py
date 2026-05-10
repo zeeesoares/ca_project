@@ -38,6 +38,7 @@ from typing import Optional
 import shutil
 
 import grpc
+from numpy.ma import size
 
 from protocol import cluster_pb2, cluster_pb2_grpc
 
@@ -295,7 +296,9 @@ def main():
         t_done    = t_done or time.monotonic()
 
         migration_s = t_done - t_stall_start
-        throughput  = args.checkpoint_size / migration_s if migration_s > 0 else 0.0
+        
+        transfer_time = migration_s - stall_s
+        throughput = args.checkpoint_size / transfer_time if transfer_time > 0 else 0.0
 
         row = {
             "mode":                    "orchestrated",
