@@ -157,21 +157,21 @@ The optimization of checkpointing in High-Performance Computing (HPC) has been e
 latency and mitigating Parallel File System (PFS) congestion.
 
 \subsection{Architectural and Tiering Approaches}
-Several systems utilize hierarchical storage to hide I/O latency. \textbf{Check-N-Run} focuses on staging checkpoints in local node resources 
+Several systems utilize hierarchical storage to hide I/O latency. \textbf{Check-N-Run} \cite{CheckNRun} focuses on staging checkpoints in local node resources 
 (DRAM or SSDs), allowing training to resume immediately while data is moved to the PFS in the background. However, it lacks a global coordination 
-mechanism to prevent PFS saturation during the background flush. \textbf{DeepFreeze} (similar to Monarch) employs transparent storage tiering to 
+mechanism to prevent PFS saturation during the background flush. \textbf{DeepFreeze} \cite{DeepFreeze} (similar to Monarch) employs transparent storage tiering to 
 accelerate the write path by abstracting complex local tiers like NVMe or PMEM from the user. While effective at the node level, these 
 systems often ignore the "noisy neighbor" effect in shared environments.
 
 \subsection{Adaptive and Optimization Techniques}
-Other research focuses on the frequency and size of checkpoints. \textbf{CheckFreq} introduces an algorithmic approach to identify optimal checkpoint
+Other research focuses on the frequency and size of checkpoints. \textbf{CheckFreq} \cite{CheckFreq} introduces an algorithmic approach to identify optimal checkpoint
 boundaries and pipelines the process with training iterations, dynamically adjusting frequency to maintain overhead below a threshold. 
-\textbf{BitSnap} addresses the data volume by employing sparsification and quantization, reducing checkpoint sizes from 16-bit to 4-bit weights before
+\textbf{BitSnap} \cite{BitSnap} addresses the data volume by employing sparsification and quantization, reducing checkpoint sizes from 16-bit to 4-bit weights before
 they reach the I/O layer. While these reduce total I/O pressure, they do not manage the storage hierarchy or provide holistic Quality of Service
 (QoS) guarantees.
 
 \subsection{Software-Defined Storage and QoS Control}
-Our work is heavily informed by \textbf{PADLL}, a storage middleware that enables application-agnostic QoS control for both data and metadata workflows.
+Our work is heavily informed by \textbf{PADLL} \cite{PADLL}, a storage middleware that enables application-agnostic QoS control for both data and metadata workflows.
 PADLL utilizes a decoupled Software-Defined Storage (SDS) architecture, where data plane stages intercept POSIX calls and a centralized 
 control plane coordinates I/O rates across all jobs. While PADLL is a general-purpose QoS framework, our system specializes this paradigm for
 the specific lifecycle of LLM checkpoints—integrating node-local SSD staging with PADLL-inspired Token Bucket rate limiting to ensure cluster harmony 
@@ -217,6 +217,39 @@ Future work will focus on...
         ``AMD EPYC 7742 Processor (Rome) -- Product Specifications and Performance Guide,''
         2019--2024.
         \href{https://www.amd.com/en/products/cpu/amd-epyc-7742}{Link}
+
+    \bibitem{CheckFreq}
+        J. Mohan, A. Phanishayee, and V. Chidambaram,
+        ``CheckFreq: Frequent, Fine-Grained DNN Checkpointing,''
+        in \textit{19th USENIX Conference on File and Storage Technologies (FAST 21)},
+        pp. 203--216, Feb. 2021.
+        \url{https://www.usenix.org/conference/fast21/presentation/mohan}
+
+    \bibitem{CheckNRun}
+        A. Eisenman et al.,
+        ``Check-N-Run: a Checkpointing System for Training Deep Learning Recommendation Models,''
+        in \textit{19th USENIX Symposium on Networked Systems Design and Implementation (NSDI 22)},
+        pp. 929--943, Apr. 2022.
+        \url{https://www.usenix.org/conference/nsdi22/presentation/eisenman}
+
+    \bibitem{DeepFreeze}
+        B. Nicolae, J. Li, J. Wozniak, G. Bosilca, M. Dorier, and F. Cappello,
+        ``DeepFreeze: Towards Scalable Asynchronous Checkpointing of Deep Learning Models,''
+        in \textit{CCGrid 2020}, pp. 172--181, May 2020.
+        DOI: 10.1109/CCGrid49817.2020.00-76
+
+    \bibitem{BitSnap}
+        Y. Peng et al.,
+        ``BitSnap: Checkpoint Sparsification and Quantization in LLM Training,''
+        \textit{arXiv preprint arXiv:2511.12376}, 2025.
+        \url{https://arxiv.org/abs/2511.12376}
+
+    \bibitem{PADLL}
+        R. Macedo et al.,
+        ``PADLL: Taming Metadata-intensive HPC Jobs Through Dynamic, Application-agnostic QoS Control,''
+        \textit{arXiv preprint arXiv:2302.06418}, 2023.
+        \url{https://arxiv.org/abs/2302.06418}
+
 \end{thebibliography}
 
 \end{document}
