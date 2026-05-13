@@ -18,6 +18,33 @@ for POLICY in uniform-fair-share active-fair-share age-priority epoch-priority;
 do ./scripts/submit-orchestrated.sh --policy $POLICY --pfs-bw 2GB --n-workers 4; done
 ```
 
+This runs a group of test combining different policies and workloads.
+
+```bash
+for POLICY in uniform-fair-share active-fair-share age-priority epoch-priority; do
+    ./scripts/submit-orchestrated.sh \
+        --policy "$POLICY" \
+        --pfs-bw 2GB  \
+        --n-workers 4 \
+        --compute-time 0 \
+        --experiment-tag "burst_${POLICY}"
+
+    ./scripts/submit-orchestrated.sh \
+        --policy "$POLICY" \
+        --pfs-bw 2GB  \
+        --n-workers 4 \
+        --compute-time 30 \
+        --experiment-tag "steady_${POLICY}"
+
+    ./scripts/submit-orchestrated.sh \
+        --policy "$POLICY" \
+        --pfs-bw 2GB  \
+        --n-workers 4 \
+        --compute-time "random" \
+        --use-jitter \
+        --experiment-tag "dynamic_${POLICY}"
+done
+```
 
 ### Note
 
