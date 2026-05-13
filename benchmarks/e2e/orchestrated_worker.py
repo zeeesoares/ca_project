@@ -199,6 +199,14 @@ def main():
                         type=Path,
                         default=None,
                         help="Optional path to a pre-generated dummy checkpoint file to copy instead of writing zeros")
+    parser.add_argument("--compute-time",
+                        type=float,
+                        default=0.0,
+                        help="Tempo em segundos para simular o treino entre checkpoints")
+    parser.add_argument("--jitter",
+                        type=float,
+                        default=float(os.environ.get("JITTER", "0.0")),
+                        help="Tempo em segundos para adicionar jitter aleatório antes do primeiro checkpoint")
     args = parser.parse_args()
 
     hostname   = socket.gethostname()
@@ -239,6 +247,11 @@ def main():
 
     channel = grpc.insecure_channel(args.migrater_addr)
     stub    = cluster_pb2_grpc.MigraterServiceStub(channel)
+
+    # Jitter before starting, if configured (simulates variability in time to first checkpoint)
+    if args.jitter > 0:
+        print(f"  Applying initial jitter of {args.jitter:.2f}s before first checkpoint...", flush=True)
+        time.sleep(args.jitter)
 
     for i in range(args.n_checkpoints):
         cp_local = args.local_dir / f"ckpt_{worker_id}_{i}.bin"
@@ -325,6 +338,10 @@ def main():
 
         cp_local.unlink(missing_ok=True)
         cp_pfs.unlink(missing_ok=True)
+
+        if i < args.n_checkpoints - 1 and args.compute_time > 0:
+            print(f"    [Simulação] Treinando época {i + 2} por {args.compute_time:.2f}s...", flush=True)
+            time.sleep(args.compute_time)
 
         status = "TIMEOUT" if timed_out else "ok"
         print(

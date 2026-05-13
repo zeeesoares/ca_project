@@ -48,6 +48,8 @@ source venv/bin/activate
 : "${COORD_FILE:?            COORD_FILE must be set}"
 : "${ORCH_PORT:?             ORCH_PORT must be set}"
 : "${DUMMY_SRC:?             DUMMY_SRC must be set}"
+: "${COMPUTE_TIME:?          COMPUTE_TIME must be set}"
+: "${USE_JITTER:?            USE_JITTER can be set to 'true' to apply random jitter to compute time}"
 
 LOCAL_DIR="/tmp/ca_bench_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
 MIGRATER_LOG="logs/migrater_$(hostname)_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}.log"
@@ -63,6 +65,8 @@ echo "  Local dir      : ${LOCAL_DIR}"
 echo "  PFS dir        : ${PFS_DIR}"
 echo "  Coord file     : ${COORD_FILE}"
 echo "  Dummy src      : ${DUMMY_SRC}"
+echo "  Compute time   : ${COMPUTE_TIME}"
+echo "  Jitter         : ${USE_JITTER:-false}"
 echo ""
 
 # ---------------------------------------------------------------------------
@@ -122,9 +126,27 @@ sleep 3
 # ---------------------------------------------------------------------------
 export WORKER_ID="${SLURM_ARRAY_TASK_ID}"
 
+# Set Jitter to 0
+
+SLEEP_START=0
+
+if [[ "${USE_JITTER:-false}" == "true" ]]; then
+    SLEEP_START=$((RANDOM % 20))
+    echo "  [Workload] Aplicando jitter inicial de ${SLEEP_START}s"
+    sleep "${SLEEP_START}"
+fi
+
+if [[ "${COMPUTE_TIME}" == "random" ]]; then
+    CURRENT_COMPUTE=$((10 + RANDOM % 21))
+else
+    CURRENT_COMPUTE="${COMPUTE_TIME:-0}"
+fi
+
+
+
 python3 -u -m benchmarks.e2e.orchestrated_worker \
-    --experiment-tag      "${EXPERIMENT_TAG}"           \
-    --worker-id           "${SLURM_ARRAY_TASK_ID}"      \
+    --experiment-tag      "${EXPERIMENT_TAG}"            \
+    --worker-id           "${SLURM_ARRAY_TASK_ID}"       \
     --n-checkpoints       "${N_CHECKPOINTS}"             \
     --checkpoint-size     "${CHECKPOINT_SIZE_BYTES}"     \
     --local-dir           "${LOCAL_DIR}"                 \
@@ -133,7 +155,9 @@ python3 -u -m benchmarks.e2e.orchestrated_worker \
     --policy              "${POLICY}"                    \
     --pfs-bw-bps          "${PFS_BW_BPS}"                \
     --n-workers           "${N_WORKERS}"                 \
-    --dummy-src           "${DUMMY_SRC}"
+    --dummy-src           "${DUMMY_SRC}"                 \
+    --compute-time        "${CURRENT_COMPUTE}"           \
+    --jitter              "${SLEEP_START}"               
 
 # ---------------------------------------------------------------------------
 # Step 4: Stop migrater

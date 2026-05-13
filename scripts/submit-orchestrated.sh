@@ -51,6 +51,9 @@ PFS_DIR="${BENCH_BASE}/pfs"
 RESULTS_DIR="${BENCH_BASE}/results"
 ORCH_PORT=50052
 DUMMY_SRC="checkpoints/random_large.bin"
+COMPUTE_TIME=0
+USE_JITTER="false"
+
 
 # ---- Argument parsing -------------------------------------------------------
 while [[ $# -gt 0 ]]; do
@@ -65,7 +68,9 @@ while [[ $# -gt 0 ]]; do
         -r|--results-dir)         RESULTS_DIR="$2";           shift 2 ;;
         -t|--experiment-tag)      EXPERIMENT_TAG_OVERRIDE="$2"; shift 2 ;;
         --orch-port)              ORCH_PORT="$2";              shift 2 ;;
-        -d|--dummy-src)           DUMMY_SRC="$2";            shift 2 ;;
+        -d|--dummy-src)           DUMMY_SRC="$2";            shift 2 ;; 
+        --compute-time)           COMPUTE_TIME="$2";         shift 2 ;;
+        --use-jitter)             USE_JITTER="true";         shift 1 ;;
         *) echo "Unknown option: $1" >&2; exit 1 ;;
     esac
 done
@@ -131,7 +136,9 @@ POLICY="${POLICY}",\
 PFS_BW_BPS="${PFS_BW_BPS}",\
 N_WORKERS="${N_WORKERS}",\
 COORD_FILE="${COORD_FILE}",\
-ORCH_PORT="${ORCH_PORT}" \
+ORCH_PORT="${ORCH_PORT}",\
+COMPUTE_TIME="${COMPUTE_TIME}",\
+USE_JITTER="${USE_JITTER}" \
     scripts/bench-worker.sbatch \
     | awk '{print $NF}')
 
@@ -152,4 +159,4 @@ echo "  Once all worker tasks finish, collect results:"
 echo ""
 echo "    python3 -m benchmarks.e2e.collect \\"
 echo "        --results-dir ${RESULTS_DIR}/${EXPERIMENT_TAG} \\"
-echo "        --output-csv  ${RESULTS_DIR}/${EXPERIMENT_TAG}/summary.csv"
+echo "        --output-csv  ${RESULTS_DIR}/${EXPERIMENT_TAG}/summary.csv"1

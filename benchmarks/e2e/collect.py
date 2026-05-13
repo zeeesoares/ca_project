@@ -70,7 +70,7 @@ def per_worker_stats(df: pd.DataFrame) -> pd.DataFrame:
     """Mean per worker_id within each group."""
     return (
         df.groupby(
-            ["mode", "policy", "n_workers", "pfs_bw_bps", "worker_id"],
+            ["experiment_tag", "mode", "policy", "n_workers", "pfs_bw_bps", "worker_id"],
             dropna=False,
         )
         .agg(
@@ -91,15 +91,16 @@ def per_worker_stats(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def group_aggregate(pw: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate across workers within each (mode, policy, n_workers, pfs_bw_bps)."""
+    """Aggregate across workers within each group."""
     rows = []
     for keys, g in pw.groupby(
-        ["mode", "policy", "n_workers", "pfs_bw_bps"], dropna=False
+        ["experiment_tag", "mode", "policy", "n_workers", "pfs_bw_bps"], dropna=False
     ):
-        mode, policy, n_workers, pfs_bw_bps = keys
+        tag, mode, policy, n_workers, pfs_bw_bps = keys
         tputs = g["mean_throughput_mbps"].tolist()
         rows.append(
             {
+                "experiment_tag":   tag,
                 "mode":             mode,
                 "policy":           policy,
                 "n_workers":        n_workers,
@@ -191,7 +192,7 @@ def print_table(agg: pd.DataFrame, pw: pd.DataFrame):
 
     # Sort: baseline first, then by (policy, n_workers)
     agg_sorted = agg.sort_values(
-        ["mode", "policy", "n_workers"],
+        ["experiment_tag", "mode", "policy", "n_workers"],
         na_position="first",
         key=lambda col: col.fillna("").astype(str),
     )

@@ -62,12 +62,12 @@ def plot_summary_table(agg: pd.DataFrame, pw: pd.DataFrame, output: Path):
     Cells are color-coded: stall time green=low/red=high, fairness green=high.
     """
     agg = agg.sort_values(
-        ["n_workers", "mode", "policy"],
+        ["experiment_tag", "n_workers", "mode", "policy"],
         key=lambda c: c.fillna("zzz").astype(str),
     ).reset_index(drop=True)
 
     col_labels = [
-        "Mode", "Policy", "#W", "PFS BW",
+        "Tag","Mode", "Policy", "#W", "PFS BW",
         "Stall (s)", "σ stall", "Migration (s)", "σ migr",
         "Tput (MB/s)", "σ tput", "Jobs",
     ]
@@ -76,6 +76,7 @@ def plot_summary_table(agg: pd.DataFrame, pw: pd.DataFrame, output: Path):
     for _, r in agg.iterrows():
         bw  = f"{r['pfs_bw_mbps']:.0f}" if not _nan(r["pfs_bw_mbps"]) else "N/A"
         rows.append([
+            r["experiment_tag"],
             r["mode"],
             str(r["policy"]) if not _nan(r["policy"]) else "—",
             str(int(r["n_workers"])),
@@ -116,42 +117,38 @@ def plot_summary_table(agg: pd.DataFrame, pw: pd.DataFrame, output: Path):
 
     # Color data rows
     stall_vals = [
-        float(r[4]) for r in rows if r[4] not in ("—", "N/A")
+        float(r[5]) for r in rows if r[5] not in ("—", "N/A")
     ]
     stall_max = max(stall_vals) if stall_vals else 1.0
 
     for i, (row_data, (_, agg_row)) in enumerate(zip(rows, agg.iterrows())):
-        ri = i + 1  # table row index (0 is header)
-        is_baseline    = agg_row["mode"] == "baseline"
-        is_orchestrated = agg_row["mode"] == "orchestrated"
-
-        # Alternating row background
+        ri = i + 1  
+        is_baseline = agg_row["mode"] == "baseline"
+        
+        # 1. Cor de fundo alternada para a linha toda
         base_bg = "#f9f9f9" if i % 2 == 0 else "#ffffff"
-
         for j in range(n_cols):
-            cell = tbl[ri, j]
-            cell.set_facecolor(base_bg)
+            tbl[ri, j].set_facecolor(base_bg)
 
-        # Mode column color
-        tbl[ri, 0].set_facecolor("#fde8e8" if is_baseline else "#e8f5e9")
+        # 2. Colorir a coluna MODE (Índice 1)
+        # Rosa para baseline, Verde para orchestrated
+        tbl[ri, 1].set_facecolor("#fde8e8" if is_baseline else "#e8f5e9")
 
-        # Stall time: gradient red (high) → green (low)
+        # 3. Colorir a coluna STALL (Índice 5) com gradiente
         try:
-            stall = float(row_data[4])
+            stall = float(row_data[5]) # Mudado de 4 para 5
             t = stall / stall_max if stall_max > 0 else 0
+            # Red-Green gradient
             r_c = 0.9 * t + 0.6 * (1 - t)
             g_c = 0.6 * t + 0.9 * (1 - t)
-            tbl[ri, 4].set_facecolor((r_c, g_c, 0.6))
+            tbl[ri, 5].set_facecolor((r_c, g_c, 0.6))
         except ValueError:
             pass
-
-        # Jain fairness: green = high
-        try:
-            jain = float(row_data[10])
-            g_c = 0.55 + 0.40 * jain
-            tbl[ri, 10].set_facecolor((1 - g_c * 0.5, g_c, 1 - g_c * 0.5))
-        except ValueError:
-            pass
+            
+        # 4. Colorir a coluna PFS BW (Índice 4) 
+        # Apenas para dar um destaque visual se for N/A
+        if row_data[4] == "N/A":
+            tbl[ri, 4].set_facecolor("#f2f2f2")
 
     fig.suptitle(
         "Benchmark Summary — Baseline vs Orchestrated",
