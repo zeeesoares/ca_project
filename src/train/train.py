@@ -177,5 +177,5 @@ if __name__ == "__main__":
             warmup_steps=args.warmup_steps,
         )
     except Exception as e:
-        print(f"Error during training: {e}", file=sys.stderr)
+        print(f"Error: {e}", file=sys.stderr)
         exit(1)
