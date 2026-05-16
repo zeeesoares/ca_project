@@ -25,18 +25,18 @@ Abre **3 terminais** na raiz do projeto.
 ### Terminal 1 — Orchestrator (porta 50052)
 
 ```bash
-venv/bin/python -m orchestrator.server      \
-                --policy uniform-fair-share \
-                --pfs-bw 1000000            \
-                --port 50052
+venv/bin/python -m orchestrator.server \
+    --policy uniform-fair-share \
+    --pfs-bw 1000000 \
+    --port 50052
 ```
 
 ### Terminal 2 — Migrater (porta 50051)
 
 ```bash
-venv/bin/python -m migrater.server            \
-                --orchestrator-addr localhost \
-                --orchestrator-port 50052     
+venv/bin/python -m migrater.server \
+    --orchestrator-addr localhost \
+    --orchestrator-port 50052
 ```
 
 ```
@@ -46,9 +46,9 @@ Migrater running on 50051
 ### Terminal 3 — Cliente de teste
 
 ```bash
-venv/bin/python -m train.train 
-                --total-steps         50
-                --checkpoint-interval 10
+venv/bin/python -m train.train \
+    --total-steps 50 \
+    --checkpoint-interval 10
 ```
 
 Or:
