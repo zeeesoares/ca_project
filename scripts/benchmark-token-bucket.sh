@@ -2,7 +2,7 @@
 
 set -eux
 
-source modules.sh
+module load "Python/3.12.3-GCCcore-13.3.0"
 source venv/bin/activate
 
 RESULTS_DIR="benchmarks/token_bucket/results"
