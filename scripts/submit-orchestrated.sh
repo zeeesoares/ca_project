@@ -81,7 +81,7 @@ if [[ -n "${PFS_BW_BPS_OVERRIDE:-}" ]]; then
     PFS_BW_BPS="${PFS_BW_BPS_OVERRIDE}"
 else
     PFS_BW_BPS=$(python3 -c "
-from utils.size_parser import parse_size
+from src.utils.size_parser import parse_size
 print(parse_size('${PFS_BW_HUMAN}'))
 ")
 fi
