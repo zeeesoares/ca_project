@@ -126,7 +126,7 @@ def run_token_bucket(
     cmd = [
         python_executable,
         "-m",
-        "migrater.token_bucket",
+        "src.migrater.token_bucket",
         str(src),
         str(dst),
         str(throughput_bytes),
