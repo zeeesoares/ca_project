@@ -100,6 +100,33 @@ python3 -m benchmarks.e2e.plot \
     --output-dir $PFS_DIR/results/plots
 ```
 
+### Accumulated Bandwidth Plot
+
+To run the accumulated bandwidth plot, which shows the total data transferred
+over time for each policy, pass the log files for each worker in a given
+experiment.
+
+<!--
+```bash
+POLICIES=(uniform-fair-share active-fair-share age-priority epoch-priority)
+
+./scripts/submit-orchestrated.sh \
+--policy age-priority \
+--pfs-bw 2GB  \
+--n-workers 4 \
+--compute-time 30 \
+--experiment-tag "steady_${POLICY}" \
+--pfs-dir $PFS_DIR/checkpoints \
+--results-dir $PFS_DIR/results
+```
+-->
+
+```bash
+python3 benchmarks/e2e/plot_accumulated_bw.py \
+    --orch-bw 2GB \
+    worker1.log worker2.log worker3.log worker4.log
+```
+
 ## Directory Structure
 
 - e2e/: Contains the Python logic for workers, collection, and plotting.
