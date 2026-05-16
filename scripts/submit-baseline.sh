@@ -17,6 +17,7 @@
 #   -p, --pfs-dir             PFS destination directory
 #   -r, --results-dir         Results output directory
 #   -t, --experiment-tag      Human-readable run label      [default: baseline_<timestamp>]
+#   -d, --dummy-src           Path to dummy checkpoint source file
 #
 # Example:
 #   ./scripts/submit-baseline.sh \
