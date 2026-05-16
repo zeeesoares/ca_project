@@ -1,71 +1,87 @@
-# HOWTO — Orchestrator & Migrater Communication
+# HOWTO -- Orchestrator & Migrater Communication
 
-## Pré-requisitos
+## Prerequisites
 
-Todos os comandos são executados a partir da raiz do projeto.
-O Python do virtualenv é `venv/bin/python`.
+All commands should be executed from the project root.
+
+Activate the virtual environment first:
 
 ```bash
-# Verificar que as dependências estão instaladas
-venv/bin/python -c "import grpc; print(grpc.__version__)"
+source venv/bin/activate
+```
+
+After activation, use `python3` for all Python commands.
+
+```bash
+# Check that the dependencies are installed
+python3 -c "import grpc; print(grpc.__version__)"
 ```
 
 ---
 
-## Testar com servidores
+## Test with servers
 
-### Gerar um ficheiro de teste
-
-```bash
-dd if=/dev/urandom of=/tmp/ckpt.pt bs=1M count=50 # 50MiB
-```
-
-Abre **3 terminais** na raiz do projeto.
-
-### Terminal 1 — Orchestrator (porta 50052)
+### Generate a test checkpoint file
 
 ```bash
-venv/bin/python -m orchestrator.server \
-    --policy uniform-fair-share \
-    --pfs-bw 1000000 \
-    --port 50052
+dd if=/dev/urandom of=/tmp/checkpoint.pt bs=1M count=50  # 50MiB
 ```
 
-### Terminal 2 — Migrater (porta 50051)
+Open **3 terminals** in the project root.
+
+In each terminal, activate the virtual environment first:
 
 ```bash
-venv/bin/python -m migrater.server \
-    --orchestrator-addr localhost \
-    --orchestrator-port 50052
+source venv/bin/activate
 ```
 
-```
-Migrater running on 50051
-```
-
-### Terminal 3 — Cliente de teste
+### Terminal 1 -- Orchestrator, port 50052
 
 ```bash
-venv/bin/python -m train.train \
-    --total-steps 50 \
-    --checkpoint-interval 10
+python3 -m orchestrator.server \
+ --policy uniform-fair-share \
+ --pfs-bw 1000000 \
+ --port 50052
 ```
 
-Or:
+### Terminal 2 -- Migrater, port 50051
+
+```bash
+python3 -m migrater.server \
+ --orchestrator-addr localhost \
+ --orchestrator-port 50052
+```
+
+### Terminal 3 -- Training client
+
+```bash
+python3 -m train.train \
+ --checkpoint-pfs-dir /tmp/pfs \
+ --checkpoint-local-dir /tmp/local \
+ --total-steps 50 \
+ --checkpoint-interval 10
+```
+
+Or send a manual test notification:
 
 ```bash
 venv/bin/python -c "
 import time
 from protocol.migrater.client import MigraterClient
 m = MigraterClient()
-m.notify_checkpoint_saved('/tmp/ckpt.pt', '/tmp/ckpt_pfs.pt', time.time(), 1, 5)
+m.notify_checkpoint_saved('/tmp/checkpoint.pt', '/tmp/checkpoint_pfs.pt', time.time(), 1, 5)
 print('notification sent')
 "
 ```
 
-
-### Verificar Resultados
+One liner:
 
 ```bash
-md5sum /tmp/ckpt.pt /tmp/ckpt_pfs.pt
+venv/bin/python -c "import time; from protocol.migrater.client import MigraterClient; m = MigraterClient(); m.notify_checkpoint_saved('/tmp/checkpoint.pt', '/tmp/checkpoint_pfs.pt', time.time(), 1, 5); print('notification sent')"
+```
+
+Verify checkpoint integrity with:
+
+```bash
+md5sum /tmp/checkpoint.pt /tmp/checkpoint_pfs.pt
 ```

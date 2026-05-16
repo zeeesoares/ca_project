@@ -5,9 +5,11 @@ import time
 import torch
 import uuid
 from pathlib import Path
-from typing import Optional
 
 from protocol.migrater.client import MigraterClient
+
+
+DEFAULT_CHECKPOINT_NAME = "checkpoint.pt"
 
 
 def make_big_state(base_state: dict, size_gb: int = 10) -> dict:
@@ -65,22 +67,69 @@ class Checkpoint:
     been safely handled.
     """
 
-    def __init__(self, total_epochs: int):
+    def __init__(
+        self,
+        total_epochs: int,
+        checkpoint_pfs_dir: str,
+        checkpoint_name: str = DEFAULT_CHECKPOINT_NAME,
+        append_job_id: bool = False,
+    ) -> None:
         """
         Initialize checkpoint migration state.
 
         Arguments:
-            total_epochs(int): Total number of epochs expected for the training
-                run. This value is forwarded to the Migrater service so it can
-                reason about checkpoint progress.
+            total_epochs(int): Total number of checkpoints expected for the
+                training run. This value is forwarded to the Migrater service
+                so it can reason about checkpoint progress.
+            checkpoint_pfs_dir(str): PFS directory where migrated checkpoints
+                should be stored.
+            checkpoint_name(str): Base filename used for the PFS checkpoint.
+                Defaults to "checkpoint.pt".
+            append_job_id(bool): If True, append the current SLURM job
+                ID to checkpoint_name before deriving the primary and alternate
+                PFS checkpoint paths. If SLURM_JOB_ID is not set, the filename
+                is left unchanged.
         """
 
         self.migrater = MigraterClient()
+
+        if append_job_id:
+            checkpoint_name = self._append_job_id(checkpoint_name)
+
+        self.checkpoint_pfs_dir = Path(checkpoint_pfs_dir)
+        self.checkpoint_pfs_path = str(
+            self.checkpoint_pfs_dir / checkpoint_name
+        )
+        self.checkpoint_pfs_path_alt = derive_alt_checkpoint_path(
+            self.checkpoint_pfs_path
+        )
 
         self.use_alt_pfs_path = False
 
         self.total_epochs = total_epochs
         self.epoch = 0
+
+    def _append_job_id(self, filename: str) -> str:
+        """
+        Append the current SLURM job ID or process ID to the checkpoint
+        filename.
+
+        This can help avoid filename collisions when multiple jobs are writing
+        to the same PFS checkpoint directory. If the SLURM_JOB_ID environment
+        variable is not set, the current process ID is used as a fallback.
+
+        Arguments:
+            filename(str): Original checkpoint filename.
+
+        Returns:
+            str: Modified filename with the SLURM job ID or process ID appended
+                before the extension.
+        """
+
+        job_id = os.getenv("SLURM_JOB_ID", os.getpid())
+
+        path = Path(filename)
+        return str(path.with_name(f"{path.stem}_{job_id}{path.suffix}"))
 
     def _fallback_save(
         self,
@@ -189,8 +238,6 @@ class Checkpoint:
         self,
         state: dict,
         checkpoint_local_path: str,
-        checkpoint_pfs_path: str,
-        checkpoint_pfs_path_alt: Optional[str] = None,
     ) -> None:
         """
         Save a checkpoint locally and request migration to PFS.
@@ -199,19 +246,13 @@ class Checkpoint:
         torch.save(). After the local save completes, the Migrater service is
         notified so it can move or copy the checkpoint to PFS.
 
-        The PFS target alternates between checkpoint_pfs_path and
-        checkpoint_pfs_path_alt after each successful handoff. If
-        checkpoint_pfs_path_alt is None, it is derived from checkpoint_pfs_path
-        by appending "_alt" to the filename stem.
+        The PFS target alternates between checkpoint.pt and checkpoint_alt.pt
+        inside the configured PFS checkpoint directory.
 
         Arguments:
             state(dict): Checkpoint state to save.
             checkpoint_local_path(str): Local path where the checkpoint file is
                 written before migration.
-            checkpoint_pfs_path(str): Primary target PFS path for the
-                checkpoint file.
-            checkpoint_pfs_path_alt(Optional[str]): Alternate target PFS path.
-                If None, it is derived from checkpoint_pfs_path.
 
         Raises:
             RuntimeError: If the checkpoint could not be handed off to the
@@ -223,15 +264,10 @@ class Checkpoint:
 
         torch.save(state, local_path)
 
-        # Alternate checkpoint PFS path logic.
-        if checkpoint_pfs_path_alt is None:
-            checkpoint_pfs_path_alt = \
-                derive_alt_checkpoint_path(checkpoint_pfs_path)
-
         target_pfs_path = (
-            checkpoint_pfs_path_alt
+            self.checkpoint_pfs_path_alt
             if self.use_alt_pfs_path
-            else checkpoint_pfs_path
+            else self.checkpoint_pfs_path
         )
 
         # NOTE: if checkpoint saving becomes asynchronous in the future,
