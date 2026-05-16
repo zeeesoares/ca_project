@@ -38,9 +38,9 @@ from typing import Optional
 import shutil
 
 import grpc
-from numpy.ma import size
+# from numpy.ma import size
 
-from protocol import cluster_pb2, cluster_pb2_grpc
+from src.protocol import cluster_pb2, cluster_pb2_grpc
 
 
 # ---------------------------------------------------------------------------

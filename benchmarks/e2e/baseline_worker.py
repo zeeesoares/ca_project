@@ -26,7 +26,6 @@ import argparse
 import json
 import os
 import socket
-import sys
 import subprocess
 import shutil
 import time
