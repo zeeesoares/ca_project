@@ -46,6 +46,7 @@ N_CHECKPOINTS=3
 CHECKPOINT_SIZE_BYTES=$((5 * 1024 * 1024 * 1024))   # 5 GB
 POLICY="uniform-fair-share"
 PFS_BW_HUMAN="500MB"
+# INFO we could assume cwd as bench base
 BENCH_BASE="/projects/F202500010HPCVLABUMINHO/josesoares/pca/ca_bench"
 PFS_DIR="${BENCH_BASE}/pfs"
 RESULTS_DIR="${BENCH_BASE}/results"

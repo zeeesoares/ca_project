@@ -36,6 +36,7 @@ N_WORKERS=4
 N_CHECKPOINTS=3
 CHECKPOINT_SIZE_BYTES=$((5 * 1024 * 1024 * 1024))   # 5 GB
 DUMMY_SRC="checkpoints/random_large.bin"
+# INFO we could assume cwd as bench base
 BENCH_BASE="/projects/F202500010HPCVLABUMINHO/josesoares/pca/ca_bench"
 PFS_DIR="${BENCH_BASE}/pfs"
 RESULTS_DIR="${BENCH_BASE}/results"
