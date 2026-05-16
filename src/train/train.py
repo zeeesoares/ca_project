@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import sys
 import torch
 
 from torch.optim import AdamW
@@ -165,11 +166,16 @@ def main(
 
 if __name__ == "__main__":
     args = parse_args()
-    main(
-        checkpoint_pfs_dir=args.checkpoint_pfs_dir,
-        checkpoint_local_dir=args.checkpoint_local_dir,
-        profile=args.profile,
-        checkpoint_interval=args.checkpoint_interval,
-        total_steps=args.total_steps,
-        warmup_steps=args.warmup_steps,
-    )
+
+    try:
+        main(
+            checkpoint_pfs_dir=args.checkpoint_pfs_dir,
+            checkpoint_local_dir=args.checkpoint_local_dir,
+            profile=args.profile,
+            checkpoint_interval=args.checkpoint_interval,
+            total_steps=args.total_steps,
+            warmup_steps=args.warmup_steps,
+        )
+    except Exception as e:
+        print(f"Error during training: {e}", file=sys.stderr)
+        exit(1)
