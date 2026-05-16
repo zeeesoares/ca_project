@@ -33,13 +33,21 @@ participating in the LLM training.
     Frequent,{Fine-Grained}{DNN} Checkpointing." In 19th USENIX Conference on
     File and Storage Technologies (FAST 21), pp. 203-216. 2021.
 
+## Proposed Solution
+
+**TODO**
+
 ## Structure
 
 **TODO**
 
 ## Requirements
 
-All required packages are listed in [requirements.txt](requirements.txt).
+On Deucalion, load Python's module with:
+
+```bash
+module load "Python/3.12.3-GCCcore-13.3.0"
+```
 
 It's advised to use a virtual environment to manage dependencies.
 
@@ -48,7 +56,8 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-Install them with pip:
+All required packages are listed in [requirements.txt](requirements.txt),
+install them with pip:
 
 ```bash
 pip install -r requirements.txt
