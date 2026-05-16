@@ -53,15 +53,15 @@ echo "  Results dir    : ${RESULTS_DIR}"
 echo "  Dummy src      : ${DUMMY_SRC}"
 echo ""
 
-python3 -u -m benchmarks.e2e.baseline_worker \
-    --experiment-tag      "${EXPERIMENT_TAG}"       \
-    --worker-id           "${SLURM_ARRAY_TASK_ID}"  \
-    --n-checkpoints       "${N_CHECKPOINTS}"         \
-    --checkpoint-size     "${CHECKPOINT_SIZE_BYTES}" \
-    --pfs-dir             "${PFS_DIR}"               \
-    --results-dir         "${RESULTS_DIR}"           \
-    --n-workers           "${N_WORKERS}"             \
-    --dummy-src           "${DUMMY_SRC}"
+python3 -u -m benchmarks.e2e.baseline_worker     \
+    --experiment-tag  "${EXPERIMENT_TAG}"        \
+    --worker-id       "${SLURM_ARRAY_TASK_ID}"   \
+    --n-checkpoints   "${N_CHECKPOINTS}"         \
+    --checkpoint-size "${CHECKPOINT_SIZE_BYTES}" \
+    --pfs-dir         "${PFS_DIR}"               \
+    --results-dir     "${RESULTS_DIR}"           \
+    --n-workers       "${N_WORKERS}"             \
+    --dummy-src       "${DUMMY_SRC}"
 
 echo ""
 echo "Worker ${SLURM_ARRAY_TASK_ID} completed at $(date -Iseconds)"

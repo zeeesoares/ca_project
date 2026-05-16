@@ -55,8 +55,8 @@ echo ""
 
 # Run orchestrator — stays alive until SLURM cancels or time limit
 python3 -u -m orchestrator.server \
-    --port    "${ORCH_PORT}"        \
-    --policy  "${POLICY}"           \
-    --pfs-bw  "${PFS_BW}"
+    --port   "${ORCH_PORT}"       \
+    --policy "${POLICY}"          \
+    --pfs-bw "${PFS_BW}"
 
 echo "Orchestrator exited at $(date -Iseconds)"

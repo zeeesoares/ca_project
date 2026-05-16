@@ -43,13 +43,13 @@ EXPERIMENT_TAG="baseline_$(date +%Y%m%d_%H%M%S)"
 # ---- Argument parsing -------------------------------------------------------
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -n|--n-workers)           N_WORKERS="$2";            shift 2 ;;
-        -c|--n-checkpoints)       N_CHECKPOINTS="$2";        shift 2 ;;
-        -s|--checkpoint-size)     CHECKPOINT_SIZE_BYTES="$2"; shift 2 ;;
-        -p|--pfs-dir)             PFS_DIR="$2";              shift 2 ;;
-        -r|--results-dir)         RESULTS_DIR="$2";          shift 2 ;;
-        -t|--experiment-tag)      EXPERIMENT_TAG="$2";       shift 2 ;;
-        -d|--dummy-src)           DUMMY_SRC="$2";            shift 2 ;;
+        -n|--n-workers)       N_WORKERS="$2";             shift 2 ;;
+        -c|--n-checkpoints)   N_CHECKPOINTS="$2";         shift 2 ;;
+        -s|--checkpoint-size) CHECKPOINT_SIZE_BYTES="$2"; shift 2 ;;
+        -p|--pfs-dir)         PFS_DIR="$2";               shift 2 ;;
+        -r|--results-dir)     RESULTS_DIR="$2";           shift 2 ;;
+        -t|--experiment-tag)  EXPERIMENT_TAG="$2";        shift 2 ;;
+        -d|--dummy-src)       DUMMY_SRC="$2";             shift 2 ;;
         *) echo "Unknown option: $1" >&2; exit 1 ;;
     esac
 done

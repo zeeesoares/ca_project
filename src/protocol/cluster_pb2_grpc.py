@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from protocol import cluster_pb2 as protocol_dot_cluster__pb2
+from src.protocol import cluster_pb2 as src_dot_protocol_dot_cluster__pb2
 
 GRPC_GENERATED_VERSION = '1.78.0'
 GRPC_VERSION = grpc.__version__
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + ' but the generated code in protocol/cluster_pb2_grpc.py depends on'
+        + ' but the generated code in src/protocol/cluster_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -36,8 +36,8 @@ class MigraterServiceStub(object):
         """
         self.NotifyCheckpointSaved = channel.unary_unary(
                 '/cluster.MigraterService/NotifyCheckpointSaved',
-                request_serializer=protocol_dot_cluster__pb2.CheckpointSavedRequest.SerializeToString,
-                response_deserializer=protocol_dot_cluster__pb2.CheckpointSavedResponse.FromString,
+                request_serializer=src_dot_protocol_dot_cluster__pb2.CheckpointSavedRequest.SerializeToString,
+                response_deserializer=src_dot_protocol_dot_cluster__pb2.CheckpointSavedResponse.FromString,
                 _registered_method=True)
 
 
@@ -55,8 +55,8 @@ def add_MigraterServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'NotifyCheckpointSaved': grpc.unary_unary_rpc_method_handler(
                     servicer.NotifyCheckpointSaved,
-                    request_deserializer=protocol_dot_cluster__pb2.CheckpointSavedRequest.FromString,
-                    response_serializer=protocol_dot_cluster__pb2.CheckpointSavedResponse.SerializeToString,
+                    request_deserializer=src_dot_protocol_dot_cluster__pb2.CheckpointSavedRequest.FromString,
+                    response_serializer=src_dot_protocol_dot_cluster__pb2.CheckpointSavedResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -84,8 +84,8 @@ class MigraterService(object):
             request,
             target,
             '/cluster.MigraterService/NotifyCheckpointSaved',
-            protocol_dot_cluster__pb2.CheckpointSavedRequest.SerializeToString,
-            protocol_dot_cluster__pb2.CheckpointSavedResponse.FromString,
+            src_dot_protocol_dot_cluster__pb2.CheckpointSavedRequest.SerializeToString,
+            src_dot_protocol_dot_cluster__pb2.CheckpointSavedResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -108,8 +108,8 @@ class OrchestratorServiceStub(object):
         """
         self.Monitor = channel.stream_stream(
                 '/cluster.OrchestratorService/Monitor',
-                request_serializer=protocol_dot_cluster__pb2.HeartbeatRequest.SerializeToString,
-                response_deserializer=protocol_dot_cluster__pb2.InstructionResponse.FromString,
+                request_serializer=src_dot_protocol_dot_cluster__pb2.HeartbeatRequest.SerializeToString,
+                response_deserializer=src_dot_protocol_dot_cluster__pb2.InstructionResponse.FromString,
                 _registered_method=True)
 
 
@@ -127,8 +127,8 @@ def add_OrchestratorServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Monitor': grpc.stream_stream_rpc_method_handler(
                     servicer.Monitor,
-                    request_deserializer=protocol_dot_cluster__pb2.HeartbeatRequest.FromString,
-                    response_serializer=protocol_dot_cluster__pb2.InstructionResponse.SerializeToString,
+                    request_deserializer=src_dot_protocol_dot_cluster__pb2.HeartbeatRequest.FromString,
+                    response_serializer=src_dot_protocol_dot_cluster__pb2.InstructionResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -156,8 +156,8 @@ class OrchestratorService(object):
             request_iterator,
             target,
             '/cluster.OrchestratorService/Monitor',
-            protocol_dot_cluster__pb2.HeartbeatRequest.SerializeToString,
-            protocol_dot_cluster__pb2.InstructionResponse.FromString,
+            src_dot_protocol_dot_cluster__pb2.HeartbeatRequest.SerializeToString,
+            src_dot_protocol_dot_cluster__pb2.InstructionResponse.FromString,
             options,
             channel_credentials,
             insecure,

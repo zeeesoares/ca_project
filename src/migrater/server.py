@@ -5,13 +5,14 @@ import time
 import socket
 import threading
 
-from utils.size_parser            import format_size
-from concurrent                   import futures
-from protocol                     import cluster_pb2
-from protocol                     import cluster_pb2_grpc
-from migrater.token_bucket        import token_bucket_copy
-from migrater.progress            import ProgressBuffer
-from protocol.orchestrator.client import OrchestratorClient
+from concurrent import futures
+
+from src.protocol                     import cluster_pb2, cluster_pb2_grpc
+from src.migrater.token_bucket        import token_bucket_copy
+from src.migrater.progress            import ProgressBuffer
+from src.protocol.orchestrator.client import OrchestratorClient
+
+# from src.utils.size_parser        import format_size
 
 HEARTBEAT_INTERVAL = 0.5
 

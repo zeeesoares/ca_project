@@ -12,10 +12,11 @@ from __future__ import annotations
 import time
 import threading
 
-from typing import Dict
-from protocol import cluster_pb2
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from typing import Dict
+
+from src.protocol import cluster_pb2
 
 # Cluster state — shared, thread-safe snapshot of all connected workers
 

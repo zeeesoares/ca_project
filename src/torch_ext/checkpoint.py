@@ -6,7 +6,7 @@ import torch
 import uuid
 from pathlib import Path
 
-from protocol.migrater.client import MigraterClient
+from src.protocol.migrater.client import MigraterClient
 
 
 DEFAULT_CHECKPOINT_NAME = "checkpoint.pt"

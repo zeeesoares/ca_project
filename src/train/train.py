@@ -5,11 +5,12 @@ import torch
 
 from torch.optim import AdamW
 from transformers import get_linear_schedule_with_warmup
-from train.model import build_model
-from train.dataset import build_dataloader
-from train.trainer import Trainer
 
-from torch_ext.checkpoint import Checkpoint
+from src.train.model import build_model
+from src.train.dataset import build_dataloader
+from src.train.trainer import Trainer
+
+from src.torch_ext.checkpoint import Checkpoint
 
 
 def parse_args():
@@ -106,7 +107,6 @@ def main(
     checkpoint_interval: int,
     total_steps: int,
     warmup_steps: int,
-    # test_baseline: bool = False,  # TODO
 ) -> None:
     # Argument validation
     if checkpoint_interval <= 0:

@@ -1,7 +1,6 @@
 import grpc
 
-from protocol import cluster_pb2
-from protocol import cluster_pb2_grpc
+from src.protocol import cluster_pb2, cluster_pb2_grpc
 
 ORCHESTRATOR_ADDR = "localhost:50052"
 

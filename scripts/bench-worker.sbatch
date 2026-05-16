@@ -110,7 +110,7 @@ sys.exit(1)
 # Step 2: Start migrater in background
 # ---------------------------------------------------------------------------
 echo "  Starting migrater..."
-python3 -u -m migrater.server \
+python3 -u -m src.migrater.server \
     --orchestrator-addr "${ORCH_HOST}" \
     --orchestrator-port "${ORCH_PORT}" \
     > "${MIGRATER_LOG}" 2>&1 &
@@ -142,22 +142,20 @@ else
     CURRENT_COMPUTE="${COMPUTE_TIME:-0}"
 fi
 
-
-
 python3 -u -m benchmarks.e2e.orchestrated_worker \
-    --experiment-tag      "${EXPERIMENT_TAG}"            \
-    --worker-id           "${SLURM_ARRAY_TASK_ID}"       \
-    --n-checkpoints       "${N_CHECKPOINTS}"             \
-    --checkpoint-size     "${CHECKPOINT_SIZE_BYTES}"     \
-    --local-dir           "${LOCAL_DIR}"                 \
-    --pfs-dir             "${PFS_DIR}"                   \
-    --results-dir         "${RESULTS_DIR}"               \
-    --policy              "${POLICY}"                    \
-    --pfs-bw-bps          "${PFS_BW_BPS}"                \
-    --n-workers           "${N_WORKERS}"                 \
-    --dummy-src           "${DUMMY_SRC}"                 \
-    --compute-time        "${CURRENT_COMPUTE}"           \
-    --jitter              "${SLEEP_START}"               
+    --experiment-tag  "${EXPERIMENT_TAG}"        \
+    --worker-id       "${SLURM_ARRAY_TASK_ID}"   \
+    --n-checkpoints   "${N_CHECKPOINTS}"         \
+    --checkpoint-size "${CHECKPOINT_SIZE_BYTES}" \
+    --local-dir       "${LOCAL_DIR}"             \
+    --pfs-dir         "${PFS_DIR}"               \
+    --results-dir     "${RESULTS_DIR}"           \
+    --policy          "${POLICY}"                \
+    --pfs-bw-bps      "${PFS_BW_BPS}"            \
+    --n-workers       "${N_WORKERS}"             \
+    --dummy-src       "${DUMMY_SRC}"             \
+    --compute-time    "${CURRENT_COMPUTE}"       \
+    --jitter          "${SLEEP_START}"
 
 # ---------------------------------------------------------------------------
 # Step 4: Stop migrater

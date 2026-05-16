@@ -58,19 +58,19 @@ USE_JITTER="false"
 # ---- Argument parsing -------------------------------------------------------
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -n|--n-workers)           N_WORKERS="$2";             shift 2 ;;
-        -c|--n-checkpoints)       N_CHECKPOINTS="$2";         shift 2 ;;
-        -s|--checkpoint-size)     CHECKPOINT_SIZE_BYTES="$2"; shift 2 ;;
-        --policy)                 POLICY="$2";                shift 2 ;;
-        --pfs-bw)                 PFS_BW_HUMAN="$2";          shift 2 ;;
-        --pfs-bw-bps)             PFS_BW_BPS_OVERRIDE="$2";   shift 2 ;;
-        -p|--pfs-dir)             PFS_DIR="$2";               shift 2 ;;
-        -r|--results-dir)         RESULTS_DIR="$2";           shift 2 ;;
-        -t|--experiment-tag)      EXPERIMENT_TAG_OVERRIDE="$2"; shift 2 ;;
-        --orch-port)              ORCH_PORT="$2";              shift 2 ;;
-        -d|--dummy-src)           DUMMY_SRC="$2";            shift 2 ;; 
-        --compute-time)           COMPUTE_TIME="$2";         shift 2 ;;
-        --use-jitter)             USE_JITTER="true";         shift 1 ;;
+        -n|--n-workers)       N_WORKERS="$2";               shift 2 ;;
+        -c|--n-checkpoints)   N_CHECKPOINTS="$2";           shift 2 ;;
+        -s|--checkpoint-size) CHECKPOINT_SIZE_BYTES="$2";   shift 2 ;;
+        --policy)             POLICY="$2";                  shift 2 ;;
+        --pfs-bw)             PFS_BW_HUMAN="$2";            shift 2 ;;
+        --pfs-bw-bps)         PFS_BW_BPS_OVERRIDE="$2";     shift 2 ;;
+        -p|--pfs-dir)         PFS_DIR="$2";                 shift 2 ;;
+        -r|--results-dir)     RESULTS_DIR="$2";             shift 2 ;;
+        -t|--experiment-tag)  EXPERIMENT_TAG_OVERRIDE="$2"; shift 2 ;;
+        --orch-port)          ORCH_PORT="$2";               shift 2 ;;
+        -d|--dummy-src)       DUMMY_SRC="$2";               shift 2 ;;
+        --compute-time)       COMPUTE_TIME="$2";            shift 2 ;;
+        --use-jitter)         USE_JITTER="true";            shift 1 ;;
         *) echo "Unknown option: $1" >&2; exit 1 ;;
     esac
 done

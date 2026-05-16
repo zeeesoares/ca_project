@@ -1,15 +1,14 @@
 import argparse
 import grpc
 import json
-import signal
 import sys
 import threading
 import time
 from concurrent import futures
 
-from utils.size_parser import parse_size, format_size
-from protocol import cluster_pb2, cluster_pb2_grpc
-from orchestrator.scheduler import (
+from src.utils.size_parser import parse_size, format_size
+from src.protocol import cluster_pb2, cluster_pb2_grpc
+from src.orchestrator.scheduler import (
     ClusterState,
     SchedulerPolicy,
     NoLimitPolicy,
@@ -20,7 +19,8 @@ from orchestrator.scheduler import (
     DEFAULT_POLICY,
     ORCHESTRATOR_PORT,
 )
-from migrater.server import HEARTBEAT_INTERVAL
+from src.orchestrator.utils import setup_log_metrics
+from src.migrater.server import HEARTBEAT_INTERVAL
 
 
 def load_priority_map(path: str) -> tuple[dict[str, float], float]:
@@ -62,7 +62,6 @@ def load_priority_map(path: str) -> tuple[dict[str, float], float]:
 
 
 # Logger Configuration
-from orchestrator.utils import setup_log_metrics
 metrics = setup_log_metrics("qos_metrics", "logs/orchestrator_metrics.json")
 
 
