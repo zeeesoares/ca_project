@@ -65,6 +65,15 @@ pip install -r requirements.txt
 
 > Python 3.12+ is supported.
 
+---
+
+Alternatively, you can use the [setup.sh](scripts/setup.sh) script to set up
+the environment for ARM partitions on Deucalion with:
+
+```bash
+sbatch scripts/setup.sh
+```
+
 ## Usage
 
 **TODO**
