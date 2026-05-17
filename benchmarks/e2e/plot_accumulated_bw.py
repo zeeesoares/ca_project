@@ -77,11 +77,11 @@ def parse_log_file(log_path: Path) -> tuple[list[float], list[float]]:
                 continue
 
             migrating = match.group("migrating") == "True"
-            if not migrating:
-                continue
-
             timestamps.append(float(match.group("timestamp")))
-            rates.append(float(match.group("rate")))
+            # When the worker is idle (migrating=False), force rate to 0 so the
+            # carry-forward in align_series does not keep showing the worker's
+            # last observed throughput after its transfer has ended.
+            rates.append(float(match.group("rate")) if migrating else 0.0)
 
     if not timestamps:
         raise ValueError(f"No valid migrater samples found in {log_path}")

@@ -62,21 +62,35 @@ class MigraterService(cluster_pb2_grpc.MigraterServiceServicer):
                         self.pending_size = latest["remaining_bytes"]
                         pending = self.pending_size
 
+                    # Use interval throughput so the per-heartbeat sample reflects
+                    # the current rate (not a long-running average that lags rate
+                    # changes from the orchestrator).
+                    instant_rate = latest["interval_throughput_bps"] if migrating else 0.0
+
                     print(
                         "[migrater] "
                         f"timestamp={latest['timestamp']:.2f}, "
                         f"migrating={migrating}, "
                         f"epoch={self.epoch}, total_epochs={self.total_epochs}, "
                         f"configured={latest['configured_rate_bps']:.0f} B/s, "
-                        f"rate={latest['average_throughput_bps']:.0f} B/s, "
+                        f"rate={instant_rate:.0f} B/s, "
                         f"pending={pending} bytes "
                         f"([{(latest['bytes_copied'] / latest['total_bytes']) * 100 :.2f}%] "
                         f"{latest['bytes_copied']}/{latest['total_bytes']} bytes copied)"
                     )
                 else:
-                    print(f"[migrater] timestamp={time.time():.2f}, "
-                          f"migrating={migrating}, pending={pending}, "
-                          f"epoch={self.epoch}, total_epochs={self.total_epochs}")
+                    # Emit a regex-matching line even when idle, so downstream
+                    # plotting can see that this worker is consuming 0 B/s
+                    # instead of carrying forward its last observed rate.
+                    print(
+                        "[migrater] "
+                        f"timestamp={time.time():.2f}, "
+                        f"migrating={migrating}, "
+                        f"epoch={self.epoch}, total_epochs={self.total_epochs}, "
+                        f"configured=0 B/s, "
+                        f"rate=0 B/s, "
+                        f"pending={pending} bytes"
+                    )
 
                 yield cluster_pb2.HeartbeatRequest(
                     worker_id=socket.gethostname(),
