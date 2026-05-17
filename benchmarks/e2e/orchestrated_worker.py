@@ -228,7 +228,7 @@ def main():
 
     print(f"[{worker_id}@{hostname}] Orchestrated worker starting")
     print(f"  Experiment  : {args.experiment_tag}")
-    print(f"  Policy      : {args.policy}  PFS BW: {args.pfs_bw_bps / (1024**2):.0f} MB/s")
+    print(f"  Policy      : {args.policy}  PFS BW: {args.pfs_bw_bps / (1000**2):.0f} MB/s")
     print(f"  Workers     : {args.n_workers}")
     print(f"  Checkpoints : {args.n_checkpoints} × {format_size(args.checkpoint_size)}")
     print(f"  Local dir   : {args.local_dir}")
@@ -347,7 +347,7 @@ def main():
         print(
             f"    stall={stall_s:.3f}s  "
             f"migration={migration_s:.2f}s  "
-            f"throughput={throughput / (1024**2):.1f} MB/s  "
+            f"throughput={throughput / (1000**2):.1f} MB/s  "
             f"[{status}]"
         )
 

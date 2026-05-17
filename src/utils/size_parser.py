@@ -20,10 +20,10 @@ def parse_size(size_str: str) -> int:
     
     units = {
         'B': 1,
-        'K': 1024, 'KB': 1024,
-        'M': 1024**2, 'MB': 1024**2,
-        'G': 1024**3, 'GB': 1024**3,
-        'T': 1024**4, 'TB': 1024**4
+        'K': 1000, 'KB': 1000,
+        'M': 1000**2, 'MB': 1000**2,
+        'G': 1000**3, 'GB': 1000**3,
+        'T': 1000**4, 'TB': 1000**4
     }
     
     multiplier = units.get(unit_part, 1) if unit_part else 1
@@ -39,8 +39,8 @@ def format_size(size_bytes: int) -> str:
         
     units = ('B', 'KB', 'MB', 'GB', 'TB')
     i = 0
-    while size_bytes >= 1024 and i < len(units) - 1:
-        size_bytes /= 1024.0
+    while size_bytes >= 1000 and i < len(units) - 1:
+        size_bytes /= 1000.0
         i += 1
         
     return f"{size_bytes:.2f}{units[i]}"
