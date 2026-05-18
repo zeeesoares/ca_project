@@ -28,6 +28,7 @@ import math
 import pandas as pd
 from pathlib import Path
 
+from benchmarks.e2e.plot_accumulated_bw import plot_accumulated_bandwidth
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -115,6 +116,63 @@ def group_aggregate(pw: pd.DataFrame) -> pd.DataFrame:
             }
         )
     return pd.DataFrame(rows)
+
+
+def generate_accumulated_bw_plots(
+    df: pd.DataFrame,
+    results_dir: Path,
+    plots_dir: Path,
+) -> None:
+    """
+    Generate one accumulated bandwidth graph per experiment_tag.
+
+    Expects migrater logs under:
+        <results-dir>/<experiment_tag>/migrater_logs/migrater_*.log
+
+    If --results-dir already points to one experiment directory, also checks:
+        <results-dir>/migrater_logs/migrater_*.log
+    """
+
+    for experiment_tag, group in df.groupby("experiment_tag", dropna=False):
+        if experiment_tag is None or pd.isna(experiment_tag):
+            continue
+
+        experiment_tag = str(experiment_tag)
+
+        candidate_dirs = [
+            results_dir / experiment_tag / "migrater_logs",
+            results_dir / "migrater_logs",
+        ]
+
+        log_paths = []
+        for log_dir in candidate_dirs:
+            if log_dir.exists():
+                log_paths = sorted(log_dir.glob("migrater_*.log"))
+                if log_paths:
+                    break
+
+        if not log_paths:
+            print(f"No migrater logs found for {experiment_tag}; skipping accumulated graph")
+            continue
+
+        bw_values = pd.to_numeric(group["pfs_bw_bps"], errors="coerce").dropna().unique()
+        if len(bw_values) == 0:
+            print(f"No pfs_bw_bps found for {experiment_tag}; skipping accumulated graph")
+            continue
+
+        orch_bw = float(bw_values[0])
+
+        output_path = plots_dir / experiment_tag / "accumulated_bandwidth.png"
+
+        print(f"Generating accumulated bandwidth graph for {experiment_tag}")
+        print(f"  Logs: {len(log_paths)}")
+        print(f"  Output: {output_path}")
+
+        plot_accumulated_bandwidth(
+            log_paths=log_paths,
+            orch_bw=orch_bw,
+            output_path=output_path,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -254,6 +312,17 @@ def main():
         "--detail-csv", type=Path, default=None,
         help="Optional CSV path for per-worker detail",
     )
+    parser.add_argument(
+        "--accumulated-bw-plots",
+        action="store_true",
+        help="Generate accumulated bandwidth plots from migrater logs",
+    )
+    parser.add_argument(
+        "--plots-dir",
+        type=Path,
+        default=None,
+        help="Directory where accumulated bandwidth plots are written",
+    )
     args = parser.parse_args()
 
     df = read_all_jsonl(args.results_dir)
@@ -278,6 +347,14 @@ def main():
         args.detail_csv.parent.mkdir(parents=True, exist_ok=True)
         pw.to_csv(args.detail_csv, index=False)
         print(f"Per-worker CSV saved: {args.detail_csv}")
+
+    if args.accumulated_bw_plots:
+        plots_dir = args.plots_dir or (args.results_dir / "plots")
+        generate_accumulated_bw_plots(
+            df=df,
+            results_dir=args.results_dir,
+            plots_dir=plots_dir,
+        )
 
 
 if __name__ == "__main__":

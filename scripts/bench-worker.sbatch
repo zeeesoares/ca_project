@@ -52,9 +52,10 @@ source venv/bin/activate
 : "${USE_JITTER:?            USE_JITTER can be set to 'true' to apply random jitter to compute time}"
 
 LOCAL_DIR="/tmp/ca_bench_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
-MIGRATER_LOG="logs/migrater_$(hostname)_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}.log"
+MIGRATER_LOG_DIR="${RESULTS_DIR}/${EXPERIMENT_TAG}/migrater_logs"
+MIGRATER_LOG="${MIGRATER_LOG_DIR}/migrater_$(hostname)_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}.log"
 
-mkdir -p "${LOCAL_DIR}" out logs
+mkdir -p "${MIGRATER_LOG_DIR}" "${LOCAL_DIR}" out logs
 
 echo "  Experiment tag : ${EXPERIMENT_TAG}"
 echo "  Worker id      : ${SLURM_ARRAY_TASK_ID}"

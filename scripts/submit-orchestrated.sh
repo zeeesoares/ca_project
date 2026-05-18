@@ -145,19 +145,22 @@ USE_JITTER="${USE_JITTER}" \
 
 echo "  Submitted worker array    : ${WORKER_JOB_ID}"
 echo "  (workers depend on orchestrator: after:${ORCH_JOB_ID})"
-echo ""
+echo
 echo "  Monitor:"
 echo "    squeue -j ${ORCH_JOB_ID},${WORKER_JOB_ID}"
-echo ""
+echo
 echo "  Outputs:"
 echo "    out/bench_orchestrator_${ORCH_JOB_ID}.out"
 echo "    out/bench_worker_${WORKER_JOB_ID}_*.out"
-echo ""
+echo
 echo "  Cancel experiment (orchestrator + workers):"
 echo "    scancel ${ORCH_JOB_ID} ${WORKER_JOB_ID}"
-echo ""
+echo
 echo "  Once all worker tasks finish, collect results:"
-echo ""
+echo
 echo "    python3 -m benchmarks.e2e.collect \\"
 echo "        --results-dir ${RESULTS_DIR}/${EXPERIMENT_TAG} \\"
-echo "        --output-csv  ${RESULTS_DIR}/${EXPERIMENT_TAG}/summary.csv"1
+echo "        --output-csv  ${RESULTS_DIR}/${EXPERIMENT_TAG}/summary.csv \\"
+echo "        --detail-csv  ${RESULTS_DIR}/${EXPERIMENT_TAG}/detail.csv \\"
+echo "        --accumulated-bw-plots \\"
+echo "        --plots-dir   ${RESULTS_DIR}/${EXPERIMENT_TAG}/plots"
