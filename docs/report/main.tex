@@ -1,29 +1,65 @@
 % !TEX project = pdflatex
-\documentclass[conference,a4paper]{IEEEtran}
+\documentclass[sigplan,screen]{acmart}
 
 \usepackage{packages}
 \input{macros}
 
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\settopmatter{printfolios=true,printacmref=false}
+\pagestyle{plain}
+
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+\setcopyright{acmlicensed}
+\copyrightyear{2018}
+\acmYear{2018}
+\acmDOI{XXXXXXX.XXXXXXX}
+%% These commands are for a PROCEEDINGS abstract or paper.
+\acmConference[Conference acronym 'XX]{Make sure to enter the correct
+  conference title from your rights confirmation email}{June 03--05,
+  2018}{Woodstock, NY}
+
+\acmISBN{978-1-4503-XXXX-X/2018/06}
+
+\settopmatter{authorsperrow=4}
+
 \begin{document}
 
-\title{Advanced Computing Project (2025/26)\\
-       \Large Storage system for optimizing LLM checkpointing in HPC}
+\title[Advanced Computing Project (2025/26)]{Storage system for optimizing LLM checkpointing in HPC}
 
-\author{
-    \IEEEauthorblockN{André Miranda}
-    \IEEEauthorblockA{MEI, PG60238}
-    \and
-    \IEEEauthorblockN{Gustavo Barros}
-    \IEEEauthorblockA{MEI, PG61527}
-    \and
-    \IEEEauthorblockN{José Soares}
-    \IEEEauthorblockA{MEI, PG60277}
-    \and
-    \IEEEauthorblockN{Miguel Carvalho}
-    \IEEEauthorblockA{MEI, PG61153}
+\author{André Miranda}
+\email{pg60238@alunos.uminho.pt}
+\affiliation{
+  \institution{Minho University}
+  \country{Portugal}
 }
 
-\maketitle
+\author{Gustavo Barros}
+\email{pg61527@alunos.uminho.pt}
+\affiliation{
+  \institution{Minho University}
+  \country{Portugal}
+}
+
+\author{José Soares}
+\email{pg60277@alunos.uminho.pt}
+\affiliation{
+  \institution{Minho University}
+  \country{Portugal}
+}
+
+\author{Miguel Carvalho}
+\email{pg61153@alunos.uminho.pt}
+\affiliation{
+  \institution{Minho University}
+  \country{Portugal}
+}
+
+
+\renewcommand{\shortauthors}{Miranda et al.}
 
 \begin{abstract}
 Training Large Language Models (LLMs) in High-Performance Computing (HPC) environments is a time-consuming process that requires frequent 
@@ -34,9 +70,10 @@ a centralized orchestrator to manage asynchronous migration to the PFS via a Tok
 control. Our evaluation on the Deucalion supercomputer demonstrates that ... 
 \end{abstract}
 
-\begin{IEEEkeywords}
-\red{High-Performance Computing, Deucalion, A64FX, AMD EPYC 7742, NVIDIA A100, Memory Hierarchy, Large Language Models, Checkpointing, Parallel File Systems, I/O Contention, Quality of Service (QoS), Distributed Systems, Resource Management..}
-\end{IEEEkeywords}
+
+\keywords{\red{High-Performance Computing, Deucalion, A64FX, AMD EPYC 7742, NVIDIA A100, Memory Hierarchy, Large Language Models, Checkpointing, Parallel File Systems, I/O Contention, Quality of Service (QoS), Distributed Systems, Resource Management..}}
+
+\maketitle
 
 \section{Introduction}
 
