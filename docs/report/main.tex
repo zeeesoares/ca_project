@@ -125,74 +125,88 @@ I/O Contention, Quality of Service (QoS), Distributed Systems, Resource Manageme
 
 \section{Introduction}
 
-The rapid growth of Large Language Models (LLMs) has significantly increased the computational and storage demands of modern
-High-Performance Computing (HPC) systems. Training such models requires long-running jobs over distributed infrastructures, 
-where fault tolerance becomes essential. Checkpointing—periodically saving the model state—is the standard mechanism to ensure 
-progress is not lost due to failures. However, as model sizes scale to billions of parameters, checkpoint operations generate 
-massive I/O workloads.
+The rapid growth of Large Language Models (LLMs) has significantly increased the computational and storage demands of modern 
+High-Performance Computing (HPC) systems. Training such models requires long-running, distributed jobs over clusters of GPUs 
+or accelerators, where fault tolerance is essential to avoid losing weeks of computation due to hardware failures, network 
+instability, or software errors. Checkpointing—the periodic saving of model states, optimizer parameters, and training 
+metadata—has emerged as the de facto mechanism to ensure progress is preserved. However, as model sizes scale to billions or 
+even trillions of parameters, checkpoint operations now generate massive I/O workloads, often exceeding tens to hundreds of 
+gigabytes per save.
 
-In shared HPC environments, these workloads are typically directed to a Parallel File System (PFS), which is simultaneously 
-accessed by multiple users and applications. This leads to contention, particularly when several jobs attempt to write checkpoints 
-concurrently. The resulting "noisy neighbor" effect can degrade performance cluster-wide, increasing latency and even stalling 
-training processes.
+In shared HPC environments, these I/O-intensive workloads are typically directed to a Parallel File System (PFS), such as 
+Lustre or GPFS, which is concurrently accessed by hundreds of users and applications. When multiple deep learning jobs attempt 
+to write checkpoints simultaneously—as is common at the end of training epochs—the resulting synchronized I/O bursts can saturate 
+the PFS, leading to severe contention. This phenomenon, known as the Noisy Neighbor Problem, degrades performance cluster-wide, 
+increasing latency, reducing effective throughput, and even stalling training processes entirely. Such stalls not only waste 
+computational resources but also disrupt the workflows of unrelated jobs sharing the same filesystem, creating a cascading effect 
+that undermines the efficiency of the entire HPC ecosystem.
 
-Existing approaches either optimize checkpoint size or leverage faster intermediate storage, but often lack coordination mechanisms 
-to regulate global I/O pressure. This paper proposes a policy-driven, two-tier storage orchestration system that combines node-local 
-SSD staging with centralized rate control. By decoupling checkpoint generation from persistent storage and introducing a Token 
-Bucket-based migration strategy, the system provides predictable Quality of Service (QoS) while maintaining transparency to user 
-applications.
+The central insight driving this work is that checkpointing is not latency-critical for persistence, but it is latency-critical 
+for training continuation. In other words, training can resume as soon as the checkpoint is safely written to fast, temporary 
+storage (e.g., node-local SSDs), while the durable persistence to the PFS can occur asynchronously in the background. This decoupling 
+of checkpoint generation from long-term storage unlocks the potential to smooth I/O bursts, reduce contention, and improve overall system 
+stability without sacrificing fault tolerance.
 
-We evaluate the proposed system on the Deucalion supercomputer, demonstrating its ability to reduce I/O contention and improve overall 
-system stability during large-scale LLM training.
-
-
+To address this challenge, we propose a policy-driven, two-tier storage orchestration system that combines node-local SSD staging 
+with centralized rate control. The system is designed to transparently intercept checkpoint writes, redirect them to fast local 
+storage, and asynchronously migrate them to the PFS under strict Quality of Service (QoS) constraints. By doing so, we minimize 
+the stall time experienced by training jobs while regulating global I/O pressure to prevent PFS saturation.
 
 \section{Background and Motivation}
 
 \subsection{Checkpointing in HPC}
 
-Checkpointing is a fundamental technique for fault tolerance in High-Performance Computing (HPC) applications. Since large-scale 
-training jobs may execute for hours or even weeks, failures caused by hardware faults, network instability, or software errors can 
-lead to significant computational losses. To mitigate this problem, applications periodically save their execution state to stable 
-storage, enabling recovery from the most recent checkpoint instead of restarting from the beginning.
-
-In distributed deep learning workloads, checkpoints typically include model parameters, optimizer states, gradients, and training 
-metadata. The rapid growth of Large Language Models (LLMs) has significantly increased checkpoint sizes, often reaching tens or 
-hundreds of gigabytes per save operation. As a result, checkpointing has evolved into a major source of I/O pressure in modern HPC 
-systems.
+Checkpointing is a fault-tolerance mechanism in distributed deep learning that periodically saves the model state, including 
+parameters, optimizer states, and gradients, to stable storage. As models scale to billions of parameters, checkpoint sizes 
+can reach tens to hundreds of gigabytes, making I/O operations a critical bottleneck. Since large-scale training jobs may execute 
+for hours or even weeks, failures caused by hardware faults, network instability, or software errors can lead to significant 
+computational losses. To mitigate this problem, applications periodically save their execution state to stable storage, enabling 
+recovery from the most recent checkpoint instead of restarting from the beginning.
 
 
 \subsection{Parallel File Systems and Contention}
 
-Parallel File Systems (PFSs) such as Lustre are designed to provide high aggregate throughput and scalable shared storage for HPC 
-environments. These systems distribute data across multiple storage targets and metadata servers, enabling concurrent access from 
-thousands of compute nodes.
 
-Despite their scalability, PFSs remain vulnerable to bursty and highly synchronized workloads. In deep learning environments, 
-checkpoint operations are often triggered simultaneously across distributed jobs, generating sudden I/O spikes that overwhelm 
-storage resources. This behavior increases latency, reduces effective throughput, and creates contention between unrelated 
-applications sharing the same filesystem.
+Parallel file systems are the storage backbone of HPC infrastructures, designed to provide massive data throughput for thousands of 
+concurrent jobs. In this work, we focus on Lustre-like file systems, which are widely deployed across TOP500 supercomputers. A typical 
+Lustre architecture decouples metadata from file data: Metadata Servers (MDSs) manage the namespace, while Object Storage Servers (OSSs) 
+and their underlying Object Storage Targets (OSTs) handle the heavy lifting of data read and write operations. To achieve high bandwidth, 
+large files are typically striped across multiple OSTs, allowing compute nodes to write data in parallel via kernel-level clients using 
+standard POSIX interfaces.
 
-This phenomenon is commonly referred to as the "noisy neighbor" problem, where the I/O activity of a subset of jobs negatively 
-impacts the performance of others. As LLM training scales further, these interference effects become increasingly problematic 
-for shared HPC infrastructures.
+While this architecture provides massive aggregate bandwidth, it is increasingly challenged by the I/O patterns of modern Deep Learning 
+(DL) workloads, particularly due to model checkpointing. As neural networks grow exponentially in size, saving a model's state routinely 
+generates monolithic files or large shards ranging from tens to hundreds of gigabytes. Unlike dataset loading, which is continuous and 
+read-intensive, checkpointing introduces periodic, extremely write-intensive I/O bursts.
+
+When multiple large-scale distributed training jobs attempt to write these massive checkpoints to the PFS simultaneously they can saturate 
+the OSSs and the cluster's network interconnect. This severe I/O contention not only degrades the overall storage performance for all users 
+in the HPC cluster but also severely impacts the training efficiency itself. Because standard checkpointing mechanisms are typically synchronous, 
+expensive GPU compute nodes are forced to stall, wasting valuable computational resources while waiting for the bottlenecked storage system to 
+complete the massive write operations.
+
+\subsection{Quality of Service in HPC Storage}
+
+To mitigate this severe I/O contention, Quality of Service (QoS) mechanisms are increasingly necessary in HPC environments. QoS refers to the 
+ability to control and prioritize resource allocation—such as storage bandwidth—to ensure fairness, predictability, and overall cluster stability. 
+In the context of parallel file systems, QoS can be enforced dynamically to prevent concurrent deep learning jobs from monopolizing shared resources 
+during their massive, synchronized checkpointing phases.
+
+\subsection{Token Bucket Algorithm}
+
+A foundational technique for enforcing such bandwidth QoS is the Token Bucket algorithm, \red{TODO}
 
 
 \subsection{Motivation}
 
-The main motivation of this work is that checkpointing is not latency-critical for persistence, but it is latency-critical for 
-training continuation. 
+The main motivation of this work stems from the severe I/O bottlenecks observed when training large-scale Deep Learning (DL) models on HPC clusters. 
+As model parameters scale into the billions, their corresponding checkpoints grow to tens or hundreds of gigabytes. Currently, when distributed training 
+jobs attempt to write these massive checkpoints to a shared Parallel File System (PFS) simultaneously.
 
-In practice, training can resume as soon as checkpoint data is safely written to fast temporary storage, while durable persistence 
-to the PFS can occur asynchronously.
-
-This distinction enables the decoupling of checkpoint generation from long-term storage operations. By leveraging node-local SSDs 
-as an intermediate staging layer and regulating background transfers to the PFS, it becomes possible to reduce contention, smooth 
-I/O bursts, and provide predictable Quality of Service (QoS) across concurrent workloads.
-
-The proposed approach therefore aims to preserve fast checkpoint completion from the application's perspective while improving 
-overall storage stability at the cluster level.
-
+This uncoordinated burst of I/O traffic instantly saturates the storage network, causing extreme contention. Consequently, expensive compute nodes are 
+forced to stall while waiting for synchronous write operations to finish, wasting valuable computational time and degrading the storage performance for the 
+entire cluster. This work is motivated by the critical need to eliminate these stalls. By developing a dynamic, QoS-aware orchestration layer, we aim to decouple 
+checkpoint generation from PFS flushing, ensuring smooth bandwidth utilization and maximizing training efficiency.
 
 
 
@@ -273,33 +287,21 @@ checkpoint behavior.
 \subsection{Token Bucket Model}
 
 To regulate PFS access, each job is assigned a token bucket defining its allowed write rate. Tokens accumulate over time and are consumed during 
-data transfers.
+data transfers. \red{TODO: Describe the specific parameters of the token bucket and how they are dynamically adjusted based on system conditions.}
 
 \subsection{Scheduling Policy}
 
-The orchestrator schedules checkpoint flushes based on:
-\begin{itemize}
-    \item Token availability
-    \item Queue size
-    \item System load
-\end{itemize}
-
-\subsection{Fairness and Isolation}
-
-The Token Bucket mechanism ensures that no job exceeds its allocated bandwidth, providing fairness and mitigating interference.
+The orchestrator schedules \red{TODO: Describe the scheduling policies for checkpoint migration.}
 
 \subsection{Prototype Design}
 
-The system is implemented as a user-space middleware layer, avoiding kernel modifications. The interception layer is realized using dynamic linking 
-techniques.
+\red{TODO: Describe the prototype implementation, including the interception mechanism, local storage management, and control plane architecture.}
 
 \subsection{Data Management}
 
 Checkpoint files are stored locally with metadata tracking their migration status. A background daemon handles transfers to the PFS.
 
-\subsection{Fault Tolerance}
 
-To ensure reliability, the system maintains redundancy metadata and guarantees that checkpoints are eventually persisted to the PFS.
 
 \section{Evaluation}
 
@@ -322,6 +324,9 @@ We evaluate the system using synthetic and realistic checkpointing workloads des
     \item I/O congestion
     \item CPU/GPU and memory usage
 \end{itemize}
+
+
+
 
 \section{Related Work}
 
@@ -349,7 +354,13 @@ control plane coordinates I/O rates across all jobs. While PADLL is a general-pu
 the specific lifecycle of LLM checkpoints—integrating node-local SSD staging with PADLL-inspired Token Bucket rate limiting to ensure cluster harmony 
 during massive model state migrations.
 
+
+
+
 \section{Conclusions}
+
+
+
 
 \section{Future Work}
 
