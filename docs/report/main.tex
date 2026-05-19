@@ -1,18 +1,20 @@
-% !TEX project = pdflatex
-\documentclass[sigplan,screen]{acmart}
-
-\usepackage{packages}
-\input{macros}
+\documentclass[sigplan,twocolumn,10pt]{acmart}
 
 \renewcommand\footnotetextcopyrightpermission[1]{}
 \settopmatter{printfolios=true,printacmref=false}
 \pagestyle{plain}
 
-%% \BibTeX command to typeset BibTeX logo in the docs
+\input{macros}
+
 \AtBeginDocument{%
   \providecommand\BibTeX{{%
     Bib\TeX}}}
 
+%% Rights management information.  This information is sent to you
+%% when you complete the rights form.  These commands have SAMPLE
+%% values in them; it is your responsibility as an author to replace
+%% the commands and values with those provided to you when you
+%% complete the rights form.
 \setcopyright{acmlicensed}
 \copyrightyear{2018}
 \acmYear{2018}
@@ -21,10 +23,49 @@
 \acmConference[Conference acronym 'XX]{Make sure to enter the correct
   conference title from your rights confirmation email}{June 03--05,
   2018}{Woodstock, NY}
-
+%%
+%%  Uncomment \acmBooktitle if the title of the proceedings is different
+%%  from ``Proceedings of ...''!
+%%
+%%\acmBooktitle{Woodstock '18: ACM Symposium on Neural Gaze Detection,
+%%  June 03--05, 2018, Woodstock, NY}
 \acmISBN{978-1-4503-XXXX-X/2018/06}
 
+
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+%%\acmSubmissionID{123-A56-BU3}
+
+%%
+%% For managing citations, it is recommended to use bibliography
+%% files in BibTeX format.
+%%
+%% You can then either use BibTeX with the ACM-Reference-Format style,
+%% or BibLaTeX with the acmnumeric or acmauthoryear sytles, that include
+%% support for advanced citation of software artefact from the
+%% biblatex-software package, also separately available on CTAN.
+%%
+%% Look at the sample-*-biblatex.tex files for templates showcasing
+%% the biblatex styles.
+%%
+
+%%
+%% The majority of ACM publications use numbered citations and
+%% references.  The command \citestyle{authoryear} switches to the
+%% "author year" style.
+%%
+%% If you are preparing content for an event
+%% sponsored by ACM SIGGRAPH, you must use the "author year" style of
+%% citations and references.
+%% Uncommenting
+%% the next command will enable that style.
+%%\citestyle{acmauthoryear}
+
 \settopmatter{authorsperrow=4}
+
 
 \begin{document}
 
@@ -33,45 +74,50 @@
 \author{André Miranda}
 \email{pg60238@alunos.uminho.pt}
 \affiliation{
-  \institution{Minho University}
+  \institution{Universidade do Minho}
+  \city{Braga}
   \country{Portugal}
 }
 
 \author{Gustavo Barros}
 \email{pg61527@alunos.uminho.pt}
 \affiliation{
-  \institution{Minho University}
+  \institution{Universidade do Minho}
+  \city{Braga}
   \country{Portugal}
 }
 
 \author{José Soares}
 \email{pg60277@alunos.uminho.pt}
 \affiliation{
-  \institution{Minho University}
+  \institution{Universidade do Minho}
+  \city{Braga}
   \country{Portugal}
 }
 
 \author{Miguel Carvalho}
 \email{pg61153@alunos.uminho.pt}
 \affiliation{
-  \institution{Minho University}
+  \institution{Universidade do Minho}
+  \city{Braga}
   \country{Portugal}
 }
-
 
 \renewcommand{\shortauthors}{Miranda et al.}
 
 \begin{abstract}
-Training Large Language Models (LLMs) in High-Performance Computing (HPC) environments is a time-consuming process that requires frequent 
-checkpointing to ensure fault tolerance. However, concurrent writes of massive model states often saturate the shared Parallel File System 
-(PFS), leading to significant I/O contention and training stalls. This paper proposes a policy-driven, two-tier storage orchestration system
-designed to mitigate the "noisy neighbor" problem in HPC clusters. By transparently redirecting checkpoints to node-local SSDs and employing
-a centralized orchestrator to manage asynchronous migration to the PFS via a Token Bucket algorithm, we enable granular Quality of Service (QoS)
-control. Our evaluation on the Deucalion supercomputer demonstrates that ... 
+  Training Large Language Models (LLMs) in High-Performance Computing (HPC) environments is a time-consuming process that requires frequent 
+  checkpointing to ensure fault tolerance. However, concurrent writes of massive model states often saturate the shared Parallel File System 
+  (PFS), leading to significant I/O contention and training stalls. This paper proposes a policy-driven, two-tier storage orchestration system
+  designed to mitigate the "noisy neighbor" problem in HPC clusters. By transparently redirecting checkpoints to node-local SSDs and employing
+  a centralized orchestrator to manage asynchronous migration to the PFS via a Token Bucket algorithm, we enable granular Quality of Service (QoS)
+  control. Our evaluation on the Deucalion supercomputer demonstrates that ... 
 \end{abstract}
 
+\keywords{High-Performance Computing, Deucalion, A64FX, AMD EPYC 7742, Memory Hierarchy, Large Language Models, Checkpointing, Parallel File Systems, I/O Contention, Quality of Service (QoS), Distributed Systems, Resource Management..}
 
-\keywords{\red{High-Performance Computing, Deucalion, A64FX, AMD EPYC 7742, NVIDIA A100, Memory Hierarchy, Large Language Models, Checkpointing, Parallel File Systems, I/O Contention, Quality of Service (QoS), Distributed Systems, Resource Management..}}
+
+\received{25 May 2026}
 
 \maketitle
 
@@ -266,10 +312,6 @@ control plane coordinates I/O rates across all jobs. While PADLL is a general-pu
 the specific lifecycle of LLM checkpoints—integrating node-local SSD staging with PADLL-inspired Token Bucket rate limiting to ensure cluster harmony 
 during massive model state migrations.
 
-\section{Results}
-
-\red{Colocar resultados em geral e em específico para cada métrica?}
-
 \section{Discussion}
 
 \subsection{Trade-offs}
@@ -280,65 +322,14 @@ during massive model state migrations.
 
 \section{Conclusions}
 
-\red{TODO}
-
 \section{Future Work}
 
 Future work will focus on...
 
-\red{TODO}
-
-% References
-% \renewcommand{\bibname}{References}
-\begin{thebibliography}{9}
-    \bibitem{EuroHPC}
-        EuroHPC Joint Undertaking,
-        ``Access Calls -- Technical Guidelines, Version 6 (26.05.2025),'' 2025.
-        \href{https://www.eurohpc-ju.europa.eu/document/download/7ac29264-106d-497c-9683-42aec21bf10f_en?filename=Technical_Guidelines-all+calls-26.05.2025.pdf}{Link}
-
-    \bibitem{A64FXdatasheet}
-        Fujitsu Ltd.,
-        ``FUJITSU Processor A64FX -- Architecture and Specifications,'' 2020.
-        \href{https://www.fujitsu.com/global/products/computing/servers/supercomputer/a64fx/}{Link}
-
-    \bibitem{EPYC7742}
-        AMD,
-        ``AMD EPYC 7742 Processor (Rome) -- Product Specifications and Performance Guide,''
-        2019--2024.
-        \href{https://www.amd.com/en/products/cpu/amd-epyc-7742}{Link}
-
-    \bibitem{CheckFreq}
-        J. Mohan, A. Phanishayee, and V. Chidambaram,
-        ``CheckFreq: Frequent, Fine-Grained DNN Checkpointing,''
-        in \textit{19th USENIX Conference on File and Storage Technologies (FAST 21)},
-        pp. 203--216, Feb. 2021.
-        \url{https://www.usenix.org/conference/fast21/presentation/mohan}
-
-    \bibitem{CheckNRun}
-        A. Eisenman et al.,
-        ``Check-N-Run: a Checkpointing System for Training Deep Learning Recommendation Models,''
-        in \textit{19th USENIX Symposium on Networked Systems Design and Implementation (NSDI 22)},
-        pp. 929--943, Apr. 2022.
-        \url{https://www.usenix.org/conference/nsdi22/presentation/eisenman}
-
-    \bibitem{DeepFreeze}
-        B. Nicolae, J. Li, J. Wozniak, G. Bosilca, M. Dorier, and F. Cappello,
-        ``DeepFreeze: Towards Scalable Asynchronous Checkpointing of Deep Learning Models,''
-        in \textit{CCGrid 2020}, pp. 172--181, May 2020.
-        DOI: 10.1109/CCGrid49817.2020.00-76
-
-    \bibitem{BitSnap}
-        Y. Peng et al.,
-        ``BitSnap: Checkpoint Sparsification and Quantization in LLM Training,''
-        \textit{arXiv preprint arXiv:2511.12376}, 2025.
-        \url{https://arxiv.org/abs/2511.12376}
-
-    \bibitem{PADLL}
-        R. Macedo et al.,
-        ``PADLL: Taming Metadata-intensive HPC Jobs Through Dynamic, Application-agnostic QoS Control,''
-        \textit{arXiv preprint arXiv:2302.06418}, 2023.
-        \url{https://arxiv.org/abs/2302.06418}
-
-\end{thebibliography}
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
 
 \end{document}
+\endinput
+%%
+%% End of file `sample-sigplan.tex'.

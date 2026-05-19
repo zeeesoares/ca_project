@@ -27,6 +27,9 @@ index:
 
 compile: index
 	$(TEX) $(FLAGS) $(FILE_NAME).tex
+	bibtex $(OUTPUT_DIR)/$(FILE_NAME)
+	$(TEX) $(FLAGS) $(FILE_NAME).tex
+	$(TEX) $(FLAGS) $(FILE_NAME).tex
 
 install:
 	# Install the required packages
@@ -56,4 +59,6 @@ clean:
 		$(OUTPUT_DIR)/*.nls \
 		$(OUTPUT_DIR)/*.nlo \
 		$(OUTPUT_DIR)/*.fdb_latexmk \
-		$(OUTPUT_DIR)/*.fls
+		$(OUTPUT_DIR)/*.fls \
+		$(OUTPUT_DIR)/*.bbl \
+		$(OUTPUT_DIR)/*.blg 
