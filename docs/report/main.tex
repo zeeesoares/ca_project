@@ -1,68 +1,17 @@
-\documentclass[sigplan,twocolumn,10pt]{acmart}
+\documentclass[sigplan,twocolumn,10pt,nonacm]{acmart}
 
 \renewcommand\footnotetextcopyrightpermission[1]{}
 \settopmatter{printfolios=true,printacmref=false}
 \pagestyle{plain}
 
 \input{macros}
+\usepackage{tikz}
+\usetikzlibrary{positioning, fit, arrows.meta, shapes.geometric, backgrounds}
 
 \AtBeginDocument{%
   \providecommand\BibTeX{{%
     Bib\TeX}}}
 
-%% Rights management information.  This information is sent to you
-%% when you complete the rights form.  These commands have SAMPLE
-%% values in them; it is your responsibility as an author to replace
-%% the commands and values with those provided to you when you
-%% complete the rights form.
-\setcopyright{acmlicensed}
-\copyrightyear{2018}
-\acmYear{2018}
-\acmDOI{XXXXXXX.XXXXXXX}
-%% These commands are for a PROCEEDINGS abstract or paper.
-\acmConference[Conference acronym 'XX]{Make sure to enter the correct
-  conference title from your rights confirmation email}{June 03--05,
-  2018}{Woodstock, NY}
-%%
-%%  Uncomment \acmBooktitle if the title of the proceedings is different
-%%  from ``Proceedings of ...''!
-%%
-%%\acmBooktitle{Woodstock '18: ACM Symposium on Neural Gaze Detection,
-%%  June 03--05, 2018, Woodstock, NY}
-\acmISBN{978-1-4503-XXXX-X/2018/06}
-
-
-%%
-%% Submission ID.
-%% Use this when submitting an article to a sponsored event. You'll
-%% receive a unique submission ID from the organizers
-%% of the event, and this ID should be used as the parameter to this command.
-%%\acmSubmissionID{123-A56-BU3}
-
-%%
-%% For managing citations, it is recommended to use bibliography
-%% files in BibTeX format.
-%%
-%% You can then either use BibTeX with the ACM-Reference-Format style,
-%% or BibLaTeX with the acmnumeric or acmauthoryear sytles, that include
-%% support for advanced citation of software artefact from the
-%% biblatex-software package, also separately available on CTAN.
-%%
-%% Look at the sample-*-biblatex.tex files for templates showcasing
-%% the biblatex styles.
-%%
-
-%%
-%% The majority of ACM publications use numbered citations and
-%% references.  The command \citestyle{authoryear} switches to the
-%% "author year" style.
-%%
-%% If you are preparing content for an event
-%% sponsored by ACM SIGGRAPH, you must use the "author year" style of
-%% citations and references.
-%% Uncommenting
-%% the next command will enable that style.
-%%\citestyle{acmauthoryear}
 
 \settopmatter{authorsperrow=4}
 
@@ -201,7 +150,7 @@ A foundational technique for enforcing such bandwidth QoS is the Token Bucket al
 
 The main motivation of this work stems from the severe I/O bottlenecks observed when training large-scale Deep Learning (DL) models on HPC clusters. 
 As model parameters scale into the billions, their corresponding checkpoints grow to tens or hundreds of gigabytes. Currently, when distributed training 
-jobs attempt to write these massive checkpoints to a shared Parallel File System (PFS) simultaneously.
+jobs attempt to write these massive checkpoints to a shared PFS simultaneously.
 
 This uncoordinated burst of I/O traffic instantly saturates the storage network, causing extreme contention. Consequently, expensive compute nodes are 
 forced to stall while waiting for synchronous write operations to finish, wasting valuable computational time and degrading the storage performance for the 
@@ -212,54 +161,93 @@ checkpoint generation from PFS flushing, ensuring smooth bandwidth utilization a
 
 \section{System Design}
 
-The proposed system adopts a two-tier storage architecture combined with a centralized orchestration mechanism to regulate checkpoint 
-traffic in shared HPC environments.
+As already mentioned in the motivation section, the core problem we address is the severe I/O contention caused by concurrent checkpointing in HPC clusters. 
+To mitigate this, we propose a centralized orchestration framework equipped with dynamic QoS controls to regulate PFS access. 
 
-The main design goals are:
+The main design goals of the proposed architecture are:
 \begin{itemize}
-    \item Reduce checkpoint latency perceived by training applications
-    \item Minimize congestion on the shared Parallel File System (PFS)
-    \item Provide fairness and QoS isolation between concurrent jobs
-    \item Preserve transparency and compatibility with existing HPC workflows
+    \item \textbf{Elimination of Stalls:} Checkpoint I/O must not block the training loop. Expensive compute resources should remain fully utilized while 
+      storage operations are handled in the background.
+    \item \textbf{Strict Traffic Shaping (Contention Avoidance):} The system must prevent "noisy neighbor" scenarios by strictly enforcing aggregate bandwidth 
+      limits, ensuring that concurrent write bursts never saturate the cluster's interconnect or the PFS Object Storage Servers.
+    \item \textbf{Dynamic and Fair Resource Allocation:} Available storage bandwidth should be distributed intelligently among active jobs, relying on pluggable 
+      scheduling policies that consider job progress, checkpoint age, or assigned priorities.
+    \item \textbf{Low-Latency Responsiveness:} The architecture must react instantly to cluster state transitions (e.g., a new job starting its checkpoint phase) 
+      to avoid temporary bandwidth overshoots or resource underutilization.
 \end{itemize}
 
-Instead of writing checkpoints directly to the PFS, the system temporarily stages data in node-local SSDs and asynchronously migrates 
-it under centralized control. This decouples checkpoint generation from persistent storage operations, reducing synchronized I/O bursts.
+To achieve these goals, the system departs from traditional synchronous checkpointing. Instead of writing checkpoints directly to the PFS, the system temporarily 
+stages data in node-local storage (e.g., local NVMe SSDs) and asynchronously migrates it under centralized control. This decouples checkpoint generation from persistent 
+storage operations, effectively absorbing the synchronized I/O bursts.
 
 
-\subsection{Design Overview}
+The architecture is built upon three primary interacting components, as illustrated in Figure \ref{fig:architecture}:
 
-The system consists of three main components:
-\begin{itemize}
-    \item \textbf{Interception Layer}: Transparently redirects checkpoint writes to local storage.
-    \item \textbf{Local Storage Tier}: Node-local SSDs for fast staging.
-    \item \textbf{Control Plane}: Central orchestrator managing global I/O behavior and enforcing QoS policies.
-\end{itemize}
+\begin{figure}[htbp]
+    \centering
+    \resizebox{\columnwidth}{!}{%
+        \input{diagram.tex}%
+    }
+    \caption{System architecture of the framework detailed by its components.}
+    \label{fig:architecture}
+\end{figure}
 
-When a checkpoint operation is triggered, the application writes data to the local SSD instead of directly accessing the PFS. Once the 
-local write completes, the application can immediately resume execution. Checkpoints are later transferred to persistent storage through 
-controlled background migration managed by the control plane.
 
-This design minimizes training stalls while smoothing I/O pressure across the cluster.
+\subsection{PyTorch Manager (Client Wrapper)}
+Operating directly within the deep learning application's runtime, this lightweight wrapper intercepts standard checkpointing calls (e.g., \texttt{torch.save}). 
+Rather than blocking while data is pushed over the network to the PFS, the manager writes the checkpoint to the high-speed local storage of the compute 
+node. Once the local write is complete, it immediately signals the node's local daemon (the Migrater) and returns control to the training loop, minimizing the 
+computation stall time to mere seconds.
+
+\subsection{Node Migrater}
+The Node Migrater runs as a background process on every compute node. Upon receiving a signal from the PyTorch Manager, it takes responsibility for transferring 
+the locally staged checkpoint to the global PFS. To prevent network flooding, the transfer speed is strictly governed by a Token Bucket algorithm. 
+\red{TODO MIGUEL (queria dizer algo aqui)}: This algorithm features..
+
+\subsection{Central Orchestrator}
+At the core of the system is the Central Orchestrator, which acts as the global scheduler. It maintains a thread-safe, real-time snapshot of the cluster, tracking 
+which workers have pending checkpoints, their respective sizes, and the current training epoch. The Orchestrator applies pluggable policies (such as \textit{Epoch-Priority} 
+or \textit{Age-Priority}) to calculate the optimal bandwidth share for each active node. To ensure near real-time responsiveness while minimizing network overhead, 
+communication is handled via persistent gRPC bidirectional streams using a high-frequency heartbeat mechanism, as shown by the dashed control link in Figure \ref{fig:architecture}. 
+Rather than flooding the network with continuous push updates, the Orchestrator relies on rapid, periodic status reports from the active Migraters. Upon receiving a 
+heartbeat containing a worker's current progress, the Orchestrator immediately recalculates the global policy and yields the updated rate limit back to the client. 
+This efficient request-response flow over an open stream guarantees a precise enforcement of the aggregate PFS bandwidth limit, keeping latency extremely low without 
+generating redundant control messages.
+
 
 \subsection{Local Storage Tier}
 
-Each compute node provides local SSD storage used as a temporary checkpoint staging area. Compared to remote PFS access, local SSDs offer 
-significantly lower latency and higher write throughput.
+To decouple the checkpoint generation from the global storage bottleneck, our architecture employs a two-tier storage strategy. Each compute node provides 
+local SSD storage used as a temporary checkpoint staging area. Compared to remote PFS access, local SSDs offer dedicated, uncontended bandwidth. Initially, 
+the core hypothesis was that staging data locally would drastically reduce the training stall time when compared to the traditional synchronous write directly 
+to the shared PFS.
 
-This storage tier absorbs bursty checkpoint traffic and enables rapid checkpoint completion, allowing training processes to continue execution 
-without waiting for persistence to complete.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\columnwidth]{img/stall_comparison.png} 
+    \caption{Comparison of stall durations during checkpointing. \red{TODO: melhorar esta descrição} Tests were conducted on
+    Deucalion with synthetic a checkpoint workload, saving checkpoints with 5GB size. \red{TODO: Add more details about the test conditions,
+    such as the number of nodes, background load, partition used, ssd type and characteristics.}}
+    \label{fig:stall_comparison}
+\end{figure}
 
-In addition to storing checkpoint data, the local tier maintains metadata describing:
+However, empirical evaluations (Figure \ref{fig:stall_comparison}) revealed a different scenario than initially anticipated. Under specific test conditions, 
+the baseline direct-to-PFS approach actually yielded slightly lower average stall times. Yet, this baseline performance is highly sensitive to the transient background 
+load of the shared storage infrastructure, as evidenced by its significantly higher standard deviation. 
+
+In contrast, while the orchestrated two-tier approach (writing to local SSDs) exhibited slightly higher median stall times, it demonstrated remarkable consistency 
+with near-zero variance. This predictability is a critical advantage for large-scale synchronous distributed training: relying on direct PFS writes exposes the job 
+to severe latency spikes where a single delayed worker (a straggler) can force the entire cluster to stall. 
+
+Despite the lack of a drastic reduction in stall time, introducing the local storage tier remains a crucial architectural decision for two fundamental reasons:
+
 \begin{itemize}
-    \item Checkpoint identifiers
-    \item Migration status
-    \item File integrity information
-    \item Persistence progress
+    \item \textbf{Peak Control and Cluster Stability:} The local tier acts as an essential shock absorber. By capturing the instantaneous checkpoint dump locally, 
+    it empowers the Node Migrater to shape the outgoing network traffic using the Token Bucket algorithm.
+    
+    \item \textbf{Hardware Scalability:} While PFS bandwidth is a shared resource that inherently bottlenecks as more nodes are added to a job, local storage 
+    performance scales independently per node. As compute nodes are upgraded with faster storage technologies, the local staging time will decrease proportionally.
 \end{itemize}
-
-The local storage layer therefore acts as a buffering mechanism between high-frequency checkpoint generation and comparatively slower shared 
-storage operations.
 
 \subsection{Control Plane}
 
@@ -271,15 +259,7 @@ The control plane is responsible for globally coordinating checkpoint migration 
     \item Allocated bandwidth quotas
 \end{itemize}
 
-Rather than allowing unrestricted checkpoint flushing, the control plane regulates migration traffic using a Token Bucket-based QoS mechanism. 
-Each job receives a configurable bandwidth allocation that determines the rate at which checkpoint data may be transferred to the PFS.
-
-This centralized coordination prevents individual jobs from monopolizing storage bandwidth and mitigates the noisy neighbor effect commonly 
-observed in shared HPC systems.
-
-By smoothing bursty migration traffic over time, the control plane improves overall storage stability and fairness while maintaining predictable 
-checkpoint behavior.
-
+\red{TODO: Describe how it handles dynamic job arrivals and departures, and how it ensures fairness across jobs.}
 
 
 \section{Implementation}

@@ -1,0 +1,40 @@
+\begin{tikzpicture}[
+    node distance = 1.5cm and 2.5cm,
+    box/.style = {draw, rounded corners, minimum width=3.5cm, minimum height=1.2cm, align=center, font=\sffamily\small, thick},
+    database/.style = {cylinder, draw, shape border rotate=90, aspect=0.25, minimum height=1.5cm, minimum width=2.5cm, align=center, font=\sffamily\small, thick},
+    arrow/.style = {-{Stealth[length=3mm]}, thick},
+    grpc/.style = {<->, dashed, thick, draw=gray!70, -{Stealth[length=3mm]}},
+    signal/.style = {->, dashed, thick, draw=gray!80, -{Stealth[length=3mm]}}
+]
+
+    \node[box, fill=gray!20, draw=gray!70!black] (train) {DL Training Loop\\(PyTorch)};
+    \node[box, fill=gray!20, draw=gray!70!black, below=of train] (manager) {\textbf{PyTorch Manager}\\(Client Wrapper)};
+    \node[database, fill=gray!20, draw=gray!70!black, below=of manager] (ssd) {Local Storage\\(RAM/SSD)};
+    \node[box, fill=gray!20, draw=gray!70!black, right=of ssd] (migrater) {\textbf{Node Migrater}\\(Local Daemon)};
+    
+    \begin{scope}[on background layer]
+        \node[fit=(train)(manager)(ssd)(migrater), draw, dashed, fill=gray!5, inner sep=0.6cm, rounded corners, label={[font=\sffamily\bfseries]above:Compute Node}] (node) {};
+    \end{scope}
+
+    \node[box, fill=gray!20, draw=gray!70!black, right=2cm of node, yshift=2.5cm] (orchestrator) {\textbf{Central Orchestrator}\\(Global Scheduler)};
+    \node[database, fill=gray!20, draw=gray!70!black, right=3cm of migrater] (pfs) {Parallel File System\\(Lustre)};
+
+    % Treino -> Manager
+    \draw[arrow] (train) -- node[right, font=\sffamily\scriptsize] {Save State} (manager);
+    
+    % Manager -> SSD
+    \draw[arrow] (manager) -- node[right, font=\sffamily\scriptsize] {Fast Write} (ssd);
+    
+    % Manager -> Migrater (Sinal)
+    \draw[signal] (manager) -| node[above, near start, font=\sffamily\scriptsize] {Signal Ready} (migrater);
+    
+    % SSD -> Migrater
+    \draw[arrow] (ssd) -- node[above, font=\sffamily\scriptsize] {Read} (migrater);
+    
+    % Migrater -> PFS
+    \draw[arrow] (migrater) -- node[above, font=\sffamily\scriptsize] {Throttled Flush} node[below, font=\sffamily\scriptsize] {(Token Bucket)} (pfs);
+    
+    % Migrater <-> Orchestrator (gRPC)
+    \draw[grpc] (migrater.north) |- node[near end ,above, font=\sffamily\scriptsize, text=gray!70!black] {gRPC Heartbeats \& Rate Limits} (orchestrator.west);
+
+\end{tikzpicture}
