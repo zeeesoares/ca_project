@@ -1,0 +1,37 @@
+\begin{tikzpicture}[
+    scale=0.85, every node/.style={transform shape},
+    envelope/.style={rectangle, draw=gray!70!black, fill=gray!15, thick, minimum width=6cm, minimum height=0.7cm, align=center, rounded corners=2pt},
+    focus/.style={rectangle, draw=gray!70!black, fill=gray!5, thick, minimum width=6.5cm, minimum height=0.6cm, align=left, font=\ttfamily\small}
+]
+
+    \node[font=\sffamily\bfseries] (hb_title) at (0, 4.2) {HeartbeatRequest};
+    
+    \node[envelope] (hb6) at (0, 3.5) {total\_epochs : int64};
+    \node[envelope] (hb5) at (0, 2.8) {epoch : int64};
+    
+    \node[envelope, fill=gray!30, draw=gray!80!black, dashed] (hb4) at (0, 2.1) {\textbf{progress : repeated TransferProgress}};
+    
+    \node[envelope] (hb3) at (0, 1.4) {is\_migrating : bool};
+    \node[envelope] (hb2) at (0, 0.7) {checkpoint\_size : double};
+    \node[envelope] (hb1) at (0, 0) {worker\_id : string};
+    
+    \node[draw=gray!50, dashed, fit={(hb1) (hb6) (hb4)}, inner sep=0.2cm] (hb_stack) {};
+
+    \node[font=\sffamily\bfseries] (p_title) at (7.5, 5.2) {TransferProgress \textnormal{\small(Metrics for Token Bucket)}};
+    
+    \node[focus] (p9) at (7.5, 4.5) {chunk\_size\_bytes : uint64};
+    \node[focus] (p8) at (7.5, 3.9) {configured\_rate\_bps : double};
+    \node[focus] (p7) at (7.5, 3.3) {average\_throughput\_bps : double};
+    \node[focus] (p6) at (7.5, 2.7) {interval\_throughput\_bps : double};
+    \node[focus] (p5) at (7.5, 2.1) {interval\_seconds : double};
+    \node[focus] (p4) at (7.5, 1.5) {remaining\_bytes : uint64};
+    \node[focus] (p3) at (7.5, 0.9) {total\_bytes : uint64};
+    \node[focus] (p2) at (7.5, 0.3) {bytes\_copied : uint64};
+    \node[focus] (p1) at (7.5, -0.3) {timestamp : double};
+    
+    \node[draw=gray!70!black, thick, fit={(p1) (p9)}, inner sep=0.15cm] (p_stack) {};
+
+    \draw[->, thick, draw=gray!70!black, dashed, >=latex] (hb4.north east) -- (p_stack.north west);
+    \draw[->, thick, draw=gray!70!black, dashed, >=latex] (hb4.south east) -- (p_stack.south west);
+
+\end{tikzpicture}

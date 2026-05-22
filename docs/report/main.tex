@@ -251,7 +251,7 @@ Despite the lack of a drastic reduction in stall time, introducing the local sto
 
 \subsection{Control Plane}
 
-The control plane is responsible for globally coordinating checkpoint migration across compute nodes. It maintains a system-wide view of:
+The Orchestrator is responsible for globally coordinating checkpoint migration across compute nodes. It maintains a system-wide view of:
 \begin{itemize}
     \item Active jobs
     \item Pending checkpoint queues
@@ -259,7 +259,48 @@ The control plane is responsible for globally coordinating checkpoint migration 
     \item Allocated bandwidth quotas
 \end{itemize}
 
-\red{TODO: Describe how it handles dynamic job arrivals and departures, and how it ensures fairness across jobs.}
+To manage this multi-tenant environment without introducing overhead to the compute nodes, the orchestrator acts as a centralized, stateful control plane that 
+decouples client-side tracking from global policy execution. The framework is designed to seamlessly adapt to dynamic cluster variations—such as new job arrivals, 
+varying checkpoint scales, and sudden job completions—by maintaining a real-time global registry of the cluster topology.
+
+Compute nodes actively participate in this orchestration layer by emitting periodic, low-latency status updates to the control plane. Each status update encapsulates 
+abstract operational metadata, including the worker's identity, the current size of its local staging buffer, its instant migration state, and its training progress 
+metrics (such as the current epoch relative to the total planned epochs). 
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{\columnwidth}{!}{%
+        \input{message.tex}%
+    }
+    \caption{Representation of the structured control message sent by the Orchestrator to a compute node.}
+    \label{fig:architecture}
+\end{figure}
+
+
+Upon receiving these updates, the control plane updates its internal representation of the cluster. dynamic job arrivals are implicitly registered on their first 
+reported status. Conversely, job departures or unexpected worker disconnections are immediately detected, allowing the orchestrator to automatically purge the inactive 
+resources from its scheduling pool.
+
+To maintain structural harmony on the shared storage infrastructure and completely avoid aggregate bandwidth overshoots, the control plane employs a reactive, 
+push-on-event model. Any state change that alters the cluster configuration or changes a worker's buffer depth triggers an immediate re-evaluation of the global 
+storage bandwidth. The orchestrator examines the entire cluster state as a unified topology, executes a pluggable scheduling policy, and calculates revised bandwidth 
+quotas for all active nodes simultaneously. New explicit actions (such as initiating a flush, dynamically modifying the allowed transfer rate, or placing a migration 
+on hold) are immediately pushed back to the compute nodes. This global coordination loop ensures that node-local data transfers adapt instantly to multi-tenant cluster 
+shifts.
+
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{\columnwidth}{!}{%
+        \input{response.tex}%
+    }
+    \caption{Example of a control message sent by the Orchestrator to a compute node. This structured message allows the Orchestrator to communicate the control 
+    commands to the Node Migraters, enabling dynamic adjustments to their behavior based on the current cluster state.}
+    \label{fig:architecture}
+\end{figure}
+
+
+Furthermore, the orchestrator ensures strict resource isolation and multi-tenant fairness across parallel jobs by enforcing an aggregate storage bandwidth ceiling. 
 
 
 \section{Implementation}
@@ -279,11 +320,64 @@ The orchestrator schedules \red{TODO: Describe the scheduling policies for check
 
 \section{Evaluation}
 
-Experiments were conducted on the Deucalion supercomputer, featuring heterogeneous compute nodes and a shared PFS. Workloads simulate LLM checkpointing 
-behavior with varying sizes and frequencies.
+Our evaluation seeks to answer the following architectural and behavioral questions:
+\begin{itemize}
+    \item \textbf{Stall Elimination:} Can the two-tier staging strategy decouple the training loop from persistent storage, reducing or eliminating synchronous 
+    application stalls?
+    \item \textbf{Global QoS Enforcement:} Can the central orchestrator accurately enforce collective bandwidth constraints across concurrent deep learning jobs 
+    without causing parallel file system (PFS) saturation?
+    \item \textbf{Policy Effectiveness:} How do different pluggable algorithms (\textit{Active Fair Share}, \textit{Age-Priority}, and \textit{Epoch-Priority}) 
+    dynamically distribute storage throughput under resource contention?
+\end{itemize}
+
+\subsection{Experimental Testbed}
+All experiments were conducted on the \textbf{Deucalion} supercomputer, specifically leveraging the homogeneous \textbf{ARM compute partition}. Each compute node 
+within this partition is equipped with a Fujitsu A64FX processor featuring 48 cores (plus 4 assistant cores) based on the ARMv8.2-A SVE architecture, alongside 
+32~GiB of High Bandwidth Memory (HBM2) providing an internal bandwidth of up to 1024~GB/s. The nodes run Rocky Linux 8.5 and are interconnected via a high-speed 
+\textbf{NVIDIA Mellanox InfiniBand HDR100} network fabric.
+
+For the intermediate storage tier, each compute node utilizes a portion of its local high-speed \textbf{NVMe SSD} storage layer, which acts as the localized staging 
+target to absorb initial write spikes. The centralized, production persistent layer is a shared \textbf{Lustre Parallel File System (PFS)} managed by an infrastructure 
+consisting of 8 Metadata Server (MDS) nodes backing 430~TB of hot pools, and 32 Object Storage Server (OSS) nodes backing 10~PB of aggregate capacity, yielding a 
+collective storage throughput ceiling of up to 340~GB/s for read operations and 260~GB/s for write operations.
+
+\subsection{Methodology and Execution Setups}
+The control plane is deployed with the central orchestrator executing on a dedicated, reachable compute node within the cluster, while an independent instance of 
+the node-local (\textit{Node Migrater}) is co-located on each active worker node. Communication between components is sustained via high-frequency bidirectional 
+gRPC streams, exchanging telemetria packets at a static sampling rate of $0.1$ seconds. 
+
+Across all experimental scenarios, workloads are evaluated under two structural environments:
+\begin{itemize}
+    \item \textbf{Baseline:} Represents the traditional, uncoordinated checkpointing workflow. Training processes bypass any intermediate layers and write model state 
+    archives directly to the shared Lustre PFS concurrently using synchronous \texttt{torch.save} primitives.
+    \item \textbf{Orchestrated:} Represents the proposed framework where storage interactions are transparently redirected to the high-speed local staging tier. Upon 
+    local write completion, the training process immediately returns to execution, while background data daemons migrate the staged checkpoints to the PFS, regulated 
+    in real-time by dynamic token-bucket rate limits dictated by the central orchestrator.
+\end{itemize}
+
+\subsection{Benchmarks and Workloads}
+To evaluate the system under realistic deep learning workloads, we developed an automated end-to-end benchmarking framework located under \texttt{benchmarks/e2e/}, 
+consisting of simulated workload orchestrators, baseline drivers, and stateful metrics collectors. The execution states simulate parallel jobs competing for a 
+predefined collective storage bandwidth bottleneck. We evaluate system performance under three programmatic traffic paradigms:
+
+\begin{itemize}
+    \item \textbf{Burst Traffic Workload:} Evaluates peak absorption and traffic-shaping agility. All registered worker nodes are forced to trigger massive checkpoint 
+    save operations at the exact same logical timestamp (simulating a synchronized training epoch boundary), stressing the local staging tier's shock-absorbing 
+    capabilities and the token bucket's throttling precision.
+    \item \textbf{Steady Traffic Workload:} Evaluates long-term stability and resource isolation. Multiple job instances run in parallel, triggering checkpoint 
+    operations at staggered, regular intervals to test how the orchestrator maintains smooth global bandwidth profiles over time.
+    \item \textbf{Dynamic Churn Workload:} Evaluates control plane responsiveness and convergence speed. Job instances are initiated with dynamic, time-staggered 
+    arrival and departure vectors. This churn triggers continuous re-evaluations within the orchestrator, forcing the scheduling policies to dynamically compress or 
+    expand the active bandwidth shares of running tasks on-the-fly.
+\end{itemize}
+
+The training loop metadata replicates the lifecycle of LLM distributed checkpointing. Each individual checkpoint save operation dumps a payload 
+size of 5 GB representing model weights, gradients, and optimizer states. The global persistent bandwidth allocated to the orchestrator ceiling is set to 2 GB/s to 
+simulate high-contention saturation boundaries. Telemetry and effective aggregate network throughput curves are continuously written to structured metric logs 
+(\texttt{.jsonl} format) across all evaluating configurations.
 
 \subsection{Workloads}
-We evaluate the system using synthetic and realistic checkpointing workloads designed to mimic Large Language Model (LLM) training behavior:
+We evaluate the system using synthetic and realistic checkpointing workloads designed to mimic LLM training behavior:
 \begin{itemize}
     \item TODO
 \end{itemize}
@@ -338,7 +432,12 @@ during massive model state migrations.
 
 \section{Future Work}
 
-Future work will focus on...
+While the proposed policy-driven, two-tier storage orchestration system successfully mitigates parallel file system congestion and eliminates training stalls, 
+our prototype evaluation highlights several open paths for future research and infrastructural optimization.
+
+\begin{itemize}
+    \item \red{TODO}
+\end{itemize}
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{references}
