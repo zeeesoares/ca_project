@@ -138,7 +138,18 @@ during their massive, synchronized checkpointing phases.
 
 \subsection{Token Bucket Algorithm}
 
-A foundational technique for enforcing such bandwidth QoS is the Token Bucket algorithm, \red{TODO}
+A foundational technique for enforcing bandwidth QoS is the Token Bucket
+algorithm. The algorithm models permission to transmit data as a bucket of
+tokens that is refilled over time at a configured rate. Before writing a chunk
+of data, the process must first accumulate enough tokens to cover the chunk
+size; otherwise, it waits until sufficient tokens become available. In this
+way, the long-term transfer rate is bounded by the token refill rate.
+
+In the context of checkpoint migration, this mechanism is used to shape writes
+to the PFS and avoid sudden transfer spikes. Since unregulated checkpoint
+flushes can produce short, high-bandwidth bursts, the token bucket provides a
+simple local enforcement mechanism for rate limits assigned by the central
+orchestrator.
 
 \subsection{Motivation}
 
@@ -192,9 +203,36 @@ computation stall time to mere seconds.
 
 \subsection{Node Migrater}
 
-The Node Migrater runs as a background process on every compute node. Upon receiving a signal from the PyTorch Manager, it takes responsibility for transferring
-the locally staged checkpoint to the global PFS. To prevent network flooding, the transfer speed is strictly governed by a Token Bucket algorithm.
-\red{TODO MIGUEL (queria dizer algo aqui)}: This algorithm features..
+The Node Migrater runs as a background process on every compute node. Upon
+receiving a signal from the PyTorch Manager, it takes responsibility for
+transferring the locally staged checkpoint to the global PFS. To reduce I/O
+contention on the shared PFS, the transfer speed is governed by a token bucket
+copy loop whose target rate is continuously updated by the Central Orchestrator.
+
+The token bucket is initialized with an empty token balance. This avoids an
+initial burst at the beginning of a transfer: a Migrater cannot immediately
+write a large amount of data simply because a new transfer has started. Tokens
+are accumulated over time according to the latest rate assigned by the
+orchestrator, and each write chunk consumes tokens before being written to the
+PFS. If the assigned rate becomes zero, the Migrater pauses and keeps reporting
+progress, allowing the control plane to observe that the worker is stalled.
+
+A key parameter of this mechanism is the chunk size used by the copy loop.
+Small chunks provide fine-grained rate enforcement and fast responsiveness to
+rate changes, but they increase CPU overhead and the number of write calls
+issued to the PFS. Large chunks reduce syscall frequency and therefore reduce
+write pressure, but they make the rate limiter coarser and can delay adaptation
+when the orchestrator changes a worker's bandwidth share. For this reason, the
+chunk size must balance write amplification, CPU overhead, and throughput
+accuracy. We evaluate this trade-off through the token bucket microbenchmark
+described in Section~\ref{sec:token_bucket_benchmark}.
+
+The Migrater also emits live transfer metrics during the copy operation. These
+include the number of copied bytes, remaining bytes, interval throughput,
+average throughput, configured rate, chunk size, and transfer timestamps. These
+metrics are sent through the heartbeat stream and are also used by the
+accumulated bandwidth plots to validate whether the aggregate transfer profile
+matches the orchestrator's intended bandwidth envelope.
 
 \subsection{Central Orchestrator}
 
@@ -295,8 +333,28 @@ Furthermore, the orchestrator ensures strict resource isolation and multi-tenant
 
 \subsection{Token Bucket Model}
 
-To regulate PFS access, each job is assigned a token bucket defining its allowed write rate. Tokens accumulate over time and are consumed during
-data transfers. \red{TODO: Describe the specific parameters of the token bucket and how they are dynamically adjusted based on system conditions.}
+The token bucket is implemented as a local copy primitive used by the Migrater.
+The function receives a source path, a destination path, a throughput limit,
+and a chunk size. The throughput limit can be either a fixed value or a dynamic
+callback, allowing the orchestrator to change the assigned bandwidth while a
+checkpoint is already being copied.
+
+At runtime, the copy loop repeatedly samples the current rate, refills the
+token balance according to elapsed time, and only performs a read/write
+operation when enough tokens are available for the next chunk. The bucket starts
+empty to avoid startup bursts. When there are not enough tokens for the next
+chunk, the Migrater computes the missing token deficit and derives the required
+waiting time from the configured rate. This sleep is capped to keep the loop
+responsive to rate changes issued by the orchestrator. If the configured rate
+becomes zero, the token balance is reset, the loop pauses in short intervals,
+and progress is still reported so that the orchestrator can observe stalled
+transfers.
+
+The implementation also records per-transfer metrics. For each reporting
+interval, it computes interval throughput, average throughput, bytes copied,
+bytes remaining, the configured rate at report time, and the active chunk size.
+These metrics are used both for online monitoring and for offline evaluation of
+bandwidth enforcement.
 
 \subsection{Scheduling Policy}
 
@@ -344,13 +402,22 @@ data transfers. \red{TODO: Describe the specific parameters of the token bucket 
 \section{Evaluation}
 
 Our evaluation seeks to answer the following architectural and behavioral questions:
+
 \begin{itemize}
-    \item \textbf{Stall Elimination:} Can the two-tier staging strategy decouple the training loop from persistent storage, reducing or eliminating synchronous
-    application stalls?
-    \item \textbf{Global QoS Enforcement:} Can the central orchestrator accurately enforce collective bandwidth constraints across concurrent deep learning jobs
-    without causing parallel file system (PFS) saturation?
-    \item \textbf{Policy Effectiveness:} How do different pluggable algorithms (\textit{Active Fair Share}, \textit{Age-Priority}, and \textit{Epoch-Priority})
-    dynamically distribute storage throughput under resource contention?
+    \item \textbf{Stall Elimination:} Can the two-tier staging strategy decouple
+        the training loop from persistent storage, reducing or eliminating
+        synchronous application stalls?
+    \item \textbf{Global QoS Enforcement:} Can the central orchestrator
+        accurately enforce collective bandwidth constraints across concurrent
+        deep learning jobs without causing parallel file system (PFS)
+        saturation?
+    \item \textbf{Token Bucket Parameterization:} Which chunk size provides a
+        suitable trade-off between throughput accuracy, responsiveness to rate
+        changes, and reduced write pressure on the PFS?
+    \item \textbf{Policy Effectiveness:} How do different pluggable algorithms
+        (\textit{Active Fair Share}, \textit{Age-Priority}, and
+        \textit{Epoch-Priority}) dynamically distribute storage throughput under
+        resource contention?
 \end{itemize}
 
 \subsection{Experimental Testbed}
@@ -379,6 +446,7 @@ Across all experimental scenarios, workloads are evaluated under two structural 
 \end{itemize}
 
 \subsection{Benchmarks and Workloads}
+
 To evaluate the system under realistic deep learning workloads, we developed an automated end-to-end benchmarking framework located under \texttt{benchmarks/e2e/},
 consisting of simulated workload orchestrators, baseline drivers, and stateful metrics collectors. The execution states simulate parallel jobs competing for a
 predefined collective storage bandwidth bottleneck. We evaluate system performance under three programmatic traffic paradigms:
@@ -399,11 +467,79 @@ size of 5 GB representing model weights, gradients, and optimizer states. The gl
 simulate high-contention saturation boundaries. Telemetry and effective aggregate network throughput curves are continuously written to structured metric logs
 (\texttt{.jsonl} format) across all evaluating configurations.
 
+\subsection{Token Bucket Microbenchmark}
+\label{sec:token_bucket_benchmark}
+
+Before evaluating the full orchestration system, we benchmarked the token
+bucket copy primitive in isolation. The goal was to identify a chunk size that
+keeps the effective throughput close to the configured rate while reducing the
+number of write operations issued to the PFS. This is important because the
+token bucket is not only a rate limiter: it also determines the granularity at
+which data is written to the shared storage system.
+
+The benchmark sweeps multiple configured throughput targets and chunk sizes.
+For each configuration, it runs the token bucket copy both against node-local
+storage and against the PFS. The benchmark records the expected transfer time,
+actual transfer time, expected throughput, actual throughput, the
+actual/expected throughput ratio, and PFS/local time and throughput ratios. It
+also records the number of concurrent SLURM jobs visible during the experiment,
+so that results can be interpreted under the observed cluster load.
+
+The plotting pipeline consumes the JSONL benchmark output and generates
+heatmaps for actual throughput, actual/expected throughput ratios, and
+PFS/local ratios, as well as line plots showing throughput ratio by chunk size.
+These plots are used to compare local and PFS targets and to identify chunk
+sizes that preserve throughput while reducing write frequency.
+
+Figure~\ref{fig:token_bucket_pfs_ratio_lines} shows the PFS actual/expected
+throughput ratio as a function of configured throughput for different chunk
+sizes. Very small chunks provide fine-grained control, but they require many
+write operations and show lower throughput at high configured rates. Larger
+chunks reduce the number of writes, but overly large chunks can make the limiter
+less responsive. In our ARM/PFS experiments, the 4~MiB chunk size provided the
+best balance: it maintained a high actual/expected throughput ratio over a broad
+range of configured rates while substantially reducing the write count compared
+with smaller chunks.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\columnwidth]{img/token_bucket_pfs_ratio_lines.png}
+    \caption{Token bucket actual/expected throughput ratio on the PFS for
+    different chunk sizes and configured throughput targets. The 4~MiB chunk
+    size provides a practical balance between throughput accuracy and reduced
+    write frequency.}
+    \label{fig:token_bucket_pfs_ratio_lines}
+\end{figure}
+
+Figure~\ref{fig:token_bucket_pfs_overhead} compares the PFS throughput against
+the local-storage baseline for the same configurations. The results confirm
+that the PFS can behave differently from local storage, especially at higher
+configured rates and larger chunk sizes, which motivates tuning the token
+bucket parameters on the actual target storage system rather than relying only
+on local-node behavior.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\columnwidth]{img/token_bucket_pfs_overhead_heatmap.png}
+    \caption{
+        PFS/local throughput ratio for token bucket transfers across chunk sizes
+        and configured throughput targets. Values above 1 indicate
+        configurations where the PFS achieved higher throughput than the local
+        baseline.
+    }
+    \label{fig:token_bucket_pfs_overhead}
+\end{figure}
+
 \subsection{Workloads}
-We evaluate the system using synthetic and realistic checkpointing workloads designed to mimic LLM training behavior:
-\begin{itemize}
-    \item TODO
-\end{itemize}
+
+\red{TODO: review this, we could remove this section}
+
+The end-to-end evaluation uses three synthetic checkpointing workloads:
+burst, steady, and dynamic churn. Each workload uses 5~GB checkpoint payloads
+and evaluates how the baseline and orchestrated configurations behave under
+different synchronization patterns. The token bucket microbenchmark is separate
+from these end-to-end workloads and isolates the behavior of the copy primitive
+itself.
 
 \subsection{Metrics}
 
@@ -414,6 +550,8 @@ We evaluate the system using synthetic and realistic checkpointing workloads des
     \item Fairness index across jobs
     \item I/O congestion
     \item CPU/GPU and memory usage
+    \item Token bucket actual/expected throughput ratio
+    \item PFS-over-local throughput and time ratios
 \end{itemize}
 
 \section{Related Work}
