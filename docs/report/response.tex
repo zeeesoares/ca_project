@@ -5,23 +5,22 @@
 ]
 
     \node[font=\sffamily\bfseries] (ir_title) at (0, 3.5) {InstructionResponse};
-    
+
     \node[envelope] (ir2) at (0, 2.6) {rate\_limit\_bps : double};
-    
+
     \node[envelope, fill=gray!30, draw=gray!80!black, dashed] (ir1) at (0, 1.7) {\textbf{action : enum Action}};
-    
+
     \node[draw=gray!50, dashed, fit={(ir1) (ir2)}, inner sep=0.25cm] (ir_stack) {};
 
     \node[font=\sffamily\bfseries] (e_title) at (7.5, 4.4) {enum Action \textnormal{\small(State Dictionary)}};
-    
+
     \node[enumbox] (e3) at (7.5, 3.5) {EXIT = 3};
     \node[enumbox] (e2) at (7.5, 2.7) {CHANGE\_RATE = 2};
     \node[enumbox] (e1) at (7.5, 1.9) {START\_FLUSH = 1};
     \node[enumbox] (e0) at (7.5, 1.1) {HOLD = 0};
-    
+
     \node[draw=gray!70!black, thick, fit={(e0) (e3)}, inner sep=0.2cm] (enum_stack) {};
 
     \draw[->, thick, draw=gray!70!black, dashed, >=latex] (ir1.north east) -- (enum_stack.north west);
     \draw[->, thick, draw=gray!70!black, dashed, >=latex] (ir1.south east) -- (enum_stack.south west);
-
 \end{tikzpicture}

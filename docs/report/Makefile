@@ -3,12 +3,9 @@ FLAGS = -output-directory=$(OUTPUT_DIR) -shell-restricted
 OUTPUT_DIR = output
 FILE_NAME = main
 
-.PHONY: all check dir index compile install clean
+.PHONY: all dir index compile install clean
 
-all: check dir compile
-
-# check:
-# 	[ ! -f $(FILE_NAME).tex ] || { echo "$(FILE_NAME).tex not found. Exiting..."; exit 1; }
+all: dir compile
 
 dir:
 	mkdir -p $(OUTPUT_DIR)

@@ -12,9 +12,7 @@
   \providecommand\BibTeX{{%
     Bib\TeX}}}
 
-
 \settopmatter{authorsperrow=4}
-
 
 \begin{document}
 
@@ -55,131 +53,123 @@
 \renewcommand{\shortauthors}{Miranda et al.}
 
 \begin{abstract}
-  Training Large Language Models (LLMs) in High-Performance Computing (HPC) environments is a time-consuming process that requires frequent 
-  checkpointing to ensure fault tolerance. However, concurrent writes of massive model states often saturate the shared Parallel File System 
-  (PFS), leading to significant I/O contention and training stalls. This paper proposes a policy-driven, two-tier storage orchestration system
-  designed to mitigate the "noisy neighbor" problem in HPC clusters. By transparently redirecting checkpoints to node-local SSDs and employing
-  a centralized orchestrator to manage asynchronous migration to the PFS via a Token Bucket algorithm, we enable granular Quality of Service (QoS)
-  control. Our evaluation on the Deucalion supercomputer demonstrates that ... 
+    Training Large Language Models (LLMs) in High-Performance Computing (HPC) environments is a time-consuming process that requires frequent
+    checkpointing to ensure fault tolerance. However, concurrent writes of massive model states often saturate the shared Parallel File System
+    (PFS), leading to significant I/O contention and training stalls. This paper proposes a policy-driven, two-tier storage orchestration system
+    designed to mitigate the "noisy neighbor" problem in HPC clusters. By transparently redirecting checkpoints to node-local SSDs and employing
+    a centralized orchestrator to manage asynchronous migration to the PFS via a Token Bucket algorithm, we enable granular Quality of Service (QoS)
+    control. \red{Our evaluation on the Deucalion supercomputer demonstrates that ... TODO}
 \end{abstract}
 
-\keywords{High-Performance Computing, Deucalion, A64FX, AMD EPYC 7742, Memory Hierarchy, Large Language Models, Checkpointing, Parallel File Systems, 
+\keywords{High-Performance Computing, Deucalion, A64FX, AMD EPYC 7742, Memory Hierarchy, Large Language Models, Checkpointing, Parallel File Systems,
 I/O Contention, Quality of Service (QoS), Distributed Systems, Resource Management..}
-
 
 \received{25 May 2026}
 
 \maketitle
 
-
 \section{Introduction}
 
-The rapid growth of Large Language Models (LLMs) has significantly increased the computational and storage demands of modern 
-High-Performance Computing (HPC) systems. Training such models requires long-running, distributed jobs over clusters of GPUs 
-or accelerators, where fault tolerance is essential to avoid losing weeks of computation due to hardware failures, network 
-instability, or software errors. Checkpointing—the periodic saving of model states, optimizer parameters, and training 
-metadata—has emerged as the de facto mechanism to ensure progress is preserved. However, as model sizes scale to billions or 
-even trillions of parameters, checkpoint operations now generate massive I/O workloads, often exceeding tens to hundreds of 
+The rapid growth of Large Language Models (LLMs) has significantly increased the computational and storage demands of modern
+High-Performance Computing (HPC) systems. Training such models requires long-running, distributed jobs over clusters of GPUs
+or accelerators, where fault tolerance is essential to avoid losing weeks of computation due to hardware failures, network
+instability, or software errors. Checkpointing—the periodic saving of model states, optimizer parameters, and training
+metadata—has emerged as the de facto mechanism to ensure progress is preserved. However, as model sizes scale to billions or
+even trillions of parameters, checkpoint operations now generate massive I/O workloads, often exceeding tens to hundreds of
 gigabytes per save.
 
-In shared HPC environments, these I/O-intensive workloads are typically directed to a Parallel File System (PFS), such as 
-Lustre or GPFS, which is concurrently accessed by hundreds of users and applications. When multiple deep learning jobs attempt 
-to write checkpoints simultaneously—as is common at the end of training epochs—the resulting synchronized I/O bursts can saturate 
-the PFS, leading to severe contention. This phenomenon, known as the Noisy Neighbor Problem, degrades performance cluster-wide, 
-increasing latency, reducing effective throughput, and even stalling training processes entirely. Such stalls not only waste 
-computational resources but also disrupt the workflows of unrelated jobs sharing the same filesystem, creating a cascading effect 
+In shared HPC environments, these I/O-intensive workloads are typically directed to a Parallel File System (PFS), such as
+Lustre or GPFS, which is concurrently accessed by hundreds of users and applications. When multiple deep learning jobs attempt
+to write checkpoints simultaneously—as is common at the end of training epochs—the resulting synchronized I/O bursts can saturate
+the PFS, leading to severe contention. This phenomenon, known as the Noisy Neighbor Problem, degrades performance cluster-wide,
+increasing latency, reducing effective throughput, and even stalling training processes entirely. Such stalls not only waste
+computational resources but also disrupt the workflows of unrelated jobs sharing the same filesystem, creating a cascading effect
 that undermines the efficiency of the entire HPC ecosystem.
 
-The central insight driving this work is that checkpointing is not latency-critical for persistence, but it is latency-critical 
-for training continuation. In other words, training can resume as soon as the checkpoint is safely written to fast, temporary 
-storage (e.g., node-local SSDs), while the durable persistence to the PFS can occur asynchronously in the background. This decoupling 
-of checkpoint generation from long-term storage unlocks the potential to smooth I/O bursts, reduce contention, and improve overall system 
+The central insight driving this work is that checkpointing is not latency-critical for persistence, but it is latency-critical
+for training continuation. In other words, training can resume as soon as the checkpoint is safely written to fast, temporary
+storage (e.g., node-local SSDs), while the durable persistence to the PFS can occur asynchronously in the background. This decoupling
+of checkpoint generation from long-term storage unlocks the potential to smooth I/O bursts, reduce contention, and improve overall system
 stability without sacrificing fault tolerance.
 
-To address this challenge, we propose a policy-driven, two-tier storage orchestration system that combines node-local SSD staging 
-with centralized rate control. The system is designed to transparently intercept checkpoint writes, redirect them to fast local 
-storage, and asynchronously migrate them to the PFS under strict Quality of Service (QoS) constraints. By doing so, we minimize 
+To address this challenge, we propose a policy-driven, two-tier storage orchestration system that combines node-local SSD staging
+with centralized rate control. The system is designed to transparently intercept checkpoint writes, redirect them to fast local
+storage, and asynchronously migrate them to the PFS under strict Quality of Service (QoS) constraints. By doing so, we minimize
 the stall time experienced by training jobs while regulating global I/O pressure to prevent PFS saturation.
 
 \section{Background and Motivation}
 
 \subsection{Checkpointing in HPC}
 
-Checkpointing is a fault-tolerance mechanism in distributed deep learning that periodically saves the model state, including 
-parameters, optimizer states, and gradients, to stable storage. As models scale to billions of parameters, checkpoint sizes 
-can reach tens to hundreds of gigabytes, making I/O operations a critical bottleneck. Since large-scale training jobs may execute 
-for hours or even weeks, failures caused by hardware faults, network instability, or software errors can lead to significant 
-computational losses. To mitigate this problem, applications periodically save their execution state to stable storage, enabling 
+Checkpointing is a fault-tolerance mechanism in distributed deep learning that periodically saves the model state, including
+parameters, optimizer states, and gradients, to stable storage. As models scale to billions of parameters, checkpoint sizes
+can reach tens to hundreds of gigabytes, making I/O operations a critical bottleneck. Since large-scale training jobs may execute
+for hours or even weeks, failures caused by hardware faults, network instability, or software errors can lead to significant
+computational losses. To mitigate this problem, applications periodically save their execution state to stable storage, enabling
 recovery from the most recent checkpoint instead of restarting from the beginning.
-
 
 \subsection{Parallel File Systems and Contention}
 
-
-Parallel file systems are the storage backbone of HPC infrastructures, designed to provide massive data throughput for thousands of 
-concurrent jobs. In this work, we focus on Lustre-like file systems, which are widely deployed across TOP500 supercomputers. A typical 
-Lustre architecture decouples metadata from file data: Metadata Servers (MDSs) manage the namespace, while Object Storage Servers (OSSs) 
-and their underlying Object Storage Targets (OSTs) handle the heavy lifting of data read and write operations. To achieve high bandwidth, 
-large files are typically striped across multiple OSTs, allowing compute nodes to write data in parallel via kernel-level clients using 
+Parallel file systems are the storage backbone of HPC infrastructures, designed to provide massive data throughput for thousands of
+concurrent jobs. In this work, we focus on Lustre-like file systems, which are widely deployed across TOP500 supercomputers. A typical
+Lustre architecture decouples metadata from file data: Metadata Servers (MDSs) manage the namespace, while Object Storage Servers (OSSs)
+and their underlying Object Storage Targets (OSTs) handle the heavy lifting of data read and write operations. To achieve high bandwidth,
+large files are typically striped across multiple OSTs, allowing compute nodes to write data in parallel via kernel-level clients using
 standard POSIX interfaces.
 
-While this architecture provides massive aggregate bandwidth, it is increasingly challenged by the I/O patterns of modern Deep Learning 
-(DL) workloads, particularly due to model checkpointing. As neural networks grow exponentially in size, saving a model's state routinely 
-generates monolithic files or large shards ranging from tens to hundreds of gigabytes. Unlike dataset loading, which is continuous and 
+While this architecture provides massive aggregate bandwidth, it is increasingly challenged by the I/O patterns of modern Deep Learning
+(DL) workloads, particularly due to model checkpointing. As neural networks grow exponentially in size, saving a model's state routinely
+generates monolithic files or large shards ranging from tens to hundreds of gigabytes. Unlike dataset loading, which is continuous and
 read-intensive, checkpointing introduces periodic, extremely write-intensive I/O bursts.
 
-When multiple large-scale distributed training jobs attempt to write these massive checkpoints to the PFS simultaneously they can saturate 
-the OSSs and the cluster's network interconnect. This severe I/O contention not only degrades the overall storage performance for all users 
-in the HPC cluster but also severely impacts the training efficiency itself. Because standard checkpointing mechanisms are typically synchronous, 
-expensive GPU compute nodes are forced to stall, wasting valuable computational resources while waiting for the bottlenecked storage system to 
+When multiple large-scale distributed training jobs attempt to write these massive checkpoints to the PFS simultaneously they can saturate
+the OSSs and the cluster's network interconnect. This severe I/O contention not only degrades the overall storage performance for all users
+in the HPC cluster but also severely impacts the training efficiency itself. Because standard checkpointing mechanisms are typically synchronous,
+expensive GPU compute nodes are forced to stall, wasting valuable computational resources while waiting for the bottlenecked storage system to
 complete the massive write operations.
 
 \subsection{Quality of Service in HPC Storage}
 
-To mitigate this severe I/O contention, Quality of Service (QoS) mechanisms are increasingly necessary in HPC environments. QoS refers to the 
-ability to control and prioritize resource allocation—such as storage bandwidth—to ensure fairness, predictability, and overall cluster stability. 
-In the context of parallel file systems, QoS can be enforced dynamically to prevent concurrent deep learning jobs from monopolizing shared resources 
+To mitigate this severe I/O contention, Quality of Service (QoS) mechanisms are increasingly necessary in HPC environments. QoS refers to the
+ability to control and prioritize resource allocation—such as storage bandwidth—to ensure fairness, predictability, and overall cluster stability.
+In the context of parallel file systems, QoS can be enforced dynamically to prevent concurrent deep learning jobs from monopolizing shared resources
 during their massive, synchronized checkpointing phases.
 
 \subsection{Token Bucket Algorithm}
 
 A foundational technique for enforcing such bandwidth QoS is the Token Bucket algorithm, \red{TODO}
 
-
 \subsection{Motivation}
 
-The main motivation of this work stems from the severe I/O bottlenecks observed when training large-scale Deep Learning (DL) models on HPC clusters. 
-As model parameters scale into the billions, their corresponding checkpoints grow to tens or hundreds of gigabytes. Currently, when distributed training 
+The main motivation of this work stems from the severe I/O bottlenecks observed when training large-scale Deep Learning (DL) models on HPC clusters.
+As model parameters scale into the billions, their corresponding checkpoints grow to tens or hundreds of gigabytes. Currently, when distributed training
 jobs attempt to write these massive checkpoints to a shared PFS simultaneously.
 
-This uncoordinated burst of I/O traffic instantly saturates the storage network, causing extreme contention. Consequently, expensive compute nodes are 
-forced to stall while waiting for synchronous write operations to finish, wasting valuable computational time and degrading the storage performance for the 
-entire cluster. This work is motivated by the critical need to eliminate these stalls. By developing a dynamic, QoS-aware orchestration layer, we aim to decouple 
+This uncoordinated burst of I/O traffic instantly saturates the storage network, causing extreme contention. Consequently, expensive compute nodes are
+forced to stall while waiting for synchronous write operations to finish, wasting valuable computational time and degrading the storage performance for the
+entire cluster. This work is motivated by the critical need to eliminate these stalls. By developing a dynamic, QoS-aware orchestration layer, we aim to decouple
 checkpoint generation from PFS flushing, ensuring smooth bandwidth utilization and maximizing training efficiency.
-
-
 
 \section{System Design}
 
-As already mentioned in the motivation section, the core problem we address is the severe I/O contention caused by concurrent checkpointing in HPC clusters. 
-To mitigate this, we propose a centralized orchestration framework equipped with dynamic QoS controls to regulate PFS access. 
+As already mentioned in the motivation section, the core problem we address is the severe I/O contention caused by concurrent checkpointing in HPC clusters.
+To mitigate this, we propose a centralized orchestration framework equipped with dynamic QoS controls to regulate PFS access.
 
 The main design goals of the proposed architecture are:
 \begin{itemize}
-    \item \textbf{Elimination of Stalls:} Checkpoint I/O must not block the training loop. Expensive compute resources should remain fully utilized while 
+    \item \textbf{Elimination of Stalls:} Checkpoint I/O must not block the training loop. Expensive compute resources should remain fully utilized while
       storage operations are handled in the background.
-    \item \textbf{Strict Traffic Shaping (Contention Avoidance):} The system must prevent "noisy neighbor" scenarios by strictly enforcing aggregate bandwidth 
+    \item \textbf{Strict Traffic Shaping (Contention Avoidance):} The system must prevent "noisy neighbor" scenarios by strictly enforcing aggregate bandwidth
       limits, ensuring that concurrent write bursts never saturate the cluster's interconnect or the PFS Object Storage Servers.
-    \item \textbf{Dynamic and Fair Resource Allocation:} Available storage bandwidth should be distributed intelligently among active jobs, relying on pluggable 
+    \item \textbf{Dynamic and Fair Resource Allocation:} Available storage bandwidth should be distributed intelligently among active jobs, relying on pluggable
       scheduling policies that consider job progress, checkpoint age, or assigned priorities.
-    \item \textbf{Low-Latency Responsiveness:} The architecture must react instantly to cluster state transitions (e.g., a new job starting its checkpoint phase) 
+    \item \textbf{Low-Latency Responsiveness:} The architecture must react instantly to cluster state transitions (e.g., a new job starting its checkpoint phase)
       to avoid temporary bandwidth overshoots or resource underutilization.
 \end{itemize}
 
-To achieve these goals, the system departs from traditional synchronous checkpointing. Instead of writing checkpoints directly to the PFS, the system temporarily 
-stages data in node-local storage (e.g., local NVMe SSDs) and asynchronously migrates it under centralized control. This decouples checkpoint generation from persistent 
+To achieve these goals, the system departs from traditional synchronous checkpointing. Instead of writing checkpoints directly to the PFS, the system temporarily
+stages data in node-local storage (e.g., local NVMe SSDs) and asynchronously migrates it under centralized control. This decouples checkpoint generation from persistent
 storage operations, effectively absorbing the synchronized I/O bursts.
-
 
 The architecture is built upon three primary interacting components, as illustrated in Figure \ref{fig:architecture}:
 
@@ -192,60 +182,61 @@ The architecture is built upon three primary interacting components, as illustra
     \label{fig:architecture}
 \end{figure}
 
-
 \subsection{PyTorch Manager (Client Wrapper)}
-Operating directly within the deep learning application's runtime, this lightweight wrapper intercepts standard checkpointing calls (e.g., \texttt{torch.save}). 
-Rather than blocking while data is pushed over the network to the PFS, the manager writes the checkpoint to the high-speed local storage of the compute 
-node. Once the local write is complete, it immediately signals the node's local daemon (the Migrater) and returns control to the training loop, minimizing the 
+
+Operating directly within the deep learning application's runtime, this lightweight wrapper intercepts standard checkpointing calls (e.g., \texttt{torch.save}).
+Rather than blocking while data is pushed over the network to the PFS, the manager writes the checkpoint to the high-speed local storage of the compute
+node. Once the local write is complete, it immediately signals the node's local daemon (the Migrater) and returns control to the training loop, minimizing the
 computation stall time to mere seconds.
 
 \subsection{Node Migrater}
-The Node Migrater runs as a background process on every compute node. Upon receiving a signal from the PyTorch Manager, it takes responsibility for transferring 
-the locally staged checkpoint to the global PFS. To prevent network flooding, the transfer speed is strictly governed by a Token Bucket algorithm. 
+
+The Node Migrater runs as a background process on every compute node. Upon receiving a signal from the PyTorch Manager, it takes responsibility for transferring
+the locally staged checkpoint to the global PFS. To prevent network flooding, the transfer speed is strictly governed by a Token Bucket algorithm.
 \red{TODO MIGUEL (queria dizer algo aqui)}: This algorithm features..
 
 \subsection{Central Orchestrator}
-At the core of the system is the Central Orchestrator, which acts as the global scheduler. It maintains a thread-safe, real-time snapshot of the cluster, tracking 
-which workers have pending checkpoints, their respective sizes, and the current training epoch. The Orchestrator applies pluggable policies (such as \textit{Epoch-Priority} 
-or \textit{Age-Priority}) to calculate the optimal bandwidth share for each active node. To ensure near real-time responsiveness while minimizing network overhead, 
-communication is handled via persistent gRPC bidirectional streams using a high-frequency heartbeat mechanism, as shown by the dashed control link in Figure \ref{fig:architecture}. 
-Rather than flooding the network with continuous push updates, the Orchestrator relies on rapid, periodic status reports from the active Migraters. Upon receiving a 
-heartbeat containing a worker's current progress, the Orchestrator immediately recalculates the global policy and yields the updated rate limit back to the client. 
-This efficient request-response flow over an open stream guarantees a precise enforcement of the aggregate PFS bandwidth limit, keeping latency extremely low without 
-generating redundant control messages.
 
+At the core of the system is the Central Orchestrator, which acts as the global scheduler. It maintains a thread-safe, real-time snapshot of the cluster, tracking
+which workers have pending checkpoints, their respective sizes, and the current training epoch. The Orchestrator applies pluggable policies (such as \textit{Epoch-Priority}
+or \textit{Age-Priority}) to calculate the optimal bandwidth share for each active node. To ensure near real-time responsiveness while minimizing network overhead,
+communication is handled via persistent gRPC bidirectional streams using a high-frequency heartbeat mechanism, as shown by the dashed control link in Figure \ref{fig:architecture}.
+Rather than flooding the network with continuous push updates, the Orchestrator relies on rapid, periodic status reports from the active Migraters. Upon receiving a
+heartbeat containing a worker's current progress, the Orchestrator immediately recalculates the global policy and yields the updated rate limit back to the client.
+This efficient request-response flow over an open stream guarantees a precise enforcement of the aggregate PFS bandwidth limit, keeping latency extremely low without
+generating redundant control messages.
 
 \subsection{Local Storage Tier}
 
-To decouple the checkpoint generation from the global storage bottleneck, our architecture employs a two-tier storage strategy. Each compute node provides 
-local SSD storage used as a temporary checkpoint staging area. Compared to remote PFS access, local SSDs offer dedicated, uncontended bandwidth. Initially, 
-the core hypothesis was that staging data locally would drastically reduce the training stall time when compared to the traditional synchronous write directly 
+To decouple the checkpoint generation from the global storage bottleneck, our architecture employs a two-tier storage strategy. Each compute node provides
+local SSD storage used as a temporary checkpoint staging area. Compared to remote PFS access, local SSDs offer dedicated, uncontended bandwidth. Initially,
+the core hypothesis was that staging data locally would drastically reduce the training stall time when compared to the traditional synchronous write directly
 to the shared PFS.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=\columnwidth]{img/stall_comparison.png} 
+    \includegraphics[width=\columnwidth]{img/stall_comparison.png}
     \caption{Comparison of stall durations during checkpointing. \red{TODO: melhorar esta descrição} Tests were conducted on
     Deucalion with synthetic a checkpoint workload, saving checkpoints with 5GB size. \red{TODO: Add more details about the test conditions,
     such as the number of nodes, background load, partition used, ssd type and characteristics.}}
     \label{fig:stall_comparison}
 \end{figure}
 
-However, empirical evaluations (Figure \ref{fig:stall_comparison}) revealed a different scenario than initially anticipated. Under specific test conditions, 
-the baseline direct-to-PFS approach actually yielded slightly lower average stall times. Yet, this baseline performance is highly sensitive to the transient background 
-load of the shared storage infrastructure, as evidenced by its significantly higher standard deviation. 
+However, empirical evaluations (Figure \ref{fig:stall_comparison}) revealed a different scenario than initially anticipated. Under specific test conditions,
+the baseline direct-to-PFS approach actually yielded slightly lower average stall times. Yet, this baseline performance is highly sensitive to the transient background
+load of the shared storage infrastructure, as evidenced by its significantly higher standard deviation.
 
-In contrast, while the orchestrated two-tier approach (writing to local SSDs) exhibited slightly higher median stall times, it demonstrated remarkable consistency 
-with near-zero variance. This predictability is a critical advantage for large-scale synchronous distributed training: relying on direct PFS writes exposes the job 
-to severe latency spikes where a single delayed worker (a straggler) can force the entire cluster to stall. 
+In contrast, while the orchestrated two-tier approach (writing to local SSDs) exhibited slightly higher median stall times, it demonstrated remarkable consistency
+with near-zero variance. This predictability is a critical advantage for large-scale synchronous distributed training: relying on direct PFS writes exposes the job
+to severe latency spikes where a single delayed worker (a straggler) can force the entire cluster to stall.
 
 Despite the lack of a drastic reduction in stall time, introducing the local storage tier remains a crucial architectural decision for two fundamental reasons:
 
 \begin{itemize}
-    \item \textbf{Peak Control and Cluster Stability:} The local tier acts as an essential shock absorber. By capturing the instantaneous checkpoint dump locally, 
+    \item \textbf{Peak Control and Cluster Stability:} The local tier acts as an essential shock absorber. By capturing the instantaneous checkpoint dump locally,
     it empowers the Node Migrater to shape the outgoing network traffic using the Token Bucket algorithm.
-    
-    \item \textbf{Hardware Scalability:} While PFS bandwidth is a shared resource that inherently bottlenecks as more nodes are added to a job, local storage 
+
+    \item \textbf{Hardware Scalability:} While PFS bandwidth is a shared resource that inherently bottlenecks as more nodes are added to a job, local storage
     performance scales independently per node. As compute nodes are upgraded with faster storage technologies, the local staging time will decrease proportionally.
 \end{itemize}
 
@@ -259,13 +250,13 @@ The Orchestrator is responsible for globally coordinating checkpoint migration a
     \item Allocated bandwidth quotas
 \end{itemize}
 
-To manage this multi-tenant environment without introducing overhead to the compute nodes, the orchestrator acts as a centralized, stateful control plane that 
-decouples client-side tracking from global policy execution. The framework is designed to seamlessly adapt to dynamic cluster variations—such as new job arrivals, 
+To manage this multi-tenant environment without introducing overhead to the compute nodes, the orchestrator acts as a centralized, stateful control plane that
+decouples client-side tracking from global policy execution. The framework is designed to seamlessly adapt to dynamic cluster variations—such as new job arrivals,
 varying checkpoint scales, and sudden job completions—by maintaining a real-time global registry of the cluster topology.
 
-Compute nodes actively participate in this orchestration layer by emitting periodic, low-latency status updates to the control plane. Each status update encapsulates 
-abstract operational metadata, including the worker's identity, the current size of its local staging buffer, its instant migration state, and its training progress 
-metrics (such as the current epoch relative to the total planned epochs). 
+Compute nodes actively participate in this orchestration layer by emitting periodic, low-latency status updates to the control plane. Each status update encapsulates
+abstract operational metadata, including the worker's identity, the current size of its local staging buffer, its instant migration state, and its training progress
+metrics (such as the current epoch relative to the total planned epochs).
 
 \begin{figure}[htbp]
     \centering
@@ -276,38 +267,34 @@ metrics (such as the current epoch relative to the total planned epochs).
     \label{fig:architecture}
 \end{figure}
 
-
-Upon receiving these updates, the control plane updates its internal representation of the cluster. dynamic job arrivals are implicitly registered on their first 
-reported status. Conversely, job departures or unexpected worker disconnections are immediately detected, allowing the orchestrator to automatically purge the inactive 
+Upon receiving these updates, the control plane updates its internal representation of the cluster. dynamic job arrivals are implicitly registered on their first
+reported status. Conversely, job departures or unexpected worker disconnections are immediately detected, allowing the orchestrator to automatically purge the inactive
 resources from its scheduling pool.
 
-To maintain structural harmony on the shared storage infrastructure and completely avoid aggregate bandwidth overshoots, the control plane employs a reactive, 
-push-on-event model. Any state change that alters the cluster configuration or changes a worker's buffer depth triggers an immediate re-evaluation of the global 
-storage bandwidth. The orchestrator examines the entire cluster state as a unified topology, executes a pluggable scheduling policy, and calculates revised bandwidth 
-quotas for all active nodes simultaneously. New explicit actions (such as initiating a flush, dynamically modifying the allowed transfer rate, or placing a migration 
-on hold) are immediately pushed back to the compute nodes. This global coordination loop ensures that node-local data transfers adapt instantly to multi-tenant cluster 
+To maintain structural harmony on the shared storage infrastructure and completely avoid aggregate bandwidth overshoots, the control plane employs a reactive,
+push-on-event model. Any state change that alters the cluster configuration or changes a worker's buffer depth triggers an immediate re-evaluation of the global
+storage bandwidth. The orchestrator examines the entire cluster state as a unified topology, executes a pluggable scheduling policy, and calculates revised bandwidth
+quotas for all active nodes simultaneously. New explicit actions (such as initiating a flush, dynamically modifying the allowed transfer rate, or placing a migration
+on hold) are immediately pushed back to the compute nodes. This global coordination loop ensures that node-local data transfers adapt instantly to multi-tenant cluster
 shifts.
-
 
 \begin{figure}[htbp]
     \centering
     \resizebox{\columnwidth}{!}{%
         \input{response.tex}%
     }
-    \caption{Example of a control message sent by the Orchestrator to a compute node. This structured message allows the Orchestrator to communicate the control 
+    \caption{Example of a control message sent by the Orchestrator to a compute node. This structured message allows the Orchestrator to communicate the control
     commands to the Node Migraters, enabling dynamic adjustments to their behavior based on the current cluster state.}
     \label{fig:architecture}
 \end{figure}
 
-
-Furthermore, the orchestrator ensures strict resource isolation and multi-tenant fairness across parallel jobs by enforcing an aggregate storage bandwidth ceiling. 
-
+Furthermore, the orchestrator ensures strict resource isolation and multi-tenant fairness across parallel jobs by enforcing an aggregate storage bandwidth ceiling.
 
 \section{Implementation}
 
 \subsection{Token Bucket Model}
 
-To regulate PFS access, each job is assigned a token bucket defining its allowed write rate. Tokens accumulate over time and are consumed during 
+To regulate PFS access, each job is assigned a token bucket defining its allowed write rate. Tokens accumulate over time and are consumed during
 data transfers. \red{TODO: Describe the specific parameters of the token bucket and how they are dynamically adjusted based on system conditions.}
 
 \subsection{Scheduling Policy}
@@ -349,7 +336,6 @@ data transfers. \red{TODO: Describe the specific parameters of the token bucket 
 
 \red{TODO}
 
-
 \subsection{Prototype Design}
 
 \red{TODO: Describe the prototype implementation, including the interception mechanism, local storage management, and control plane architecture.}
@@ -358,58 +344,58 @@ data transfers. \red{TODO: Describe the specific parameters of the token bucket 
 
 Our evaluation seeks to answer the following architectural and behavioral questions:
 \begin{itemize}
-    \item \textbf{Stall Elimination:} Can the two-tier staging strategy decouple the training loop from persistent storage, reducing or eliminating synchronous 
+    \item \textbf{Stall Elimination:} Can the two-tier staging strategy decouple the training loop from persistent storage, reducing or eliminating synchronous
     application stalls?
-    \item \textbf{Global QoS Enforcement:} Can the central orchestrator accurately enforce collective bandwidth constraints across concurrent deep learning jobs 
+    \item \textbf{Global QoS Enforcement:} Can the central orchestrator accurately enforce collective bandwidth constraints across concurrent deep learning jobs
     without causing parallel file system (PFS) saturation?
-    \item \textbf{Policy Effectiveness:} How do different pluggable algorithms (\textit{Active Fair Share}, \textit{Age-Priority}, and \textit{Epoch-Priority}) 
+    \item \textbf{Policy Effectiveness:} How do different pluggable algorithms (\textit{Active Fair Share}, \textit{Age-Priority}, and \textit{Epoch-Priority})
     dynamically distribute storage throughput under resource contention?
 \end{itemize}
 
 \subsection{Experimental Testbed}
-All experiments were conducted on the \textbf{Deucalion} supercomputer, specifically leveraging the homogeneous \textbf{ARM compute partition}. Each compute node 
-within this partition is equipped with a Fujitsu A64FX processor featuring 48 cores (plus 4 assistant cores) based on the ARMv8.2-A SVE architecture, alongside 
-32~GiB of High Bandwidth Memory (HBM2) providing an internal bandwidth of up to 1024~GB/s. The nodes run Rocky Linux 8.5 and are interconnected via a high-speed 
+All experiments were conducted on the \textbf{Deucalion} supercomputer, specifically leveraging the homogeneous \textbf{ARM compute partition}. Each compute node
+within this partition is equipped with a Fujitsu A64FX processor featuring 48 cores (plus 4 assistant cores) based on the ARMv8.2-A SVE architecture, alongside
+32~GiB of High Bandwidth Memory (HBM2) providing an internal bandwidth of up to 1024~GB/s. The nodes run Rocky Linux 8.5 and are interconnected via a high-speed
 \textbf{NVIDIA Mellanox InfiniBand HDR100} network fabric.
 
-For the intermediate storage tier, each compute node utilizes a portion of its local high-speed \textbf{NVMe SSD} storage layer, which acts as the localized staging 
-target to absorb initial write spikes. The centralized, production persistent layer is a shared \textbf{Lustre Parallel File System (PFS)} managed by an infrastructure 
-consisting of 8 Metadata Server (MDS) nodes backing 430~TB of hot pools, and 32 Object Storage Server (OSS) nodes backing 10~PB of aggregate capacity, yielding a 
+For the intermediate storage tier, each compute node utilizes a portion of its local high-speed \textbf{NVMe SSD} storage layer, which acts as the localized staging
+target to absorb initial write spikes. The centralized, production persistent layer is a shared \textbf{Lustre Parallel File System (PFS)} managed by an infrastructure
+consisting of 8 Metadata Server (MDS) nodes backing 430~TB of hot pools, and 32 Object Storage Server (OSS) nodes backing 10~PB of aggregate capacity, yielding a
 collective storage throughput ceiling of up to 340~GB/s for read operations and 260~GB/s for write operations.
 
 \subsection{Methodology and Execution Setups}
-The control plane is deployed with the central orchestrator executing on a dedicated, reachable compute node within the cluster, while an independent instance of 
-the node-local (\textit{Node Migrater}) is co-located on each active worker node. Communication between components is sustained via high-frequency bidirectional 
-gRPC streams, exchanging telemetria packets at a static sampling rate of $0.1$ seconds. 
+The control plane is deployed with the central orchestrator executing on a dedicated, reachable compute node within the cluster, while an independent instance of
+the node-local (\textit{Node Migrater}) is co-located on each active worker node. Communication between components is sustained via high-frequency bidirectional
+gRPC streams, exchanging telemetria packets at a static sampling rate of $0.1$ seconds.
 
 Across all experimental scenarios, workloads are evaluated under two structural environments:
 \begin{itemize}
-    \item \textbf{Baseline:} Represents the traditional, uncoordinated checkpointing workflow. Training processes bypass any intermediate layers and write model state 
+    \item \textbf{Baseline:} Represents the traditional, uncoordinated checkpointing workflow. Training processes bypass any intermediate layers and write model state
     archives directly to the shared Lustre PFS concurrently using synchronous \texttt{torch.save} primitives.
-    \item \textbf{Orchestrated:} Represents the proposed framework where storage interactions are transparently redirected to the high-speed local staging tier. Upon 
-    local write completion, the training process immediately returns to execution, while background data daemons migrate the staged checkpoints to the PFS, regulated 
+    \item \textbf{Orchestrated:} Represents the proposed framework where storage interactions are transparently redirected to the high-speed local staging tier. Upon
+    local write completion, the training process immediately returns to execution, while background data daemons migrate the staged checkpoints to the PFS, regulated
     in real-time by dynamic token-bucket rate limits dictated by the central orchestrator.
 \end{itemize}
 
 \subsection{Benchmarks and Workloads}
-To evaluate the system under realistic deep learning workloads, we developed an automated end-to-end benchmarking framework located under \texttt{benchmarks/e2e/}, 
-consisting of simulated workload orchestrators, baseline drivers, and stateful metrics collectors. The execution states simulate parallel jobs competing for a 
+To evaluate the system under realistic deep learning workloads, we developed an automated end-to-end benchmarking framework located under \texttt{benchmarks/e2e/},
+consisting of simulated workload orchestrators, baseline drivers, and stateful metrics collectors. The execution states simulate parallel jobs competing for a
 predefined collective storage bandwidth bottleneck. We evaluate system performance under three programmatic traffic paradigms:
 
 \begin{itemize}
-    \item \textbf{Burst Traffic Workload:} Evaluates peak absorption and traffic-shaping agility. All registered worker nodes are forced to trigger massive checkpoint 
-    save operations at the exact same logical timestamp (simulating a synchronized training epoch boundary), stressing the local staging tier's shock-absorbing 
+    \item \textbf{Burst Traffic Workload:} Evaluates peak absorption and traffic-shaping agility. All registered worker nodes are forced to trigger massive checkpoint
+    save operations at the exact same logical timestamp (simulating a synchronized training epoch boundary), stressing the local staging tier's shock-absorbing
     capabilities and the token bucket's throttling precision.
-    \item \textbf{Steady Traffic Workload:} Evaluates long-term stability and resource isolation. Multiple job instances run in parallel, triggering checkpoint 
+    \item \textbf{Steady Traffic Workload:} Evaluates long-term stability and resource isolation. Multiple job instances run in parallel, triggering checkpoint
     operations at staggered, regular intervals to test how the orchestrator maintains smooth global bandwidth profiles over time.
-    \item \textbf{Dynamic Churn Workload:} Evaluates control plane responsiveness and convergence speed. Job instances are initiated with dynamic, time-staggered 
-    arrival and departure vectors. This churn triggers continuous re-evaluations within the orchestrator, forcing the scheduling policies to dynamically compress or 
+    \item \textbf{Dynamic Churn Workload:} Evaluates control plane responsiveness and convergence speed. Job instances are initiated with dynamic, time-staggered
+    arrival and departure vectors. This churn triggers continuous re-evaluations within the orchestrator, forcing the scheduling policies to dynamically compress or
     expand the active bandwidth shares of running tasks on-the-fly.
 \end{itemize}
 
-The training loop metadata replicates the lifecycle of LLM distributed checkpointing. Each individual checkpoint save operation dumps a payload 
-size of 5 GB representing model weights, gradients, and optimizer states. The global persistent bandwidth allocated to the orchestrator ceiling is set to 2 GB/s to 
-simulate high-contention saturation boundaries. Telemetry and effective aggregate network throughput curves are continuously written to structured metric logs 
+The training loop metadata replicates the lifecycle of LLM distributed checkpointing. Each individual checkpoint save operation dumps a payload
+size of 5 GB representing model weights, gradients, and optimizer states. The global persistent bandwidth allocated to the orchestrator ceiling is set to 2 GB/s to
+simulate high-contention saturation boundaries. Telemetry and effective aggregate network throughput curves are continuously written to structured metric logs
 (\texttt{.jsonl} format) across all evaluating configurations.
 
 \subsection{Workloads}
@@ -429,46 +415,39 @@ We evaluate the system using synthetic and realistic checkpointing workloads des
     \item CPU/GPU and memory usage
 \end{itemize}
 
-
-
-
 \section{Related Work}
 
-The optimization of checkpointing in High-Performance Computing (HPC) has been extensively studied, primarily focusing on reducing write 
+The optimization of checkpointing in High-Performance Computing (HPC) has been extensively studied, primarily focusing on reducing write
 latency and mitigating Parallel File System (PFS) congestion.
 
 \subsection{Architectural and Tiering Approaches}
-Several systems utilize hierarchical storage to hide I/O latency. \textbf{Check-N-Run} \cite{CheckNRun} focuses on staging checkpoints in local node resources 
-(DRAM or SSDs), allowing training to resume immediately while data is moved to the PFS in the background. However, it lacks a global coordination 
-mechanism to prevent PFS saturation during the background flush. \textbf{DeepFreeze} \cite{DeepFreeze} (similar to Monarch) employs transparent storage tiering to 
-accelerate the write path by abstracting complex local tiers like NVMe or PMEM from the user. While effective at the node level, these 
+Several systems utilize hierarchical storage to hide I/O latency. \textbf{Check-N-Run} \cite{CheckNRun} focuses on staging checkpoints in local node resources
+(DRAM or SSDs), allowing training to resume immediately while data is moved to the PFS in the background. However, it lacks a global coordination
+mechanism to prevent PFS saturation during the background flush. \textbf{DeepFreeze} \cite{DeepFreeze} (similar to Monarch) employs transparent storage tiering to
+accelerate the write path by abstracting complex local tiers like NVMe or PMEM from the user. While effective at the node level, these
 systems often ignore the "noisy neighbor" effect in shared environments.
 
 \subsection{Adaptive and Optimization Techniques}
 Other research focuses on the frequency and size of checkpoints. \textbf{CheckFreq} \cite{CheckFreq} introduces an algorithmic approach to identify optimal checkpoint
-boundaries and pipelines the process with training iterations, dynamically adjusting frequency to maintain overhead below a threshold. 
+boundaries and pipelines the process with training iterations, dynamically adjusting frequency to maintain overhead below a threshold.
 \textbf{BitSnap} \cite{BitSnap} addresses the data volume by employing sparsification and quantization, reducing checkpoint sizes from 16-bit to 4-bit weights before
 they reach the I/O layer. While these reduce total I/O pressure, they do not manage the storage hierarchy or provide holistic Quality of Service
 (QoS) guarantees.
 
 \subsection{Software-Defined Storage and QoS Control}
 Our work is heavily informed by \textbf{PADLL} \cite{PADLL}, a storage middleware that enables application-agnostic QoS control for both data and metadata workflows.
-PADLL utilizes a decoupled Software-Defined Storage (SDS) architecture, where data plane stages intercept POSIX calls and a centralized 
+PADLL utilizes a decoupled Software-Defined Storage (SDS) architecture, where data plane stages intercept POSIX calls and a centralized
 control plane coordinates I/O rates across all jobs. While PADLL is a general-purpose QoS framework, our system specializes this paradigm for
-the specific lifecycle of LLM checkpoints—integrating node-local SSD staging with PADLL-inspired Token Bucket rate limiting to ensure cluster harmony 
+the specific lifecycle of LLM checkpoints—integrating node-local SSD staging with PADLL-inspired Token Bucket rate limiting to ensure cluster harmony
 during massive model state migrations.
-
-
-
 
 \section{Conclusions}
 
-
-
+\red{TODO}
 
 \section{Future Work}
 
-While the proposed policy-driven, two-tier storage orchestration system successfully mitigates parallel file system congestion and eliminates training stalls, 
+While the proposed policy-driven, two-tier storage orchestration system successfully mitigates parallel file system congestion and eliminates training stalls,
 our prototype evaluation highlights several open paths for future research and infrastructural optimization.
 
 \begin{itemize}

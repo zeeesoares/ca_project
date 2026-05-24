@@ -11,7 +11,7 @@
     \node[box, fill=gray!20, draw=gray!70!black, below=of train] (manager) {\textbf{PyTorch Manager}\\(Client Wrapper)};
     \node[database, fill=gray!20, draw=gray!70!black, below=of manager] (ssd) {Local Storage\\(RAM/SSD)};
     \node[box, fill=gray!20, draw=gray!70!black, right=of ssd] (migrater) {\textbf{Node Migrater}\\(Local Daemon)};
-    
+
     \begin{scope}[on background layer]
         \node[fit=(train)(manager)(ssd)(migrater), draw, dashed, fill=gray!5, inner sep=0.6cm, rounded corners, label={[font=\sffamily\bfseries]above:Compute Node}] (node) {};
     \end{scope}
@@ -21,19 +21,19 @@
 
     % Treino -> Manager
     \draw[arrow] (train) -- node[right, font=\sffamily\scriptsize] {Save State} (manager);
-    
+
     % Manager -> SSD
     \draw[arrow] (manager) -- node[right, font=\sffamily\scriptsize] {Fast Write} (ssd);
-    
+
     % Manager -> Migrater (Sinal)
     \draw[signal] (manager) -| node[above, near start, font=\sffamily\scriptsize] {Signal Ready} (migrater);
-    
+
     % SSD -> Migrater
     \draw[arrow] (ssd) -- node[above, font=\sffamily\scriptsize] {Read} (migrater);
-    
+
     % Migrater -> PFS
     \draw[arrow] (migrater) -- node[above, font=\sffamily\scriptsize] {Throttled Flush} node[below, font=\sffamily\scriptsize] {(Token Bucket)} (pfs);
-    
+
     % Migrater <-> Orchestrator (gRPC)
     \draw[grpc] (migrater.north) |- node[near end ,above, font=\sffamily\scriptsize, text=gray!70!black] {gRPC Heartbeats \& Rate Limits} (orchestrator.west);
 
