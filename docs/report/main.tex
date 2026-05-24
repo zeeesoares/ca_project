@@ -583,7 +583,37 @@ during massive model state migrations.
 
 \section{Conclusions}
 
-\red{TODO}
+Our project investigated the impact of checkpoint-induced I/O contention
+in shared HPC environments and proposed a policy-driven storage orchestration
+framework to improve the stability and scalability of distributed Deep Learning
+training workloads. The presented architecture combines node-local SSD staging
+with centralized QoS-aware bandwidth control, enabling checkpoints to be
+persisted asynchronously while limiting pressure on the Parallel File System
+(PFS).
+
+The evaluation conducted on the Deucalion supercomputer demonstrates that the
+proposed system effectively smooths checkpoint traffic and prevents aggregate
+PFS saturation under synchronized burst scenarios. Although the local staging
+layer did not always reduce the absolute checkpoint stall time compared to the
+baseline direct-to-PFS approach, it provided significantly more predictable and
+stable behavior, eliminating the large latency variance caused by transient
+storage contention. This predictability is especially important for distributed
+training environments, where a single delayed worker can stall the entire job.
+
+The experiments further showed that the centralized orchestration model can
+accurately enforce global bandwidth limits while dynamically adapting to job
+arrivals, departures, and checkpoint queue variations. The token bucket
+mechanism proved effective at shaping storage traffic, and the microbenchmark
+analysis identified a 4~MiB chunk size as a practical balance between
+throughput accuracy, responsiveness, and reduced write pressure on the PFS.
+
+Overall, the proposed architecture demonstrates that combining node-local
+storage staging with centralized, policy-driven QoS enforcement is a viable and
+effective strategy for improving the robustness and scalability of checkpointing
+in modern HPC systems. Beyond reducing the impact of the noisy neighbor problem,
+the framework establishes a foundation for storage-aware scheduling and
+fine-grained resource orchestration tailored to the unique I/O behavior of
+Large Language Model training workloads.
 
 \section{Future Work}
 
@@ -591,11 +621,30 @@ While the proposed policy-driven, two-tier storage orchestration system successf
 our prototype evaluation highlights several open paths for future research and infrastructural optimization.
 
 \begin{itemize}
-    \item \red{TODO: SPoF/bottleneck Orchestrator}
-    \item \red{TODO: More policies such as ... (e.g. Deadline-aware, Progress-aware, etc.)}
-    \item \red{TODO: Full PyTorch Asynchronous checkpointing support}
-    \item \red{TODO: Benchmarks at exascale with real/synthetic LLM training workloads to test PFS congestion scenarios...}
-    \item \red{TODO: ...}
+    \item \textbf{Distributed and Fault-Tolerant Orchestrator:}
+    The current centralized control plane introduces a potential scalability bottleneck and a single point of failure. Future work should explore distributed or hierarchical orchestration designs to improve resilience and enable operation at larger cluster scales.
+
+    \item \textbf{Advanced Scheduling Policies:}
+    The current framework supports pluggable QoS policies, but more expressive scheduling strategies could be incorporated, such as deadline-aware, congestion-aware, or learning-based policies that dynamically adapt to workload behavior and cluster state.
+
+    \item \textbf{Integration with Native PyTorch Asynchronous Checkpointing:}
+    Tighter integration with PyTorch’s native asynchronous checkpointing APIs and distributed training frameworks (e.g., FSDP or DeepSpeed) would improve usability, reduce overhead, and enable broader adoption in existing LLM training pipelines.
+
+    \item \textbf{Evaluation with Real LLM Training Workloads:}
+    Future evaluations should extend beyond synthetic checkpoint workloads to full end-to-end LLM training runs in order to better quantify impacts on training throughput, convergence behavior, and system-level efficiency.
+
+    \item \textbf{Exascale and Multi-Tenant Stress Testing:}
+    Additional experiments at larger scale are required to assess the system’s robustness under extreme contention scenarios involving hundreds or thousands of concurrent checkpointing jobs.
+
+    \item \textbf{Adaptive Storage-Aware Control Loops:}
+    Incorporating real-time feedback from the storage backend (e.g., PFS queue depth or OSS utilization) could enable more adaptive control policies that react directly to system-level congestion signals.
+
+    \item \textbf{Support for Multi-Tier and Burst-Buffer Architectures:}
+    Extending the current two-tier design to support additional storage layers such as burst buffers or persistent memory would allow more flexible data placement strategies in heterogeneous HPC systems.
+
+    \item \textbf{Checkpoint Compression and Deduplication:}
+    Reducing checkpoint size through lightweight compression or deduplication techniques could further alleviate pressure on both local staging storage and the shared PFS, complementing the proposed QoS mechanisms.
+
 \end{itemize}
 
 \bibliographystyle{ACM-Reference-Format}
