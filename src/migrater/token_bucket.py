@@ -51,9 +51,6 @@ def token_bucket_copy(
     TODO:
         - Dynamically adjust the chunk size based on the observed throughput
             and latency.
-
-    Possible improvements:
-        - Allow partial writes
     """
     # Check if source file exists
     if not os.path.isfile(src):
