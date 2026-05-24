@@ -212,7 +212,7 @@ python3 benchmarks/e2e/plot_accumulated_bw.py \
   worker1.log worker2.log worker3.log worker4.log
 ```
 
-### Token bucket
+### Token bucket microbenchmark
 
 ```bash
 RESULTS_DIR="benchmarks/token_bucket/results"
