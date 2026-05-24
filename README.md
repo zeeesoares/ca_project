@@ -4,7 +4,7 @@
 
 > **Advisors:**
 Ricardo Macedo ([d12010@di.uminho.pt](mailto:d12010@di.uminho.pt));
-João Paulo ([jtpaulo@di.uminho.pt](mailto:jtpaulo@di.uminho.pt]))
+João Paulo ([jtpaulo@di.uminho.pt](mailto:jtpaulo@di.uminho.pt))
 >
 > Large Language Models (LLMs) training is a complex workload that can take
 several weeks to complete. The complexity and long execution time are inherent
@@ -33,77 +33,218 @@ participating in the LLM training.
     Frequent,{Fine-Grained}{DNN} Checkpointing." In 19th USENIX Conference on
     File and Storage Technologies (FAST 21), pp. 203-216. 2021.
 
-## Proposed Solution
+## Overview
 
-**TODO**
+This project explores checkpoint migration for distributed training workloads
+in HPC environments. Instead of letting every worker write checkpoints directly
+to the Parallel File System (PFS), workers save checkpoints locally and notify
+a Migrater service. The Migrater coordinates with an Orchestrator, which decides
+when each worker may flush data to the PFS and at what rate.
 
-## Structure
+The main goal is to reduce PFS contention while preserving checkpoint
+correctness.
 
-**TODO**
+**Report:** [docs/report/report.pdf](docs/report/report.pdf)
+
+## Architecture
+
+The system is composed of four main parts:
+
+- **Training / checkpoint extension** (`src/train/`, `src/torch_ext/`): saves
+    checkpoints locally and notifies the Migrater.
+- **Migrater** (`src/migrater/`): receives checkpoint notifications, copies local
+    checkpoints to the PFS, and enforces rate limits with a token-bucket copy
+    loop.
+- **Orchestrator** (`src/orchestrator/`): receives worker heartbeats and assigns
+    transfer actions/rates according to a scheduling policy.
+- **Benchmarks** (`benchmarks/`, `scripts/`): compare direct PFS checkpointing
+    against orchestrated checkpoint migration.
+
+The communication protocol is defined in
+[src/protocol/cluster.proto](src/protocol/cluster.proto) and generated with
+[scripts/generate-protocols.sh](scripts/generate-protocols.sh).
+
+## Repository structure
+
+```sh
+src/
+  migrater/        # Migrater service, token bucket copy, progress tracking
+  orchestrator/    # Scheduler policies and orchestrator server
+  protocol/        # gRPC protocol definitions and generated bindings
+  torch_ext/       # PyTorch checkpoint helper
+  train/           # Minimal training workload using checkpoint migration
+  utils/           # Shared helpers
+
+benchmarks/
+  e2e/             # End-to-end benchmark workers, collection and plotting
+  token_bucket/    # Token bucket microbenchmark
+
+scripts/           # SLURM submission and setup scripts
+docs/              # HOWTOs, methodology, report and slides
+tests/             # Policy and token bucket test scripts
+```
 
 ## Requirements
 
-On Deucalion, load Python's module with:
+On Deucalion, load Python with:
 
 ```bash
 module load "Python/3.12.3-GCCcore-13.3.0"
 ```
 
-It's advised to use a virtual environment to manage dependencies.
+Create and activate a virtual environment:
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-```
-
-All required packages are listed in [requirements.txt](requirements.txt),
-install them with pip:
-
-```bash
 pip install -r requirements.txt
 ```
 
-> Python 3.12+ is supported.
+Python 3.12+ is expected. The main dependencies include PyTorch, Transformers,
+gRPC, Pandas and Matplotlib.
 
----
-
-Alternatively, you can use the [setup.sh](scripts/setup.sh) script to set up
-the environment for ARM partitions on Deucalion with:
+Alternatively, use the provided setup script for Deucalion ARM partitions:
 
 ```bash
 sbatch scripts/setup.sh
 ```
 
-## Usage
+## Running the services manually
 
-**TODO**
+Open three terminals from the project root and activate the virtual environment in each one.
+
+Start the orchestrator:
+
+```bash
+python3 -m src.orchestrator.server \
+  --port 50052 \
+  --policy uniform-fair-share \
+  --pfs-bw 500MB
+```
+
+Start one migrater:
+
+```bash
+python3 -m src.migrater.server \
+  --orchestrator-addr localhost \
+  --orchestrator-port 50052
+```
+
+Run the training client:
+
+```bash
+python3 -m src.train.train \
+  --checkpoint-pfs-dir /tmp/pfs \
+  --checkpoint-local-dir /tmp/local \
+  --total-steps 50 \
+  --checkpoint-interval 10
+```
 
 ## Benchmarking
 
-### E2E
+### Baseline
 
-**TODO**
+The baseline simulates workers writing checkpoints directly to the PFS:
 
-### Token Bucket
+```bash
+./scripts/submit-baseline.sh \
+  --n-workers 4 \
+  --n-checkpoints 3 \
+  --pfs-dir "$PWD/checkpoints" \
+  --results-dir "$PWD/results"
+```
 
-```sh
+### Orchestrated
+
+The orchestrated benchmark runs the Orchestrator plus worker Migraters:
+
+```bash
+./scripts/submit-orchestrated.sh \
+  --policy age-priority \
+  --pfs-bw 2GB \
+  --n-workers 4 \
+  --n-checkpoints 3 \
+  --pfs-dir "$PWD/checkpoints" \
+  --results-dir "$PWD/results"
+```
+
+Common policies can be swept with:
+
+```bash
+POLICIES=(uniform-fair-share active-fair-share age-priority epoch-priority)
+
+for POLICY in "${POLICIES[@]}"; do
+  ./scripts/submit-orchestrated.sh \
+    --policy "$POLICY" \
+    --pfs-bw 2GB \
+    --n-workers 4 \
+    --pfs-dir "$PWD/checkpoints" \
+    --results-dir "$PWD/results"
+done
+```
+
+### Collecting and plotting results
+
+Aggregate benchmark outputs:
+
+```bash
+python3 -m benchmarks.e2e.collect \
+  --results-dir "$PWD/results" \
+  --output-csv "$PWD/results/summary.csv" \
+  --detail-csv "$PWD/results/detail.csv"
+```
+
+Generate summary plots:
+
+```bash
+python3 -m benchmarks.e2e.plot \
+  --results-dir "$PWD/results" \
+  --output-dir "$PWD/results/plots"
+```
+
+Generate accumulated bandwidth plots from migrater logs:
+
+```bash
+python3 benchmarks/e2e/plot_accumulated_bw.py \
+  --orch-bw 2GB \
+  --output-dir "$PWD/results/plots" \
+  --prefix age_priority \
+  worker1.log worker2.log worker3.log worker4.log
+```
+
+### Token bucket
+
+```bash
 RESULTS_DIR="benchmarks/token_bucket/results"
-```
 
-```sh
 python3 -m benchmarks.token_bucket.benchmark \
-    --src checkpoints/random_small.bin \
-    --local-dir /tmp/token_bucket_local \
-    --pfs-dir checkpoints/token_bucket_pfs \
-    --results-file "$RESULTS_DIR/results.jsonl" \
-    --metrics-dir "$RESULTS_DIR/per_run" \
-    --dry-run  # Remove for actual benchmarking
+  --src checkpoints/random_small.bin \
+  --local-dir /tmp/token_bucket_local \
+  --pfs-dir checkpoints/token_bucket_pfs \
+  --results-file "$RESULTS_DIR/results.jsonl" \
+  --metrics-dir "$RESULTS_DIR/per_run" \
+  --dry-run  # Remove --dry-run to actually run the benchmark
 ```
 
-```sh
+Plot token bucket results:
+
+```bash
 python3 -m benchmarks.token_bucket.plot \
-    --results-file "$RESULTS_DIR/results.jsonl" \
-    --output-dir "$RESULTS_DIR/plots"
+  --results-file "$RESULTS_DIR/results.jsonl" \
+  --output-dir "$RESULTS_DIR/plots"
 ```
 
-**TODO** update `--pfs-dir` flag
+### End-to-end
+
+See [benchmarks/e2e/HOWTO.md](benchmarks/e2e/HOWTO.md) for detailed
+instructions on running the end-to-end benchmark.
+
+## Documentation
+
+More detailed usage notes are in:
+
+- [docs/report/report.pdf](docs/report/report.pdf)
+- [docs/HOWTO.md](docs/HOWTO.md)
+- [benchmarks/e2e/HOWTO.md](benchmarks/e2e/HOWTO.md)
+- [docs/methodology.md](docs/methodology.md)
+- [docs/implemented_policies.md](docs/implemented_policies.md)
