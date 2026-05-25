@@ -60,9 +60,9 @@
     (PFS), leading to significant I/O contention and training stalls. This paper proposes a policy-driven, two-tier storage orchestration system
     designed to mitigate the "noisy neighbor" problem in HPC clusters. By transparently redirecting checkpoints to node-local SSDs and employing
     a centralized orchestrator to manage asynchronous migration to the PFS via a Token Bucket algorithm, we enable granular Quality of Service (QoS)
-    control. \red{Our evaluation demonstrates that while direct filesystem writes expose training jobs to highly volatile stall times, the orchestrated 
-    staging tier provides remarkable execution with predictable variance. Furthermore, the framework successfully enforces strict aggregate bandwidth 
-    ceilings, smoothing the massive concurrent I/O bursts. Under dynamic multi-tenant workloads, active state-tracking policies maximize cluster efficiency 
+    control. \red{Our evaluation demonstrates that while direct filesystem writes expose training jobs to highly volatile stall times, the orchestrated
+    staging tier provides remarkable execution with predictable variance. Furthermore, the framework successfully enforces strict aggregate bandwidth
+    ceilings, smoothing the massive concurrent I/O bursts. Under dynamic multi-tenant workloads, active state-tracking policies maximize cluster efficiency
     by adapting to job dynamics, maintaining global storage harmony.}
 \end{abstract}
 
@@ -163,11 +163,11 @@ jobs attempt to write these massive checkpoints to a shared PFS simultaneously.
 
 This uncoordinated burst of I/O traffic instantly saturates the storage network, causing extreme contention. Consequently, expensive compute nodes are
 forced to stall while waiting for synchronous write operations to finish, wasting valuable computational time and degrading the storage performance for the
-entire cluster. This work is motivated by the critical need to eliminate these stalls. 
+entire cluster. This work is motivated by the critical need to eliminate these stalls.
 
 \section{System Design}
 
-As already mentioned in the motivation section, the core problem we address is the severe contention, and to mitigate this, we propose a centralized orchestration 
+As already mentioned in the motivation section, the core problem we address is the severe contention, and to mitigate this, we propose a centralized orchestration
 framework equipped with QoS controls to regulate PFS access.
 
 The main design goals of the proposed architecture are:
@@ -297,7 +297,7 @@ metrics (such as the current epoch relative to the total planned epochs).
     \label{fig:message}
 \end{figure}
 
-Upon receiving these updates, the control plane updates its internal representation of the cluster. Conversely, job departures or unexpected worker disconnections are 
+Upon receiving these updates, the control plane updates its internal representation of the cluster. Conversely, job departures or unexpected worker disconnections are
 immediately detected, allowing the orchestrator to automatically purge the inactive resources from its scheduling pool.
 
 To maintain structural harmony on the shared storage infrastructure and completely avoid aggregate bandwidth overshoots, the control plane employs a reactive,
@@ -526,8 +526,8 @@ Across all experimental scenarios, workloads are evaluated under two structural 
     archives directly to the shared Lustre PFS concurrently using synchronous \texttt{torch.save} primitives.
     \item \textbf{Orchestrated:} Represents the proposed framework where storage interactions are transparently redirected to the high-speed local staging tier. Upon
     local write completion, the training process immediately returns to execution, while background data daemons migrate the staged checkpoints to the PFS, regulated
-    in real-time by dynamic token-bucket rate limits dictated by the central orchestrator. For methodological purposes, and due to the scaling problem comparison for 
-    all available policies, it was decided to compare only the few we consider most relevant, which are \textit{Uniform Fair Share}, \textit{Active Fair Share}, 
+    in real-time by dynamic token-bucket rate limits dictated by the central orchestrator. For methodological purposes, and due to the scaling problem comparison for
+    all available policies, it was decided to compare only the few we consider most relevant, which are \textit{Uniform Fair Share}, \textit{Active Fair Share},
     \textit{Age-Priority}, and \textit{Epoch-Priority}.
 \end{itemize}
 
@@ -618,14 +618,14 @@ on local-node behavior.
 \section{Discussion}
 \label{sec:evaluation}
 
-In this section, we present a comprehensive performance evaluation and discussion of the experimental results obtained from the benchmarks 
-described in the previous section. We focus on three key aspects mentioned in the evaluation questions to debmonstrate the achievements of our architecture in managing 
+In this section, we present a comprehensive performance evaluation and discussion of the experimental results obtained from the benchmarks
+described in the previous section. We focus on three key aspects mentioned in the evaluation questions to demonstrate the achievements of our architecture in managing
 checkpointing workloads while maintaining global QoS guarantees.
 
 \subsection{E2E System Throughput Across Workloads}
 
-To evaluate global coordination, we analyze the collective throughput achieved with all the combinations. Figure~\ref{fig:throughput_comparison_grid} 
-illustrates the performance of each scheduling policy compared directly against the baseline. The results reveal distinct behavioral patterns under different workload 
+To evaluate global coordination, we analyze the collective throughput achieved with all the combinations. Figure~\ref{fig:throughput_comparison_grid}
+illustrates the performance of each scheduling policy compared directly against the baseline. The results reveal distinct behavioral patterns under different workload
 conditions, demonstrating the effectiveness of the orchestrated policies in maintaining stable throughput while respecting the defined PFS bandwidth ceiling. It is also
 important to mention that for all the scenarios we captured the number of concurrent jobs in the cluster for consistent interpretation of the results, a more detailed
 analysis and visualization of this metric is available in the Appendix.
@@ -633,44 +633,44 @@ analysis and visualization of this metric is available in the Appendix.
 \begin{figure*}[htbp]
     \centering
     \includegraphics[width=\textwidth]{img/workload_throughput_comparison.png}
-    \caption{Evaluation of collective system throughput across different storage workloads (Burst, Steady, and Dynamic Churn). Each scenario compares the dynamic orchestrated 
+    \caption{Evaluation of collective system throughput across different storage workloads (Burst, Steady, and Dynamic Churn). Each scenario compares the dynamic orchestrated
         policies against the uncoordinated synchronous Baseline.}
     \label{fig:throughput_comparison_grid}
 \end{figure*}
 
 \subsubsection{Burst Traffic Behavior (Peak Control)}
 
-Under the \textit{Burst Traffic} paradigm, all compute nodes trigger concurrent checkpoint dumps simultaneously. As observed in Figure~\ref{fig:throughput_comparison_grid} 
+Under the \textit{Burst Traffic} paradigm, all compute nodes trigger concurrent checkpoint dumps simultaneously. As observed in Figure~\ref{fig:throughput_comparison_grid}
 (left), the uncoordinated Baseline reaches an instantaneous throughput spike of 1881.2~MB/s. While this value appears high, it is highly volatile ($\sigma = 284.6$~MB/s).
 
-In contrast, our orchestrated policies successfully absorb the synchronized dump into node-local SSDs. The central orchestrator stabilizes the outbound traffic, enforcing 
-tight aggregate limits: \textit{Epoch-Priority} leads with a controlled throughput of 553.0~MB/s, closely followed by \textit{Active Fair Share} (532.7~MB/s) and \textit{Age-Priority} 
+In contrast, our orchestrated policies successfully absorb the synchronized dump into node-local SSDs. The central orchestrator stabilizes the outbound traffic, enforcing
+tight aggregate limits: \textit{Epoch-Priority} leads with a controlled throughput of 553.0~MB/s, closely followed by \textit{Active Fair Share} (532.7~MB/s) and \textit{Age-Priority}
 (524.6~MB/s). This traffic-shaping eliminates the "noisy neighbor" effect, sacrificing raw uncoordinated speed to guarantee overall cluster stability.
 
 \subsubsection{Steady Traffic Isolation}
 
-When checkpoint intervals are staggered (\textit{Steady Traffic}), filesystem contention is lower, but long-term predictability is critical. Looking at the orchestrated configurations 
-in Figure~\ref{fig:throughput_comparison_grid} (center), we observe that the system ensures smooth, predictable bandwidth allocation. The aggregate output is still capped under the 
+When checkpoint intervals are staggered (\textit{Steady Traffic}), filesystem contention is lower, but long-term predictability is critical. Looking at the orchestrated configurations
+in Figure~\ref{fig:throughput_comparison_grid} (center), we observe that the system ensures smooth, predictable bandwidth allocation. The aggregate output is still capped under the
 2~GB/s boundary, reinforcing that storage bandwidth remains available for other tasks running in the HPC cluster.
 
 \subsubsection{Dynamic Churn Behavior}
 
-The most significant differentiation occurs during the \textit{Dynamic Churn} workload (Figure~\ref{fig:throughput_comparison_grid}, right). As jobs arrive and depart, triggering continuous 
-control plane evaluations, we observe that the dynamic policies adapt on-the-fly where Epoch-Priority  maximizes efficiency, converging at an aggregate throughput of 1575.6~MB/s by aggressively 
-prioritizing workers closer to completing their training. The Active Fair Share policy achieves a throughput of 1409.1~MB/s, showcasing low-latency redistribution of bandwidth only to workers with 
-active pending queues. In contrast, the Uniform Fair Share policy suffers from a structural bottleneck (631.8~MB/s) because it wastes bandwidth quotas on inactive worker streams, validating the 
+The most significant differentiation occurs during the \textit{Dynamic Churn} workload (Figure~\ref{fig:throughput_comparison_grid}, right). As jobs arrive and depart, triggering continuous
+control plane evaluations, we observe that the dynamic policies adapt on-the-fly where Epoch-Priority  maximizes efficiency, converging at an aggregate throughput of 1575.6~MB/s by aggressively
+prioritizing workers closer to completing their training. The Active Fair Share policy achieves a throughput of 1409.1~MB/s, showcasing low-latency redistribution of bandwidth only to workers with
+active pending queues. In contrast, the Uniform Fair Share policy suffers from a structural bottleneck (631.8~MB/s) because it wastes bandwidth quotas on inactive worker streams, validating the
 necessity of active state-tracking in dynamic environments.
 
 \subsection{Bandwidth Convergence and Traffic Shaping Integrity}
 
 To evaluate the precision of our distributed rate-limiting mechanism, we analyze the accumulated outbound migration bandwidth over time under a strict $2\text{ GB/s}$ orchestrator ceiling for all
-test scenarios and compared all the orchestrated policies. This analysis provides insights into the transient dynamics of bandwidth enforcement, the system's responsiveness to state changes, and 
-the long-term stability of the traffic shaping mechanism. 
+test scenarios and compared all the orchestrated policies. This analysis provides insights into the transient dynamics of bandwidth enforcement, the system's responsiveness to state changes, and
+the long-term stability of the traffic shaping mechanism.
 
 The main point that emerges from this analysis is that while the orchestrator successfully maintains the long-term aggregate bandwidth within the defined ceiling, however it was brought to light
 that the system experiences transient overshoots during state transitions, which will be the focus of this subsection.
 
-Figures~\ref{fig:accumulated_bw_profiles}a and \ref{fig:accumulated_bw_profiles}b reveal distinct traffic signatures between dynamic and steady/burst workloads using the \textit{Active Fair Share} 
+Figures~\ref{fig:accumulated_bw_profiles}a and \ref{fig:accumulated_bw_profiles}b reveal distinct traffic signatures between dynamic and steady/burst workloads using the \textit{Active Fair Share}
 policy.
 
 \begin{figure}[htbp]
@@ -692,23 +692,23 @@ policy.
     \label{fig:accumulated_bw_profiles}
 \end{figure}
 
-As illustrated in the steady profiling scenario (Figure~\ref{fig:bw_steady}), the framework exhibits highly predictable partitioning. When checkpoint intervals are staggered, compute 
-nodes divide the available storage bandwidth into stable, deterministic tiers (multiples of $\sim 500\text{ MB/s}$), demonstrating tight control over the aggregate traffic. However, 
+As illustrated in the steady profiling scenario (Figure~\ref{fig:bw_steady}), the framework exhibits highly predictable partitioning. When checkpoint intervals are staggered, compute
+nodes divide the available storage bandwidth into stable, deterministic tiers (multiples of $\sim 500\text{ MB/s}$), demonstrating tight control over the aggregate traffic. However,
 two distinct phenomena are observed regarding enforcement boundaries across both environments:
 
 \begin{itemize}
-    \item \textbf{Transient Burst Spikes:} Extremely narrow, isolated spikes reaching up to $3500\text{ MB/s}$ occur precisely at the activation boundaries of new migration blocks in 
-        both profiles. This behavior validates our Token Bucket design choice; token accumulation during periods of node-local staging inactivity allows a localized initial burst before 
+    \item \textbf{Transient Burst Spikes:} Extremely narrow, isolated spikes reaching up to $3500\text{ MB/s}$ occur precisely at the activation boundaries of new migration blocks in
+        both profiles. This behavior validates our Token Bucket design choice; token accumulation during periods of node-local staging inactivity allows a localized initial burst before
         stabilizing to the mandated rate limit.
-    \item \textbf{Sustained Bandwidth Overshoots:} In contrast to steady execution, highly dynamic or synchronized environments (Figure~\ref{fig:bw_burst}) introduce broader, sustained 
-        blocks where the collective throughput exceeds the $2\text{ GB/s}$ ceiling for visible durations. 
+    \item \textbf{Sustained Bandwidth Overshoots:} In contrast to steady execution, highly dynamic or synchronized environments (Figure~\ref{fig:bw_burst}) introduce broader, sustained
+        blocks where the collective throughput exceeds the $2\text{ GB/s}$ ceiling for visible durations.
 \end{itemize}
 
-The authors theorize that the enforcement lag is primarily governed by control plane signaling latency. Because the Central Orchestrator relies on a periodic $0.1\text{-second}$ gRPC heartbeat 
-sampling stream, sudden overlapping state transitions cause temporary synchronization delays. Active nodes continue transmitting at their previously authorized quotas until the revised 
-control packets cross the network and are enforced by the local daemons. 
+The authors theorize that the enforcement lag is primarily governed by control plane signaling latency. Because the Central Orchestrator relies on a periodic $0.1\text{-second}$ gRPC heartbeat
+sampling stream, sudden overlapping state transitions cause temporary synchronization delays. Active nodes continue transmitting at their previously authorized quotas until the revised
+control packets cross the network and are enforced by the local daemons.
 
-Nevertheless, empirical integration proves that despite these transient sub-second overshoots, the framework successfully compresses the long-term aggregate I/O and overall bandwidth to remain 
+Nevertheless, empirical integration proves that despite these transient sub-second overshoots, the framework successfully compresses the long-term aggregate I/O and overall bandwidth to remain
 within the defined ceiling, preventing sustained PFS saturation and ensuring cluster stability.
 
 \section{Related Work}
@@ -776,24 +776,24 @@ our prototype evaluation highlights several open paths for future research and o
 
 \begin{itemize}
     \item \textbf{Distributed and Fault-Tolerant Orchestrator:}
-    The current centralized control plane introduces a potential scalability bottleneck and a single point of failure. Future work should explore distributed or 
+    The current centralized control plane introduces a potential scalability bottleneck and a single point of failure. Future work should explore distributed or
     hierarchical orchestration designs to improve resilience and enable operation at larger cluster scales.
 
     \item \textbf{Advanced Scheduling Policies:}
-    The current framework supports pluggable QoS policies, but more expressive scheduling strategies could be incorporated, such as deadline-aware, congestion-aware, 
+    The current framework supports pluggable QoS policies, but more expressive scheduling strategies could be incorporated, such as deadline-aware, congestion-aware,
     or learning-based policies that dynamically adapt to workload behavior and cluster state.
 
     \item \textbf{Deal with new arrivals:}
     The system could be enhanced to better handle new-arriving checkpoint requests. Currently if a new request arrives while the migrater is busy sending a checkpoint to the PFS,
-    the request in question is dropped, which is not ideal. Future work could explore queuing mechanisms or preemption strategies to ensure that all checkpoint requests are 
+    the request in question is dropped, which is not ideal. Future work could explore queuing mechanisms or preemption strategies to ensure that all checkpoint requests are
     eventually processed without overwhelming the PFS.
 
     \item \textbf{Exascale and Multi-Tenant Stress Testing:}
-    Additional experiments at larger scale are required to assess the system’s robustness under extreme contention scenarios involving hundreds or thousands of concurrent 
+    Additional experiments at larger scale are required to assess the system’s robustness under extreme contention scenarios involving hundreds or thousands of concurrent
     checkpointing jobs.
 
     \item \textbf{Checkpoint Compression and Deduplication:}
-    Reducing checkpoint size through lightweight compression or deduplication techniques could further alleviate pressure on both local staging storage and the shared PFS, 
+    Reducing checkpoint size through lightweight compression or deduplication techniques could further alleviate pressure on both local staging storage and the shared PFS,
     complementing the proposed QoS mechanisms.
 
 \end{itemize}
