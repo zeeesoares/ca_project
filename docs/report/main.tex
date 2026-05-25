@@ -367,18 +367,18 @@ The state of each worker, maintained in the orchestrator's \texttt{ClusterState}
     \footnotesize
     \begin{tabular}{lll}
         \toprule
-        \textbf{Campo} & \textbf{Origem} & \textbf{Usado por} \\
+        \textbf{Field} & \textbf{Source} & \textbf{Used by} \\
         \midrule
-        \texttt{worker\_id}       & \texttt{socket.gethostname()} (migrater)       & static-priority \\
-        \texttt{checkpoint\_size} & bytes pendentes de flush                       & active, static, age \\
-        \texttt{is\_migrating}    & flag do migrater                               & (reservado) \\
-        \texttt{last\_seen}       & \texttt{time.time()} no update                 & --- \\
-        \texttt{pending\_since}   & \texttt{time.time()} na transição $0 \to {>}0$ & age-priority \\
-        \texttt{epoch}            & progresso reportado pelo migrater              & epoch-priority \\
-        \texttt{total\_epochs}    & total de épocas reportado pelo migrater        & epoch-priority \\
+        \texttt{worker\_id}       & \texttt{socket.gethostname()} (migrater)         & static-priority \\
+        \texttt{checkpoint\_size} & bytes pending flush                              & active, static, age \\
+        \texttt{is\_migrating}    & migrater flag                                    & (reserved) \\
+        \texttt{last\_seen}       & \texttt{time.time()} on update                   & --- \\
+        \texttt{pending\_since}   & \texttt{time.time()} on transition $0 \to {>}0$  & age-priority \\
+        \texttt{epoch}            & progress reported by the migrater                & epoch-priority \\
+        \texttt{total\_epochs}    & total epochs reported by the migrater            & epoch-priority \\
         \bottomrule
     \end{tabular}
-    \caption{Campos do \texttt{WorkerState} mantido pelo orquestrador.}
+    \caption{Fields of the \texttt{WorkerState} maintained by the orchestrator.}
     \label{tab:worker-state}
 \end{table}
 
@@ -412,8 +412,8 @@ The ActiveFairShare policy is an upgrade of UniformFairShare, it has the same fo
 \begin{equation}
     r_i =
     \begin{cases}
-        \dfrac{B_{\text{PFS}}}{|A|}, & \text{se } i \in A, \\[6pt]
-        0 \ (\texttt{HOLD}),         & \text{se } i \notin A,
+        \dfrac{B_{\text{PFS}}}{|A|}, & \text{if } i \in A, \\[6pt]
+        0 \ (\texttt{HOLD}),         & \text{if } i \notin A,
     \end{cases}
     \label{eq:active-fair-share}
 \end{equation}
@@ -483,18 +483,18 @@ Table~\ref{tab:policies-summary} summarizes all implemented policies, indicating
     \setlength{\tabcolsep}{3pt}
     \begin{tabular}{llll}
         \toprule
-        \textbf{Policy} & \textbf{Tipo} & \textbf{Sinais usados} & \textbf{Flags próprias} \\
+        \textbf{Policy} & \textbf{Type} & \textbf{Signals used} & \textbf{Own flags} \\
         \midrule
         \texttt{no-limit}           & baseline & ---                                       & ---                  \\
-        \texttt{fixed-rate}         & estática & ---                                       & (\texttt{--pfs-bw})  \\
-        \texttt{uniform-fair-share} & estática & n.\textordmasculine\ workers              & \texttt{--pfs-bw}    \\
-        \texttt{active-fair-share}  & estática & n.\textordmasculine\ workers ativos       & \texttt{--pfs-bw}    \\
-        \texttt{static-priority}    & estática & pesos do JSON                             & \texttt{--priority-map} \\
-        \texttt{age-priority}       & dinâmica & \texttt{checkpoint\_size}, \texttt{pending\_since} & \texttt{--alpha}, \texttt{--beta} \\
-        \texttt{epoch-priority}     & dinâmica & \texttt{epoch}\,/\,\texttt{total\_epochs} & \texttt{--epoch-floor} \\
+        \texttt{fixed-rate}         & static   & ---                                       & (\texttt{--pfs-bw})  \\
+        \texttt{uniform-fair-share} & static   & no.\ of workers                           & \texttt{--pfs-bw}    \\
+        \texttt{active-fair-share}  & static   & no.\ of active workers                    & \texttt{--pfs-bw}    \\
+        \texttt{static-priority}    & static   & weights from JSON                         & \texttt{--priority-map} \\
+        \texttt{age-priority}       & dynamic  & \texttt{checkpoint\_size}, \texttt{pending\_since} & \texttt{--alpha}, \texttt{--beta} \\
+        \texttt{epoch-priority}     & dynamic  & \texttt{epoch}\,/\,\texttt{total\_epochs} & \texttt{--epoch-floor} \\
         \bottomrule
     \end{tabular}
-    \caption{Resumo das políticas de escalonamento implementadas.}
+    \caption{Summary of the implemented scheduling policies.}
     \label{tab:policies-summary}
 \end{table}
 
