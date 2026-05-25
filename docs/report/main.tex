@@ -66,8 +66,8 @@
     by adapting to job dynamics, maintaining global storage harmony.}
 \end{abstract}
 
-\keywords{High-Performance Computing, Deucalion, A64FX, AMD EPYC 7742, Memory Hierarchy, Large Language Models, Checkpointing, Parallel File Systems,
-I/O Contention, Distributed Systems, Resource Management..}
+% \keywords{High-Performance Computing, Deucalion, A64FX, AMD EPYC 7742, Memory Hierarchy, Large Language Models, Checkpointing, Parallel File Systems,
+% I/O Contention, Distributed Systems, Resource Management.}
 
 %\received{25 May 2026}
 
@@ -371,7 +371,7 @@ The state of each worker, maintained in the orchestrator's \texttt{ClusterState}
 \subsubsection{NoLimit}
 \label{sec:policy-nolimit}
 
-The baseline policy always returns \texttt{START\_FLUSH} with the \texttt{rate\_limit\_bps} fixed at 1GB/s, regardless of the number of workers, the cluster state, or the provided PFS bandwidth. Since it has no notion of activity, all existing workers receive bandwidth even if they are not currently active.
+The baseline policy always returns a action (\texttt{START\_FLUSH}) with the \texttt{rate\_limit\_bps} fixed at 1GB/s, regardless of the number of workers, the cluster state, or the provided PFS bandwidth. Since it has no notion of activity, all existing workers receive bandwidth even if they are not currently active.
 \subsubsection{FixedRate}
 \label{sec:policy-fixedrate}
 
@@ -445,10 +445,10 @@ The \texttt{ClusterState} is responsible for updating the wait time. It is possi
 This dynamic policy uses a signal originating from the training side of the model. The migrator sends \texttt{epoch} and \texttt{total\_epochs} at every heartbeat, which are collected by the orchestrator.
 
 The priority is calculated by a linear-with-floor function of the training progress:
-\begin{equation}
-    \rho_i = \mathrm{clip}\!\left(\frac{e_i}{E_i},\ 0,\ 1\right),
-    \label{eq:epoch-progress}
-\end{equation}
+% \begin{equation}
+%     \rho_i = \mathrm{clip}\!\left(\frac{e_i}{E_i},\ 0,\ 1\right),
+%     \label{eq:epoch-progress}
+% \end{equation}
 \begin{equation}
     p_i = \phi + (1 - \phi) \cdot \rho_i,
     \label{eq:epoch-priority-weight}
@@ -457,7 +457,10 @@ The priority is calculated by a linear-with-floor function of the training progr
     r_i = B_{\text{PFS}} \cdot \frac{p_i}{\sum_{j \in A} p_j}, \quad i \in A,
     \label{eq:epoch-priority-rate}
 \end{equation}
-where $e_i$ is the current epoch reported by worker $i$, $E_i$ is its total number of epochs, $\rho_i \in [0, 1]$ is the normalized progress, $\phi \in [0, 1]$ is the configurable priority floor (\texttt{--epoch-floor}, with a default value of $\phi = 0.2$), $p_i$ is the worker's final weight, $r_i$ is the assigned rate, and $B_{\text{PFS}}$ is the aggregate bandwidth ceiling.
+where
+% $e_i$ is the current epoch reported by worker $i$,
+%  $E_i$ is its total number of epochs,
+$\rho_i \in [0, 1]$ is the normalized progress, $\phi \in [0, 1]$ is the configurable priority floor (\texttt{--epoch-floor}, with a default value of $\phi = 0.2$), $p_i$ is the worker's final weight, $r_i$ is the assigned rate, and $B_{\text{PFS}}$ is the aggregate bandwidth ceiling.
 
 The goal with this policy is that jobs closer to completing their training have already used more computation and have fewer future opportunities to protect themselves through checkpoints. In this way, they are better protected from contention than jobs that have just started. To control the weights of recently started jobs, the configurable parameter $\phi$ is also passed, with a default value of $0.2$, to ensure that jobs at the beginning of their progress (i.e., $\rho = 0$) receive a fraction of the bandwidth and do not experience total starvation.
 
@@ -795,19 +798,19 @@ our prototype evaluation highlights several open paths for future research and o
 
 \end{itemize}
 
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\clearpage
+\onecolumn
 \appendix
-\begin{figure*}[htbp]
+\section*{Appendix}
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{img/summary_table.png}
     \caption{Comprehensive Benchmark Summary capturing structural metrics across Baseline and Orchestrated deployments for Burst, Steady, and Dynamic Churn traffic workloads.}
     \label{fig:appendix_summary_table}
-\end{figure*}
-
-
-\bibliographystyle{ACM-Reference-Format}
-\bibliography{references}
+\end{figure}
 
 \end{document}
 \endinput
-%%
-%% End of file `sample-sigplan.tex'.
