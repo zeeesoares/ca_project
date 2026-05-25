@@ -526,9 +526,7 @@ Across all experimental scenarios, workloads are evaluated under two structural 
     archives directly to the shared Lustre PFS concurrently using synchronous \texttt{torch.save} primitives.
     \item \textbf{Orchestrated:} Represents the proposed framework where storage interactions are transparently redirected to the high-speed local staging tier. Upon
     local write completion, the training process immediately returns to execution, while background data daemons migrate the staged checkpoints to the PFS, regulated
-    in real-time by dynamic token-bucket rate limits dictated by the central orchestrator. For methodological purposes, and due to the scaling problem comparison for
-    all available policies, it was decided to compare only the few we consider most relevant, which are \textit{Uniform Fair Share}, \textit{Active Fair Share},
-    \textit{Age-Priority}, and \textit{Epoch-Priority}.
+        in real-time by dynamic token-bucket rate limits dictated by the central orchestrator. For methodological reasons, and because comparing all available policies would introduce unnecessary redundancy, we chose to limit our focus to the most relevant: \textit{Uniform Fair Share}, \textit{Active Fair Share}, and \textit{Age-Priority}.
 \end{itemize}
 
 \subsection{Benchmarks and Workloads}

@@ -26,7 +26,7 @@
     \draw[arrow] (manager) -- node[right, font=\sffamily\scriptsize] {Fast Write} (ssd);
 
     % Manager -> Migrater (Sinal)
-    \draw[signal] (manager) -| node[above, near start, font=\sffamily\scriptsize] {Signal Ready} (migrater);
+    \draw[signal] (manager.east) -| node[above, near start, font=\sffamily\scriptsize] {Signal Ready} ([xshift=10mm,yshift=6mm]migrater.west);
 
     % SSD -> Migrater
     \draw[arrow] (ssd) -- node[above, font=\sffamily\scriptsize] {Read} (migrater);
