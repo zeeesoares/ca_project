@@ -60,10 +60,10 @@
     (PFS), leading to significant I/O contention and training stalls. This paper proposes a policy-driven, two-tier storage orchestration system
     designed to mitigate the "noisy neighbor" problem in HPC clusters. By transparently redirecting checkpoints to node-local SSDs and employing
     a centralized orchestrator to manage asynchronous migration to the PFS via a Token Bucket algorithm, we enable granular Quality of Service (QoS)
-    control. \red{Our evaluation demonstrates that while direct filesystem writes expose training jobs to highly volatile stall times, the orchestrated
+    control. Our evaluation demonstrates that while direct filesystem writes expose training jobs to highly volatile stall times, the orchestrated
     staging tier provides remarkable execution with predictable variance. Furthermore, the framework successfully enforces strict aggregate bandwidth
     ceilings, smoothing the massive concurrent I/O bursts. Under dynamic multi-tenant workloads, active state-tracking policies maximize cluster efficiency
-    by adapting to job dynamics, maintaining global storage harmony.}
+    by adapting to job dynamics, maintaining global storage harmony.
 \end{abstract}
 
 % \keywords{High-Performance Computing, Deucalion, A64FX, AMD EPYC 7742, Memory Hierarchy, Large Language Models, Checkpointing, Parallel File Systems,
