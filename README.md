@@ -1,4 +1,4 @@
-# Storage system for optimizing LLM checkpointing in HPC <br> *Advanced Computing Project*
+# CHORUS: Checkpoint Orchestration with Rate-limiting and Unified Service-policies <br> *Advanced Computing Project*
 
 ## Assignment
 
