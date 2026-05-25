@@ -358,11 +358,10 @@ bandwidth enforcement.
 
 \subsection{Scheduling Policy}
 
-As políticas de escalonamento são implementadas seguindo uma interface padrão, estas são responsáveis por guiar o ``orchestrator'' a transmitir as respostas de 4 ações possíveis (\texttt{START\_FLUSH}, \texttt{CHANGE\_RATE}, \texttt{HOLD} e \texttt{EXIT}). Uma \texttt{CHANGE\_RATE} é enviada sempre que uma política dá um \texttt{rate\_limit\_bps} para um worker que já está a fazer flush; o token bucket no migrater relê a taxa em runtime e ajusta sem necessidade de restart. Isto permite que as políticas sejam escolhidas através de uma flag na linha de comandos, dando maior versatilidade na hora dos testes.
-Um worker é considerado ativo, sempre que o \texttt{checkpoint\_size} no último heartbeat é maior que 0. As políticas que têm em conta a atividade, enviam a mensagem de \texttt{HOLD} a workers inativos no momento, e a bandwidth é apenas distribuída pelos workers ativos.
+The scheduling policies are implemented following a standard interface; these are responsible for guiding the ''orchestrator'' to transmit the responses of 4 possible actions (\texttt{START_FLUSH}, \texttt{CHANGE_RATE}, \texttt{HOLD}, and \texttt{EXIT}). A \texttt{CHANGE_RATE} is sent whenever a policy assigns a \texttt{rate_limit_bps} to a worker that is already flushing; the token bucket in the migrator rereads the rate at runtime and adjusts it without needing a restart. This allows the policies to be chosen via a command-line flag, providing greater versatility during testing.
+A worker is considered active whenever the \texttt{checkpoint_size} in the last heartbeat is greater than 0. Policies that take activity into account send a \texttt{HOLD} message to currently inactive workers, and the bandwidth is only distributed among active workers.
 
-O estado de cada worker, mantido no \texttt{ClusterState} do orquestrador e atualizado a cada heartbeat, é representado pela estrutura \texttt{WorkerState}. A Tabela~\ref{tab:worker-state} resume os seus campos, indicando a origem de cada um e as políticas que o consomem.
-
+The state of each worker, maintained in the orchestrator's \texttt{ClusterState} and updated at every heartbeat, is represented by the \texttt{WorkerState} structure. Table~\ref{tab:worker-state} summarizes its fields, indicating the origin of each one and the policies that consume them.
 \begin{table}[h]
     \centering
     \footnotesize
@@ -386,32 +385,30 @@ O estado de cada worker, mantido no \texttt{ClusterState} do orquestrador e atua
 \subsubsection{NoLimit}
 \label{sec:policy-nolimit}
 
-A política de base, devolve sempre \texttt{START\_FLUSH} com o \texttt{rate\_limit\_bps} fixo em 1GB/s independentemente do número de workers, do estado do cluster ou da bandwidth do PFS passada. Como não tem noção de atividade, todos os workers existentes recebem bandwidth mesmo que não estejam ativos no momento.
-
+The baseline policy always returns \texttt{START_FLUSH} with the \texttt{rate_limit_bps} fixed at 1GB/s, regardless of the number of workers, the cluster state, or the provided PFS bandwidth. Since it has no notion of activity, all existing workers receive bandwidth even if they are not currently active.
 \subsubsection{FixedRate}
 \label{sec:policy-fixedrate}
 
-A política dá a cada worker uma taxa fixa de $r$, independentemente de quantos workers existirem e quantos estão ativos:
+The policy gives each worker a fixed rate of $r$, regardless of how many workers exist and how many are active:
 \begin{equation}
     r_i = r = \text{const}, \quad \forall i \in W,
     \label{eq:fixed-rate}
 \end{equation}
-onde $r_i$ é a taxa atribuída ao worker $i$, $r$ é a constante configurada e $W$ é o conjunto de workers registados no orquestrador.
+where $r_i$ is the rate assigned to worker $i$, $r$ is the configured constant, and $W$ is the set of workers registered in the orchestrator.
 
 \subsubsection{UniformFairShare}
 \label{sec:policy-uniform}
 
-A política divide a bandwidth definida igualmente por todos os workers registados, estejam ou não ativos:
+The policy divides the defined bandwidth equally among all registered workers, whether they are active or not:
 \begin{equation}
     r_i = \frac{B_{\text{PFS}}}{|W|}, \quad \forall i \in W,
     \label{eq:uniform-fair-share}
 \end{equation}
-onde $r_i$ é a taxa atribuída ao worker $i$, $B_{\text{PFS}}$ é o teto agregado de banda do PFS (\texttt{--pfs-bw}) e $|W|$ é o número total de workers registados. A política garante que a soma de todos os $r_i$ é igual ao valor da bandwidth do PFS, eliminando a violação deste teto definido. O problema desta política é desperdiçar bandwidth com workers que não a estão a utilizar por estarem inativos.
-
+where $r_i$ is the rate assigned to worker $i$, $B_{\text{PFS}}$ is the aggregate PFS bandwidth ceiling (\texttt{--pfs-bw}), and $|W|$ is the total number of registered workers. The policy ensures that the sum of all $r_i$ is equal to the PFS bandwidth value, eliminating the violation of this defined ceiling. The problem with this policy is that it wastes bandwidth on workers that are not using it because they are inactive.
 \subsubsection{ActiveFairShare}
 \label{sec:policy-active}
 
-A política ActiveFairShare é um upgrade da UniformFairShare, tem a mesma base, mas divide apenas a bandwidth pelos workers ativos:
+The ActiveFairShare policy is an upgrade of UniformFairShare, it has the same foundation, but divides the bandwidth only among active workers:
 \begin{equation}
     r_i =
     \begin{cases}
@@ -420,51 +417,48 @@ A política ActiveFairShare é um upgrade da UniformFairShare, tem a mesma base,
     \end{cases}
     \label{eq:active-fair-share}
 \end{equation}
-onde $r_i$ é a taxa atribuída ao worker $i$, $B_{\text{PFS}}$ é o teto agregado de banda do PFS e $A \subseteq W$ é o subconjunto dos workers ativos (com \texttt{checkpoint\_size} $> 0$). Ou seja, não existe o desperdício de bandwidth em workers que estão atualmente inativos. Sendo que os workers ficam ativos e inativos, sempre que uma mudança deste género ocorre, as bandwidths têm de ser alteradas, através da instrução \texttt{CHANGE\_RATE}.
-
+where $r_i$ is the rate assigned to worker $i$, $B_{\text{PFS}}$ is the aggregate PFS bandwidth ceiling, and $A \subseteq W$ is the subset of active workers (with \texttt{checkpoint_size} $> 0$). In other words, bandwidth is not wasted on workers that are currently inactive. Since workers become active and inactive, whenever a change of this kind occurs, the bandwidths must be adjusted via the \texttt{CHANGE_RATE} instruction.
 \subsubsection{StaticPriority}
 \label{sec:policy-static}
 
-Esta política atribui a bandwidth seguindo pesos que dão aos workers certos graus de prioridade. Estes pesos são definidos num ficheiro JSON, e depois a bandwidth é calculada pela seguinte fórmula:
-\begin{equation}
+This policy allocates bandwidth following weights that give workers certain degrees of priority. These weights are defined in a JSON file, and then the bandwidth is calculated by the following formula:\begin{equation}
     r_i = B_{\text{PFS}} \cdot \frac{w_i}{\sum_{j \in A} w_j}, \quad i \in A,
     \label{eq:static-priority}
 \end{equation}
-onde $r_i$ é a taxa atribuída ao worker $i$, $B_{\text{PFS}}$ é o teto agregado de banda, $A$ é o subconjunto dos workers ativos e $w_i > 0$ é o peso atribuído ao worker $i$ no ficheiro de prioridades (workers ausentes do mapa recaem num \texttt{default\_priority} configurável). Nesta política, diferentemente ao que acontece nas outras, o orquestrador não decide que worker merece mais bandwidth, esta é decidida através de um ficheiro criado por alguém.
-
+where $r_i$ is the rate assigned to worker $i$, $B_{\text{PFS}}$ is the aggregate bandwidth ceiling, $A$ is the subset of active workers, and $w_i > 0$ is the weight assigned to worker $i$ in the priority file (workers missing from the map fall back to a configurable \texttt{default_priority}). In this policy, unlike the others, the orchestrator does not decide which worker deserves more bandwidth; this is decided by a file created by someone.
 \subsubsection{AgePriority}
 \label{sec:policy-age}
 
-Esta política dinâmica combina dois sinais: o tamanho do checkpoint pendente (quem tem mais bytes pendentes acaba mais rápido se receber mais bandwidth, libertando assim o sistema) e o tempo de espera a que um worker está para fazer o checkpoint (anti-starvation). Sendo que os sinais são de grandezas diferentes (bytes e segundos), utilizou-se normalização para os relacionar e atribuir um valor de prioridade.
+This dynamic policy combines two signals: the pending checkpoint size (those with more pending bytes finish faster if given more bandwidth, thus freeing up the system) and the time a worker has been waiting to perform the checkpoint (anti-starvation). Since the signals are of different magnitudes (bytes and seconds), normalization was used to relate them and assign a priority value.
 
-Cada sinal é normalizado em $[0, 1]$ pelo máximo observado no conjunto ativo:
+Each signal is normalized to $[0, 1]$ by the maximum observed in the active set:
 \begin{equation}
     \tilde{s}_i = \frac{s_i}{\max_{j \in A} s_j}, \qquad
     \tilde{a}_i = \frac{a_i}{\max_{j \in A} a_j},
     \label{eq:age-norm}
 \end{equation}
-onde $s_i = \texttt{checkpoint\_size}_i$ é o número de bytes pendentes e $a_i = t_{\text{now}} - t^{\text{pending}}_i$ é a idade do estado pendente (em segundos), sendo $t^{\text{pending}}_i$ o instante em que o worker $i$ transitou de inativo para ativo.
+where $s_i = \texttt{checkpoint\_size}_i$ is the number of pending bytes and $a_i = t_{\text{now}} - t^{\text{pending}}_i$ is the age of the pending state (in seconds), with $t^{\text{pending}}_i$ being the instant worker $i$ transitioned from inactive to active.
 
-A prioridade resulta de uma combinação convexa dos dois sinais normalizados, limitada inferiormente por um piso numérico para impedir prioridades degeneradas a zero:
+The priority results from a convex combination of the two normalized signals, lower-bounded by a numerical floor to prevent priorities from degenerating to zero:
 \begin{equation}
     p_i = \max\!\bigl(\alpha \cdot \tilde{s}_i + \beta \cdot \tilde{a}_i,\ \varepsilon\bigr),
     \label{eq:age-priority-weight}
 \end{equation}
-com $\alpha, \beta \geq 0$, $\alpha + \beta > 0$, e $\varepsilon = 10^{-6}$. A taxa final é atribuída proporcionalmente:
+with $\alpha, \beta \geq 0$, $\alpha + \beta > 0$, and $\varepsilon = 10^{-6}$. The final rate is assigned proportionally:
 \begin{equation}
     r_i = B_{\text{PFS}} \cdot \frac{p_i}{\sum_{j \in A} p_j}, \quad i \in A,
     \label{eq:age-priority-rate}
 \end{equation}
-onde $r_i$ é a taxa atribuída ao worker $i$ e $B_{\text{PFS}}$ é o teto agregado de banda.
+where $r_i$ is the rate assigned to worker $i$ and $B_{\text{PFS}}$ is the aggregate bandwidth ceiling.
 
-O \texttt{ClusterState} é responsável por atualizar o tempo de espera. É possível variar a importância de cada uma das métricas variando o par $(\alpha, \beta)$: se $\alpha = 1$ e $\beta = 0$, será apenas considerado o valor do \texttt{checkpoint\_size}; se $\alpha = 0$ e $\beta = 1$, será apenas tido em conta o valor do tempo de espera de um worker, ou seja, uma política puramente anti-starvation. O valor equilibrado, dando igual atenção aos dois sinais, é $\alpha = 0.5$ e $\beta = 0.5$.
+The \texttt{ClusterState} is responsible for updating the wait time. It is possible to vary the importance of each metric by varying the pair $(\alpha, \beta)$: if $\alpha = 1$ and $\beta = 0$, only the \texttt{checkpoint_size} value will be considered; if $\alpha = 0$ and $\beta = 1$, only a worker's wait time value will be taken into account, that is, a purely anti-starvation policy. The balanced value, giving equal attention to both signals, is $\alpha = 0.5$ and $\beta = 0.5$.
 
 \subsubsection{EpochPriority}
 \label{sec:policy-epoch}
 
-Esta política dinâmica utiliza um sinal com origem no training side do modelo. O migrater envia \texttt{epoch} e \texttt{total\_epochs} a cada heartbeat que são coletados pelo orquestrador.
+This dynamic policy uses a signal originating from the training side of the model. The migrator sends \texttt{epoch} and \texttt{total_epochs} at every heartbeat, which are collected by the orchestrator.
 
-A prioridade é calculada por uma função linear-com-piso do progresso de treino:
+The priority is calculated by a linear-with-floor function of the training progress:
 \begin{equation}
     \rho_i = \mathrm{clip}\!\left(\frac{e_i}{E_i},\ 0,\ 1\right),
     \label{eq:epoch-progress}
@@ -477,11 +471,11 @@ A prioridade é calculada por uma função linear-com-piso do progresso de trein
     r_i = B_{\text{PFS}} \cdot \frac{p_i}{\sum_{j \in A} p_j}, \quad i \in A,
     \label{eq:epoch-priority-rate}
 \end{equation}
-onde $e_i$ é a época atual reportada pelo worker $i$, $E_i$ é o seu número total de épocas, $\rho_i \in [0, 1]$ é o progresso normalizado, $\phi \in [0, 1]$ é o piso de prioridade configurável (\texttt{--epoch-floor}, com valor por omissão $\phi = 0.2$), $p_i$ é o peso final do worker, $r_i$ é a taxa atribuída e $B_{\text{PFS}}$ é o teto agregado de banda.
+where $e_i$ is the current epoch reported by worker $i$, $E_i$ is its total number of epochs, $\rho_i \in [0, 1]$ is the normalized progress, $\phi \in [0, 1]$ is the configurable priority floor (\texttt{--epoch-floor}, with a default value of $\phi = 0.2$), $p_i$ is the worker's final weight, $r_i$ is the assigned rate, and $B_{\text{PFS}}$ is the aggregate bandwidth ceiling.
 
-O objetivo com esta política é que os jobs que estão mais perto de completar o treino, já utilizaram mais computação e dispõem de menos oportunidades futuras para se protegerem através de checkpoints. Desta forma são mais protegidos de contenção do que jobs que acabaram de começar. Para controlar os pesos de jobs que acabaram de começar, é ainda passado o parâmetro configurável $\phi$, com valor por omissão de $0.2$, para garantir que jobs no início do progresso (ou seja, $\rho = 0$) tenham uma fração de bandwidth e não fiquem em total starvation.
+The goal with this policy is that jobs closer to completing their training have already used more computation and have fewer future opportunities to protect themselves through checkpoints. In this way, they are better protected from contention than jobs that have just started. To control the weights of recently started jobs, the configurable parameter $\phi$ is also passed, with a default value of $0.2$, to ensure that jobs at the beginning of their progress (i.e., $\rho = 0$) receive a fraction of the bandwidth and do not experience total starvation.
 
-A Tabela~\ref{tab:policies-summary} resume todas as políticas implementadas, indicando o seu tipo, os sinais que consomem e as \textit{flags} próprias de cada uma. Todas aceitam adicionalmente \texttt{--pfs-bw} para definir o teto agregado de banda do PFS.
+Table~\ref{tab:policies-summary} summarizes all implemented policies, indicating their type, the signals they consume, and the specific \textit{flags} for each one. All of them additionally accept \texttt{--pfs-bw} to define the aggregate PFS bandwidth ceiling.
 
 \begin{table}[h]
     \centering
