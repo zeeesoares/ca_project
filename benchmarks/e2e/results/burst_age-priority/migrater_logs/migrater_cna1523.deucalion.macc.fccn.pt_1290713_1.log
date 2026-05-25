@@ -1,0 +1,515 @@
+[migrater] timestamp=1779269536.96, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+Migrater running on 50051
+[migrater] timestamp=1779269537.12, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269537.22, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269537.32, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269537.42, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269537.52, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269537.62, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269537.72, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269537.82, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269537.92, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269538.02, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269538.12, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269538.22, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269538.32, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269538.42, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269538.52, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269538.62, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269538.72, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269538.82, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269538.92, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269539.02, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269539.12, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269539.22, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269539.33, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269539.43, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269539.53, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269539.63, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269539.73, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269539.83, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269539.93, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269540.03, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269540.13, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269540.23, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269540.33, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269540.43, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269540.53, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269540.63, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269540.73, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269540.83, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269540.93, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269541.03, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269541.13, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269541.23, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269541.34, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269541.44, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269541.54, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269541.64, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269541.74, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269541.84, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269541.94, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269542.04, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269542.14, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269542.24, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269542.34, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269542.44, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269542.54, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269542.64, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269542.74, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269542.84, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269542.94, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269543.04, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269543.15, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269543.25, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269543.35, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269543.45, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269543.55, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269543.65, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269543.75, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269543.85, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269543.95, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269544.05, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269544.15, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269544.25, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269544.35, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269544.45, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269544.55, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269544.65, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269544.75, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269544.86, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269544.96, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269545.06, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269545.16, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269545.26, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269545.36, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269545.46, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269545.56, migrating=False, epoch=0, total_epochs=0, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269545.66, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=5368709120 bytes
+[migrater] timestamp=1779269545.76, migrating=True, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=5368709120 bytes
+[migrater] timestamp=1779269545.76, migrating=True, epoch=1, total_epochs=3, configured=389325989 B/s, rate=335508538 B/s, pending=5335154688 bytes ([0.62%] 33554432/5368709120 bytes copied)
+[migrater] timestamp=1779269545.87, migrating=True, epoch=1, total_epochs=3, configured=415053067 B/s, rate=388126155 B/s, pending=5293211648 bytes ([1.41%] 75497472/5368709120 bytes copied)
+[migrater] timestamp=1779269545.98, migrating=True, epoch=1, total_epochs=3, configured=432281159 B/s, rate=472436637 B/s, pending=5242880000 bytes ([2.34%] 125829120/5368709120 bytes copied)
+[migrater] timestamp=1779269546.09, migrating=True, epoch=1, total_epochs=3, configured=443927736 B/s, rate=392728164 B/s, pending=5200936960 bytes ([3.12%] 167772160/5368709120 bytes copied)
+[migrater] timestamp=1779269546.19, migrating=True, epoch=1, total_epochs=3, configured=452992800 B/s, rate=489704597 B/s, pending=5150605312 bytes ([4.06%] 218103808/5368709120 bytes copied)
+[migrater] timestamp=1779269546.29, migrating=True, epoch=1, total_epochs=3, configured=459923905 B/s, rate=409410652 B/s, pending=5108662272 bytes ([4.84%] 260046848/5368709120 bytes copied)
+[migrater] timestamp=1779269546.40, migrating=True, epoch=1, total_epochs=3, configured=465705243 B/s, rate=461197533 B/s, pending=5058330624 bytes ([5.78%] 310378496/5368709120 bytes copied)
+[migrater] timestamp=1779269546.51, migrating=True, epoch=1, total_epochs=3, configured=470323539 B/s, rate=466979844 B/s, pending=5007998976 bytes ([6.72%] 360710144/5368709120 bytes copied)
+[migrater] timestamp=1779269546.61, migrating=True, epoch=1, total_epochs=3, configured=474064897 B/s, rate=471527625 B/s, pending=4957667328 bytes ([7.66%] 411041792/5368709120 bytes copied)
+[migrater] timestamp=1779269546.72, migrating=True, epoch=1, total_epochs=3, configured=477413831 B/s, rate=475354871 B/s, pending=4907335680 bytes ([8.59%] 461373440/5368709120 bytes copied)
+[migrater] timestamp=1779269546.83, migrating=True, epoch=1, total_epochs=3, configured=480222619 B/s, rate=478697526 B/s, pending=4857004032 bytes ([9.53%] 511705088/5368709120 bytes copied)
+[migrater] timestamp=1779269546.93, migrating=True, epoch=1, total_epochs=3, configured=482690295 B/s, rate=481393659 B/s, pending=4806672384 bytes ([10.47%] 562036736/5368709120 bytes copied)
+[migrater] timestamp=1779269547.03, migrating=True, epoch=1, total_epochs=3, configured=484881787 B/s, rate=483714259 B/s, pending=4756340736 bytes ([11.41%] 612368384/5368709120 bytes copied)
+[migrater] timestamp=1779269547.14, migrating=True, epoch=1, total_epochs=3, configured=486847357 B/s, rate=485932694 B/s, pending=4706009088 bytes ([12.34%] 662700032/5368709120 bytes copied)
+[migrater] timestamp=1779269547.24, migrating=True, epoch=1, total_epochs=3, configured=488627811 B/s, rate=487851192 B/s, pending=4655677440 bytes ([13.28%] 713031680/5368709120 bytes copied)
+[migrater] timestamp=1779269547.34, migrating=True, epoch=1, total_epochs=3, configured=490252580 B/s, rate=489605604 B/s, pending=4605345792 bytes ([14.22%] 763363328/5368709120 bytes copied)
+[migrater] timestamp=1779269547.45, migrating=True, epoch=1, total_epochs=3, configured=491747300 B/s, rate=491453438 B/s, pending=4555014144 bytes ([15.16%] 813694976/5368709120 bytes copied)
+[migrater] timestamp=1779269547.55, migrating=True, epoch=1, total_epochs=3, configured=491552177 B/s, rate=491545547 B/s, pending=4504682496 bytes ([16.09%] 864026624/5368709120 bytes copied)
+[migrater] timestamp=1779269547.65, migrating=True, epoch=1, total_epochs=3, configured=492823495 B/s, rate=492161935 B/s, pending=4454350848 bytes ([17.03%] 914358272/5368709120 bytes copied)
+[migrater] timestamp=1779269547.75, migrating=True, epoch=1, total_epochs=3, configured=494013168 B/s, rate=493625491 B/s, pending=4404019200 bytes ([17.97%] 964689920/5368709120 bytes copied)
+[migrater] timestamp=1779269547.85, migrating=True, epoch=1, total_epochs=3, configured=495007175 B/s, rate=494679646 B/s, pending=4353687552 bytes ([18.91%] 1015021568/5368709120 bytes copied)
+[migrater] timestamp=1779269547.96, migrating=True, epoch=1, total_epochs=3, configured=496064838 B/s, rate=495852692 B/s, pending=4303355904 bytes ([19.84%] 1065353216/5368709120 bytes copied)
+[migrater] timestamp=1779269548.06, migrating=True, epoch=1, total_epochs=3, configured=496941382 B/s, rate=496721150 B/s, pending=4253024256 bytes ([20.78%] 1115684864/5368709120 bytes copied)
+[migrater] timestamp=1779269548.16, migrating=True, epoch=1, total_epochs=3, configured=497899701 B/s, rate=497647966 B/s, pending=4202692608 bytes ([21.72%] 1166016512/5368709120 bytes copied)
+[migrater] timestamp=1779269548.26, migrating=True, epoch=1, total_epochs=3, configured=498686440 B/s, rate=498419898 B/s, pending=4152360960 bytes ([22.66%] 1216348160/5368709120 bytes copied)
+[migrater] timestamp=1779269548.36, migrating=True, epoch=1, total_epochs=3, configured=499569229 B/s, rate=499307198 B/s, pending=4102029312 bytes ([23.59%] 1266679808/5368709120 bytes copied)
+[migrater] timestamp=1779269548.46, migrating=True, epoch=1, total_epochs=3, configured=500286902 B/s, rate=499736622 B/s, pending=4051697664 bytes ([24.53%] 1317011456/5368709120 bytes copied)
+[migrater] timestamp=1779269548.56, migrating=True, epoch=1, total_epochs=3, configured=500975584 B/s, rate=500939631 B/s, pending=4001366016 bytes ([25.47%] 1367343104/5368709120 bytes copied)
+[migrater] timestamp=1779269548.66, migrating=True, epoch=1, total_epochs=3, configured=501637802 B/s, rate=501256082 B/s, pending=3951034368 bytes ([26.41%] 1417674752/5368709120 bytes copied)
+[migrater] timestamp=1779269548.76, migrating=True, epoch=1, total_epochs=3, configured=502277484 B/s, rate=502222259 B/s, pending=3900702720 bytes ([27.34%] 1468006400/5368709120 bytes copied)
+[migrater] timestamp=1779269548.86, migrating=True, epoch=1, total_epochs=3, configured=502896909 B/s, rate=502757835 B/s, pending=3850371072 bytes ([28.28%] 1518338048/5368709120 bytes copied)
+[migrater] timestamp=1779269548.96, migrating=True, epoch=1, total_epochs=3, configured=503498488 B/s, rate=503179338 B/s, pending=3800039424 bytes ([29.22%] 1568669696/5368709120 bytes copied)
+[migrater] timestamp=1779269549.07, migrating=True, epoch=1, total_epochs=3, configured=504084543 B/s, rate=551679467 B/s, pending=3741319168 bytes ([30.31%] 1627389952/5368709120 bytes copied)
+[migrater] timestamp=1779269549.17, migrating=True, epoch=1, total_epochs=3, configured=503135613 B/s, rate=503285653 B/s, pending=3690987520 bytes ([31.25%] 1677721600/5368709120 bytes copied)
+[migrater] timestamp=1779269549.28, migrating=True, epoch=1, total_epochs=3, configured=503857338 B/s, rate=457457746 B/s, pending=3640655872 bytes ([32.19%] 1728053248/5368709120 bytes copied)
+[migrater] timestamp=1779269549.38, migrating=True, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=3640655872 bytes
+[migrater] timestamp=1779269549.39, migrating=True, epoch=1, total_epochs=3, configured=507833144 B/s, rate=552049007 B/s, pending=3581935616 bytes ([33.28%] 1786773504/5368709120 bytes copied)
+[migrater] timestamp=1779269549.49, migrating=True, epoch=1, total_epochs=3, configured=507927046 B/s, rate=461134738 B/s, pending=3531603968 bytes ([34.22%] 1837105152/5368709120 bytes copied)
+[migrater] timestamp=1779269549.60, migrating=True, epoch=1, total_epochs=3, configured=508666736 B/s, rate=556539847 B/s, pending=3472883712 bytes ([35.31%] 1895825408/5368709120 bytes copied)
+[migrater] timestamp=1779269549.71, migrating=True, epoch=1, total_epochs=3, configured=508734178 B/s, rate=461571294 B/s, pending=3422552064 bytes ([36.25%] 1946157056/5368709120 bytes copied)
+[migrater] timestamp=1779269549.81, migrating=True, epoch=1, total_epochs=3, configured=509469355 B/s, rate=557678418 B/s, pending=3363831808 bytes ([37.34%] 2004877312/5368709120 bytes copied)
+[migrater] timestamp=1779269549.92, migrating=True, epoch=1, total_epochs=3, configured=509514023 B/s, rate=462209223 B/s, pending=3313500160 bytes ([38.28%] 2055208960/5368709120 bytes copied)
+[migrater] timestamp=1779269550.03, migrating=True, epoch=1, total_epochs=3, configured=510249660 B/s, rate=558819482 B/s, pending=3254779904 bytes ([39.38%] 2113929216/5368709120 bytes copied)
+[migrater] timestamp=1779269550.14, migrating=True, epoch=1, total_epochs=3, configured=510274710 B/s, rate=462932703 B/s, pending=3204448256 bytes ([40.31%] 2164260864/5368709120 bytes copied)
+[migrater] timestamp=1779269550.24, migrating=True, epoch=1, total_epochs=3, configured=511015207 B/s, rate=559749991 B/s, pending=3145728000 bytes ([41.41%] 2222981120/5368709120 bytes copied)
+[migrater] timestamp=1779269550.35, migrating=True, epoch=1, total_epochs=3, configured=511023276 B/s, rate=463525483 B/s, pending=3095396352 bytes ([42.34%] 2273312768/5368709120 bytes copied)
+[migrater] timestamp=1779269550.45, migrating=True, epoch=1, total_epochs=3, configured=511773048 B/s, rate=560663594 B/s, pending=3036676096 bytes ([43.44%] 2332033024/5368709120 bytes copied)
+[migrater] timestamp=1779269550.56, migrating=True, epoch=1, total_epochs=3, configured=511766529 B/s, rate=463998868 B/s, pending=2986344448 bytes ([44.38%] 2382364672/5368709120 bytes copied)
+[migrater] timestamp=1779269550.67, migrating=True, epoch=1, total_epochs=3, configured=512529737 B/s, rate=562161627 B/s, pending=2927624192 bytes ([45.47%] 2441084928/5368709120 bytes copied)
+[migrater] timestamp=1779269550.78, migrating=True, epoch=1, total_epochs=3, configured=512510794 B/s, rate=464594679 B/s, pending=2877292544 bytes ([46.41%] 2491416576/5368709120 bytes copied)
+[migrater] timestamp=1779269550.88, migrating=True, epoch=1, total_epochs=3, configured=511618415 B/s, rate=561116791 B/s, pending=2818572288 bytes ([47.50%] 2550136832/5368709120 bytes copied)
+[migrater] timestamp=1779269550.99, migrating=True, epoch=1, total_epochs=3, configured=511802342 B/s, rate=464171915 B/s, pending=2768240640 bytes ([48.44%] 2600468480/5368709120 bytes copied)
+[migrater] timestamp=1779269551.09, migrating=True, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=2768240640 bytes
+[migrater] timestamp=1779269551.09, migrating=True, epoch=1, total_epochs=3, configured=512323394 B/s, rate=561840834 B/s, pending=2709520384 bytes ([49.53%] 2659188736/5368709120 bytes copied)
+[migrater] timestamp=1779269551.20, migrating=True, epoch=1, total_epochs=3, configured=515424541 B/s, rate=467843035 B/s, pending=2659188736 bytes ([50.47%] 2709520384/5368709120 bytes copied)
+[migrater] timestamp=1779269551.31, migrating=True, epoch=1, total_epochs=3, configured=516278883 B/s, rate=565859270 B/s, pending=2600468480 bytes ([51.56%] 2768240640/5368709120 bytes copied)
+[migrater] timestamp=1779269551.41, migrating=True, epoch=1, total_epochs=3, configured=516256723 B/s, rate=467667713 B/s, pending=2550136832 bytes ([52.50%] 2818572288/5368709120 bytes copied)
+[migrater] timestamp=1779269551.52, migrating=True, epoch=1, total_epochs=3, configured=515801346 B/s, rate=566624919 B/s, pending=2491416576 bytes ([53.59%] 2877292544/5368709120 bytes copied)
+[migrater] timestamp=1779269551.62, migrating=True, epoch=1, total_epochs=3, configured=515749666 B/s, rate=467311750 B/s, pending=2441084928 bytes ([54.53%] 2927624192/5368709120 bytes copied)
+[migrater] timestamp=1779269551.73, migrating=True, epoch=1, total_epochs=3, configured=516646080 B/s, rate=566298844 B/s, pending=2382364672 bytes ([55.62%] 2986344448/5368709120 bytes copied)
+[migrater] timestamp=1779269551.84, migrating=True, epoch=1, total_epochs=3, configured=516593003 B/s, rate=468235839 B/s, pending=2332033024 bytes ([56.56%] 3036676096/5368709120 bytes copied)
+[migrater] timestamp=1779269551.94, migrating=True, epoch=1, total_epochs=3, configured=517534195 B/s, rate=567390662 B/s, pending=2273312768 bytes ([57.66%] 3095396352/5368709120 bytes copied)
+[migrater] timestamp=1779269552.05, migrating=True, epoch=1, total_epochs=3, configured=517482373 B/s, rate=469004981 B/s, pending=2222981120 bytes ([58.59%] 3145728000/5368709120 bytes copied)
+[migrater] timestamp=1779269552.15, migrating=True, epoch=1, total_epochs=3, configured=518475781 B/s, rate=568485989 B/s, pending=2164260864 bytes ([59.69%] 3204448256/5368709120 bytes copied)
+[migrater] timestamp=1779269552.26, migrating=True, epoch=1, total_epochs=3, configured=518428197 B/s, rate=469583582 B/s, pending=2113929216 bytes ([60.62%] 3254779904/5368709120 bytes copied)
+[migrater] timestamp=1779269552.36, migrating=True, epoch=1, total_epochs=3, configured=519482488 B/s, rate=570050194 B/s, pending=2055208960 bytes ([61.72%] 3313500160/5368709120 bytes copied)
+[migrater] timestamp=1779269552.47, migrating=True, epoch=1, total_epochs=3, configured=519442773 B/s, rate=470197217 B/s, pending=2004877312 bytes ([62.66%] 3363831808/5368709120 bytes copied)
+[migrater] timestamp=1779269552.57, migrating=True, epoch=1, total_epochs=3, configured=520568338 B/s, rate=571322525 B/s, pending=1946157056 bytes ([63.75%] 3422552064/5368709120 bytes copied)
+[migrater] timestamp=1779269552.68, migrating=True, epoch=1, total_epochs=3, configured=520540841 B/s, rate=471246444 B/s, pending=1895825408 bytes ([64.69%] 3472883712/5368709120 bytes copied)
+[migrater] timestamp=1779269552.78, migrating=True, epoch=1, total_epochs=3, configured=521749836 B/s, rate=573011925 B/s, pending=1837105152 bytes ([65.78%] 3531603968/5368709120 bytes copied)
+[migrater] timestamp=1779269552.89, migrating=True, epoch=1, total_epochs=3, configured=521740312 B/s, rate=472211866 B/s, pending=1786773504 bytes ([66.72%] 3581935616/5368709120 bytes copied)
+[migrater] timestamp=1779269552.99, migrating=True, epoch=1, total_epochs=3, configured=521105699 B/s, rate=572542165 B/s, pending=1728053248 bytes ([67.81%] 3640655872/5368709120 bytes copied)
+[migrater] timestamp=1779269553.09, migrating=True, epoch=1, total_epochs=3, configured=521061775 B/s, rate=471656381 B/s, pending=1677721600 bytes ([68.75%] 3690987520/5368709120 bytes copied)
+[migrater] timestamp=1779269553.20, migrating=True, epoch=1, total_epochs=3, configured=522412275 B/s, rate=574003139 B/s, pending=1619001344 bytes ([69.84%] 3749707776/5368709120 bytes copied)
+[migrater] timestamp=1779269553.30, migrating=True, epoch=1, total_epochs=3, configured=519767690 B/s, rate=470941842 B/s, pending=1568669696 bytes ([70.78%] 3800039424/5368709120 bytes copied)
+[migrater] timestamp=1779269553.41, migrating=True, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=1568669696 bytes
+[migrater] timestamp=1779269553.41, migrating=True, epoch=1, total_epochs=3, configured=520678158 B/s, rate=571215823 B/s, pending=1509949440 bytes ([71.88%] 3858759680/5368709120 bytes copied)
+[migrater] timestamp=1779269553.51, migrating=True, epoch=1, total_epochs=3, configured=528600716 B/s, rate=477611587 B/s, pending=1459617792 bytes ([72.81%] 3909091328/5368709120 bytes copied)
+[migrater] timestamp=1779269553.61, migrating=True, epoch=1, total_epochs=3, configured=530436877 B/s, rate=580795221 B/s, pending=1400897536 bytes ([73.91%] 3967811584/5368709120 bytes copied)
+[migrater] timestamp=1779269553.72, migrating=True, epoch=1, total_epochs=3, configured=531245214 B/s, rate=480210650 B/s, pending=1350565888 bytes ([74.84%] 4018143232/5368709120 bytes copied)
+[migrater] timestamp=1779269553.82, migrating=True, epoch=1, total_epochs=3, configured=531872204 B/s, rate=584773015 B/s, pending=1291845632 bytes ([75.94%] 4076863488/5368709120 bytes copied)
+[migrater] timestamp=1779269553.92, migrating=True, epoch=1, total_epochs=3, configured=530041109 B/s, rate=480368406 B/s, pending=1241513984 bytes ([76.88%] 4127195136/5368709120 bytes copied)
+[migrater] timestamp=1779269554.02, migrating=True, epoch=1, total_epochs=3, configured=531762156 B/s, rate=583603078 B/s, pending=1182793728 bytes ([77.97%] 4185915392/5368709120 bytes copied)
+[migrater] timestamp=1779269554.13, migrating=True, epoch=1, total_epochs=3, configured=532757587 B/s, rate=480543009 B/s, pending=1132462080 bytes ([78.91%] 4236247040/5368709120 bytes copied)
+[migrater] timestamp=1779269554.23, migrating=True, epoch=1, total_epochs=3, configured=534781378 B/s, rate=586763625 B/s, pending=1073741824 bytes ([80.00%] 4294967296/5368709120 bytes copied)
+[migrater] timestamp=1779269554.33, migrating=True, epoch=1, total_epochs=3, configured=536040098 B/s, rate=482955005 B/s, pending=1023410176 bytes ([80.94%] 4345298944/5368709120 bytes copied)
+[migrater] timestamp=1779269554.43, migrating=True, epoch=1, total_epochs=3, configured=538470848 B/s, rate=584826719 B/s, pending=964689920 bytes ([82.03%] 4404019200/5368709120 bytes copied)
+[migrater] timestamp=1779269554.54, migrating=True, epoch=1, total_epochs=3, configured=540101742 B/s, rate=490888652 B/s, pending=914358272 bytes ([82.97%] 4454350848/5368709120 bytes copied)
+[migrater] timestamp=1779269554.64, migrating=True, epoch=1, total_epochs=3, configured=543098696 B/s, rate=540377822 B/s, pending=855638016 bytes ([84.06%] 4513071104/5368709120 bytes copied)
+[migrater] timestamp=1779269554.75, migrating=True, epoch=1, total_epochs=3, configured=538399676 B/s, rate=541942983 B/s, pending=796917760 bytes ([85.16%] 4571791360/5368709120 bytes copied)
+[migrater] timestamp=1779269554.86, migrating=True, epoch=1, total_epochs=3, configured=539534030 B/s, rate=538673828 B/s, pending=738197504 bytes ([86.25%] 4630511616/5368709120 bytes copied)
+[migrater] timestamp=1779269554.97, migrating=True, epoch=1, total_epochs=3, configured=541645273 B/s, rate=540344302 B/s, pending=679477248 bytes ([87.34%] 4689231872/5368709120 bytes copied)
+[migrater] timestamp=1779269555.08, migrating=True, epoch=1, total_epochs=3, configured=542350982 B/s, rate=541875618 B/s, pending=620756992 bytes ([88.44%] 4747952128/5368709120 bytes copied)
+[migrater] timestamp=1779269555.19, migrating=True, epoch=1, total_epochs=3, configured=539364689 B/s, rate=540727492 B/s, pending=562036736 bytes ([89.53%] 4806672384/5368709120 bytes copied)
+[migrater] timestamp=1779269555.30, migrating=True, epoch=1, total_epochs=3, configured=541000584 B/s, rate=540318453 B/s, pending=503316480 bytes ([90.62%] 4865392640/5368709120 bytes copied)
+[migrater] timestamp=1779269555.40, migrating=True, epoch=1, total_epochs=3, configured=542993418 B/s, rate=542322033 B/s, pending=444596224 bytes ([91.72%] 4924112896/5368709120 bytes copied)
+[migrater] timestamp=1779269555.51, migrating=True, epoch=1, total_epochs=3, configured=545479503 B/s, rate=544586787 B/s, pending=385875968 bytes ([92.81%] 4982833152/5368709120 bytes copied)
+[migrater] timestamp=1779269555.62, migrating=True, epoch=1, total_epochs=3, configured=548674455 B/s, rate=548338079 B/s, pending=327155712 bytes ([93.91%] 5041553408/5368709120 bytes copied)
+[migrater] timestamp=1779269555.72, migrating=True, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=327155712 bytes
+[migrater] timestamp=1779269555.73, migrating=True, epoch=1, total_epochs=3, configured=592804299 B/s, rate=550689097 B/s, pending=268435456 bytes ([95.00%] 5100273664/5368709120 bytes copied)
+[migrater] timestamp=1779269555.83, migrating=True, epoch=1, total_epochs=3, configured=593094567 B/s, rate=649404856 B/s, pending=201326592 bytes ([96.25%] 5167382528/5368709120 bytes copied)
+[migrater] timestamp=1779269556.05, migrating=True, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=201326592 bytes
+[migrater] timestamp=1779269556.15, migrating=True, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=201326592 bytes
+[migrater] timestamp=1779269556.25, migrating=True, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=201326592 bytes
+[migrater] timestamp=1779269556.35, migrating=True, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=201326592 bytes
+[migrater] timestamp=1779269556.36, migrating=True, epoch=1, total_epochs=3, configured=2000000000 B/s, rate=110105019 B/s, pending=142606336 bytes ([97.34%] 5226102784/5368709120 bytes copied)
+[migrater] timestamp=1779269556.55, migrating=True, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=142606336 bytes
+[migrater] timestamp=1779269556.59, migrating=False, epoch=1, total_epochs=3, configured=2000000000 B/s, rate=0 B/s, pending=0 bytes ([100.00%] 5368709120/5368709120 bytes copied)
+[migrater] timestamp=1779269556.75, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269556.85, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269556.95, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269557.05, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269557.16, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269557.26, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269557.36, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269557.46, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269557.56, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269557.66, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269557.76, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269557.86, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269557.96, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269558.06, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269558.16, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269558.26, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269558.36, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269558.46, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269558.56, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269558.66, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269558.76, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269558.86, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269558.97, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269559.07, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269559.17, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269559.27, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269559.37, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269559.47, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269559.57, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269559.67, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269559.77, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269559.87, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269559.97, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269560.07, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269560.17, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269560.27, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269560.37, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269560.47, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269560.57, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269560.67, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269560.78, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269560.88, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269560.98, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269561.08, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269561.18, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269561.28, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269561.38, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269561.48, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269561.58, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269561.68, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269561.78, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269561.88, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269561.98, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269562.08, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269562.18, migrating=False, epoch=1, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269562.28, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=5368709120 bytes
+[migrater] timestamp=1779269562.38, migrating=True, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=5368709120 bytes
+[migrater] timestamp=1779269562.39, migrating=True, epoch=2, total_epochs=3, configured=414306549 B/s, rate=319910005 B/s, pending=5335154688 bytes ([0.62%] 33554432/5368709120 bytes copied)
+[migrater] timestamp=1779269562.49, migrating=True, epoch=2, total_epochs=3, configured=439362251 B/s, rate=412929002 B/s, pending=5293211648 bytes ([1.41%] 75497472/5368709120 bytes copied)
+[migrater] timestamp=1779269562.60, migrating=True, epoch=2, total_epochs=3, configured=455168651 B/s, rate=483235285 B/s, pending=5242880000 bytes ([2.34%] 125829120/5368709120 bytes copied)
+[migrater] timestamp=1779269562.70, migrating=True, epoch=2, total_epochs=3, configured=464332731 B/s, rate=409958622 B/s, pending=5200936960 bytes ([3.12%] 167772160/5368709120 bytes copied)
+[migrater] timestamp=1779269562.81, migrating=True, epoch=2, total_epochs=3, configured=471199321 B/s, rate=465715035 B/s, pending=5150605312 bytes ([4.06%] 218103808/5368709120 bytes copied)
+[migrater] timestamp=1779269562.92, migrating=True, epoch=2, total_epochs=3, configured=476292470 B/s, rate=472018190 B/s, pending=5100273664 bytes ([5.00%] 268435456/5368709120 bytes copied)
+[migrater] timestamp=1779269563.02, migrating=True, epoch=2, total_epochs=3, configured=480224652 B/s, rate=476889225 B/s, pending=5049942016 bytes ([5.94%] 318767104/5368709120 bytes copied)
+[migrater] timestamp=1779269563.13, migrating=True, epoch=2, total_epochs=3, configured=483533550 B/s, rate=481342032 B/s, pending=4999610368 bytes ([6.88%] 369098752/5368709120 bytes copied)
+[migrater] timestamp=1779269563.23, migrating=True, epoch=2, total_epochs=3, configured=486082653 B/s, rate=484315048 B/s, pending=4949278720 bytes ([7.81%] 419430400/5368709120 bytes copied)
+[migrater] timestamp=1779269563.33, migrating=True, epoch=2, total_epochs=3, configured=488343582 B/s, rate=486666316 B/s, pending=4898947072 bytes ([8.75%] 469762048/5368709120 bytes copied)
+[migrater] timestamp=1779269563.44, migrating=True, epoch=2, total_epochs=3, configured=490182028 B/s, rate=489008734 B/s, pending=4848615424 bytes ([9.69%] 520093696/5368709120 bytes copied)
+[migrater] timestamp=1779269563.54, migrating=True, epoch=2, total_epochs=3, configured=491894379 B/s, rate=490759496 B/s, pending=4798283776 bytes ([10.62%] 570425344/5368709120 bytes copied)
+[migrater] timestamp=1779269563.64, migrating=True, epoch=2, total_epochs=3, configured=492592727 B/s, rate=492012675 B/s, pending=4747952128 bytes ([11.56%] 620756992/5368709120 bytes copied)
+[migrater] timestamp=1779269563.74, migrating=True, epoch=2, total_epochs=3, configured=493831471 B/s, rate=493048682 B/s, pending=4697620480 bytes ([12.50%] 671088640/5368709120 bytes copied)
+[migrater] timestamp=1779269563.84, migrating=True, epoch=2, total_epochs=3, configured=495060779 B/s, rate=494524434 B/s, pending=4647288832 bytes ([13.44%] 721420288/5368709120 bytes copied)
+[migrater] timestamp=1779269563.95, migrating=True, epoch=2, total_epochs=3, configured=496064545 B/s, rate=495467146 B/s, pending=4596957184 bytes ([14.37%] 771751936/5368709120 bytes copied)
+[migrater] timestamp=1779269564.05, migrating=True, epoch=2, total_epochs=3, configured=497100516 B/s, rate=496560540 B/s, pending=4546625536 bytes ([15.31%] 822083584/5368709120 bytes copied)
+[migrater] timestamp=1779269564.15, migrating=True, epoch=2, total_epochs=3, configured=497939946 B/s, rate=497490489 B/s, pending=4496293888 bytes ([16.25%] 872415232/5368709120 bytes copied)
+[migrater] timestamp=1779269564.25, migrating=True, epoch=2, total_epochs=3, configured=498714779 B/s, rate=498326315 B/s, pending=4445962240 bytes ([17.19%] 922746880/5368709120 bytes copied)
+[migrater] timestamp=1779269564.35, migrating=True, epoch=2, total_epochs=3, configured=499434369 B/s, rate=498900245 B/s, pending=4395630592 bytes ([18.12%] 973078528/5368709120 bytes copied)
+[migrater] timestamp=1779269564.45, migrating=True, epoch=2, total_epochs=3, configured=500106390 B/s, rate=499675674 B/s, pending=4345298944 bytes ([19.06%] 1023410176/5368709120 bytes copied)
+[migrater] timestamp=1779269564.55, migrating=True, epoch=2, total_epochs=3, configured=500737360 B/s, rate=500171039 B/s, pending=4294967296 bytes ([20.00%] 1073741824/5368709120 bytes copied)
+[migrater] timestamp=1779269564.65, migrating=True, epoch=2, total_epochs=3, configured=501332616 B/s, rate=501419505 B/s, pending=4244635648 bytes ([20.94%] 1124073472/5368709120 bytes copied)
+[migrater] timestamp=1779269564.75, migrating=True, epoch=2, total_epochs=3, configured=501896687 B/s, rate=501470512 B/s, pending=4194304000 bytes ([21.88%] 1174405120/5368709120 bytes copied)
+[migrater] timestamp=1779269564.85, migrating=True, epoch=2, total_epochs=3, configured=502433737 B/s, rate=502120725 B/s, pending=4143972352 bytes ([22.81%] 1224736768/5368709120 bytes copied)
+[migrater] timestamp=1779269564.95, migrating=True, epoch=2, total_epochs=3, configured=502947067 B/s, rate=502546177 B/s, pending=4093640704 bytes ([23.75%] 1275068416/5368709120 bytes copied)
+[migrater] timestamp=1779269565.05, migrating=True, epoch=2, total_epochs=3, configured=503439684 B/s, rate=503161863 B/s, pending=4043309056 bytes ([24.69%] 1325400064/5368709120 bytes copied)
+[migrater] timestamp=1779269565.16, migrating=True, epoch=2, total_epochs=3, configured=503914251 B/s, rate=551812056 B/s, pending=3984588800 bytes ([25.78%] 1384120320/5368709120 bytes copied)
+[migrater] timestamp=1779269565.27, migrating=True, epoch=2, total_epochs=3, configured=503980264 B/s, rate=457614027 B/s, pending=3934257152 bytes ([26.72%] 1434451968/5368709120 bytes copied)
+[migrater] timestamp=1779269565.38, migrating=True, epoch=2, total_epochs=3, configured=504420429 B/s, rate=552038808 B/s, pending=3875536896 bytes ([27.81%] 1493172224/5368709120 bytes copied)
+[migrater] timestamp=1779269565.49, migrating=True, epoch=2, total_epochs=3, configured=504445016 B/s, rate=458055023 B/s, pending=3825205248 bytes ([28.75%] 1543503872/5368709120 bytes copied)
+[migrater] timestamp=1779269565.59, migrating=True, epoch=2, total_epochs=3, configured=504857680 B/s, rate=552045659 B/s, pending=3766484992 bytes ([29.84%] 1602224128/5368709120 bytes copied)
+[migrater] timestamp=1779269565.70, migrating=True, epoch=2, total_epochs=3, configured=504823029 B/s, rate=458567801 B/s, pending=3716153344 bytes ([30.78%] 1652555776/5368709120 bytes copied)
+[migrater] timestamp=1779269565.80, migrating=True, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=3716153344 bytes
+[migrater] timestamp=1779269565.81, migrating=True, epoch=2, total_epochs=3, configured=508309179 B/s, rate=553730728 B/s, pending=3657433088 bytes ([31.87%] 1711276032/5368709120 bytes copied)
+[migrater] timestamp=1779269565.92, migrating=True, epoch=2, total_epochs=3, configured=508452182 B/s, rate=460420510 B/s, pending=3607101440 bytes ([32.81%] 1761607680/5368709120 bytes copied)
+[migrater] timestamp=1779269566.02, migrating=True, epoch=2, total_epochs=3, configured=508859291 B/s, rate=558163225 B/s, pending=3548381184 bytes ([33.91%] 1820327936/5368709120 bytes copied)
+[migrater] timestamp=1779269566.13, migrating=True, epoch=2, total_epochs=3, configured=508825904 B/s, rate=461643963 B/s, pending=3498049536 bytes ([34.84%] 1870659584/5368709120 bytes copied)
+[migrater] timestamp=1779269566.24, migrating=True, epoch=2, total_epochs=3, configured=508230058 B/s, rate=557668122 B/s, pending=3439329280 bytes ([35.94%] 1929379840/5368709120 bytes copied)
+[migrater] timestamp=1779269566.35, migrating=True, epoch=2, total_epochs=3, configured=508132822 B/s, rate=461097967 B/s, pending=3388997632 bytes ([36.88%] 1979711488/5368709120 bytes copied)
+[migrater] timestamp=1779269566.45, migrating=True, epoch=2, total_epochs=3, configured=508698683 B/s, rate=557078216 B/s, pending=3330277376 bytes ([37.97%] 2038431744/5368709120 bytes copied)
+[migrater] timestamp=1779269566.56, migrating=True, epoch=2, total_epochs=3, configured=508582138 B/s, rate=461310289 B/s, pending=3279945728 bytes ([38.91%] 2088763392/5368709120 bytes copied)
+[migrater] timestamp=1779269566.67, migrating=True, epoch=2, total_epochs=3, configured=509151096 B/s, rate=557973826 B/s, pending=3221225472 bytes ([40.00%] 2147483648/5368709120 bytes copied)
+[migrater] timestamp=1779269566.78, migrating=True, epoch=2, total_epochs=3, configured=507975433 B/s, rate=461390976 B/s, pending=3170893824 bytes ([40.94%] 2197815296/5368709120 bytes copied)
+[migrater] timestamp=1779269566.88, migrating=True, epoch=2, total_epochs=3, configured=508531013 B/s, rate=556972641 B/s, pending=3112173568 bytes ([42.03%] 2256535552/5368709120 bytes copied)
+[migrater] timestamp=1779269566.99, migrating=True, epoch=2, total_epochs=3, configured=508363137 B/s, rate=461426422 B/s, pending=3061841920 bytes ([42.97%] 2306867200/5368709120 bytes copied)
+[migrater] timestamp=1779269567.09, migrating=True, epoch=2, total_epochs=3, configured=508926374 B/s, rate=557463763 B/s, pending=3003121664 bytes ([44.06%] 2365587456/5368709120 bytes copied)
+[migrater] timestamp=1779269567.20, migrating=True, epoch=2, total_epochs=3, configured=508741939 B/s, rate=461553665 B/s, pending=2952790016 bytes ([45.00%] 2415919104/5368709120 bytes copied)
+[migrater] timestamp=1779269567.31, migrating=True, epoch=2, total_epochs=3, configured=509315366 B/s, rate=558369477 B/s, pending=2894069760 bytes ([46.09%] 2474639360/5368709120 bytes copied)
+[migrater] timestamp=1779269567.41, migrating=True, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=2894069760 bytes
+[migrater] timestamp=1779269567.42, migrating=True, epoch=2, total_epochs=3, configured=512972291 B/s, rate=461867341 B/s, pending=2843738112 bytes ([47.03%] 2524971008/5368709120 bytes copied)
+[migrater] timestamp=1779269567.52, migrating=True, epoch=2, total_epochs=3, configured=513399244 B/s, rate=562206224 B/s, pending=2785017856 bytes ([48.12%] 2583691264/5368709120 bytes copied)
+[migrater] timestamp=1779269567.63, migrating=True, epoch=2, total_epochs=3, configured=513485557 B/s, rate=465331223 B/s, pending=2734686208 bytes ([49.06%] 2634022912/5368709120 bytes copied)
+[migrater] timestamp=1779269567.73, migrating=True, epoch=2, total_epochs=3, configured=513925577 B/s, rate=563926315 B/s, pending=2675965952 bytes ([50.16%] 2692743168/5368709120 bytes copied)
+[migrater] timestamp=1779269567.84, migrating=True, epoch=2, total_epochs=3, configured=512457624 B/s, rate=465416855 B/s, pending=2625634304 bytes ([51.09%] 2743074816/5368709120 bytes copied)
+[migrater] timestamp=1779269567.95, migrating=True, epoch=2, total_epochs=3, configured=513133114 B/s, rate=562632214 B/s, pending=2566914048 bytes ([52.19%] 2801795072/5368709120 bytes copied)
+[migrater] timestamp=1779269568.06, migrating=True, epoch=2, total_epochs=3, configured=512935988 B/s, rate=465152542 B/s, pending=2516582400 bytes ([53.12%] 2852126720/5368709120 bytes copied)
+[migrater] timestamp=1779269568.16, migrating=True, epoch=2, total_epochs=3, configured=513414031 B/s, rate=562910090 B/s, pending=2457862144 bytes ([54.22%] 2910846976/5368709120 bytes copied)
+[migrater] timestamp=1779269568.27, migrating=True, epoch=2, total_epochs=3, configured=513202639 B/s, rate=465395122 B/s, pending=2407530496 bytes ([55.16%] 2961178624/5368709120 bytes copied)
+[migrater] timestamp=1779269568.37, migrating=True, epoch=2, total_epochs=3, configured=513931922 B/s, rate=563029972 B/s, pending=2348810240 bytes ([56.25%] 3019898880/5368709120 bytes copied)
+[migrater] timestamp=1779269568.48, migrating=True, epoch=2, total_epochs=3, configured=513711305 B/s, rate=465812530 B/s, pending=2298478592 bytes ([57.19%] 3070230528/5368709120 bytes copied)
+[migrater] timestamp=1779269568.58, migrating=True, epoch=2, total_epochs=3, configured=512999564 B/s, rate=563209098 B/s, pending=2239758336 bytes ([58.28%] 3128950784/5368709120 bytes copied)
+[migrater] timestamp=1779269568.69, migrating=True, epoch=2, total_epochs=3, configured=512736624 B/s, rate=464814208 B/s, pending=2189426688 bytes ([59.22%] 3179282432/5368709120 bytes copied)
+[migrater] timestamp=1779269568.80, migrating=True, epoch=2, total_epochs=3, configured=513501852 B/s, rate=563215256 B/s, pending=2130706432 bytes ([60.31%] 3238002688/5368709120 bytes copied)
+[migrater] timestamp=1779269568.91, migrating=True, epoch=2, total_epochs=3, configured=513227754 B/s, rate=465249970 B/s, pending=2080374784 bytes ([61.25%] 3288334336/5368709120 bytes copied)
+[migrater] timestamp=1779269569.01, migrating=True, epoch=2, total_epochs=3, configured=514036404 B/s, rate=563652304 B/s, pending=2021654528 bytes ([62.34%] 3347054592/5368709120 bytes copied)
+[migrater] timestamp=1779269569.12, migrating=True, epoch=2, total_epochs=3, configured=513751755 B/s, rate=465800675 B/s, pending=1971322880 bytes ([63.28%] 3397386240/5368709120 bytes copied)
+[migrater] timestamp=1779269569.22, migrating=True, epoch=2, total_epochs=3, configured=514610643 B/s, rate=564273569 B/s, pending=1912602624 bytes ([64.38%] 3456106496/5368709120 bytes copied)
+[migrater] timestamp=1779269569.32, migrating=True, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=1912602624 bytes
+[migrater] timestamp=1779269569.33, migrating=True, epoch=2, total_epochs=3, configured=520162406 B/s, rate=466305807 B/s, pending=1862270976 bytes ([65.31%] 3506438144/5368709120 bytes copied)
+[migrater] timestamp=1779269569.43, migrating=True, epoch=2, total_epochs=3, configured=520893300 B/s, rate=571028986 B/s, pending=1803550720 bytes ([66.41%] 3565158400/5368709120 bytes copied)
+[migrater] timestamp=1779269569.54, migrating=True, epoch=2, total_epochs=3, configured=519086039 B/s, rate=471727228 B/s, pending=1753219072 bytes ([67.34%] 3615490048/5368709120 bytes copied)
+[migrater] timestamp=1779269569.64, migrating=True, epoch=2, total_epochs=3, configured=520213301 B/s, rate=569836524 B/s, pending=1694498816 bytes ([68.44%] 3674210304/5368709120 bytes copied)
+[migrater] timestamp=1779269569.75, migrating=True, epoch=2, total_epochs=3, configured=519692974 B/s, rate=471071627 B/s, pending=1644167168 bytes ([69.38%] 3724541952/5368709120 bytes copied)
+[migrater] timestamp=1779269569.85, migrating=True, epoch=2, total_epochs=3, configured=520908148 B/s, rate=571035594 B/s, pending=1585446912 bytes ([70.47%] 3783262208/5368709120 bytes copied)
+[migrater] timestamp=1779269569.96, migrating=True, epoch=2, total_epochs=3, configured=520366254 B/s, rate=471570372 B/s, pending=1535115264 bytes ([71.41%] 3833593856/5368709120 bytes copied)
+[migrater] timestamp=1779269570.06, migrating=True, epoch=2, total_epochs=3, configured=521685336 B/s, rate=571663232 B/s, pending=1476395008 bytes ([72.50%] 3892314112/5368709120 bytes copied)
+[migrater] timestamp=1779269570.17, migrating=True, epoch=2, total_epochs=3, configured=521122257 B/s, rate=472212694 B/s, pending=1426063360 bytes ([73.44%] 3942645760/5368709120 bytes copied)
+[migrater] timestamp=1779269570.27, migrating=True, epoch=2, total_epochs=3, configured=522565520 B/s, rate=573315573 B/s, pending=1367343104 bytes ([74.53%] 4001366016/5368709120 bytes copied)
+[migrater] timestamp=1779269570.38, migrating=True, epoch=2, total_epochs=3, configured=521982456 B/s, rate=472758563 B/s, pending=1317011456 bytes ([75.47%] 4051697664/5368709120 bytes copied)
+[migrater] timestamp=1779269570.48, migrating=True, epoch=2, total_epochs=3, configured=523576256 B/s, rate=574115466 B/s, pending=1258291200 bytes ([76.56%] 4110417920/5368709120 bytes copied)
+[migrater] timestamp=1779269570.59, migrating=True, epoch=2, total_epochs=3, configured=522975804 B/s, rate=473530573 B/s, pending=1207959552 bytes ([77.50%] 4160749568/5368709120 bytes copied)
+[migrater] timestamp=1779269570.69, migrating=True, epoch=2, total_epochs=3, configured=524755042 B/s, rate=575745112 B/s, pending=1149239296 bytes ([78.59%] 4219469824/5368709120 bytes copied)
+[migrater] timestamp=1779269570.79, migrating=True, epoch=2, total_epochs=3, configured=521621046 B/s, rate=473181153 B/s, pending=1098907648 bytes ([79.53%] 4269801472/5368709120 bytes copied)
+[migrater] timestamp=1779269570.90, migrating=True, epoch=2, total_epochs=3, configured=522960064 B/s, rate=574021516 B/s, pending=1040187392 bytes ([80.62%] 4328521728/5368709120 bytes copied)
+[migrater] timestamp=1779269571.00, migrating=True, epoch=2, total_epochs=3, configured=522742809 B/s, rate=470931025 B/s, pending=989855744 bytes ([81.56%] 4378853376/5368709120 bytes copied)
+[migrater] timestamp=1779269571.10, migrating=True, epoch=2, total_epochs=3, configured=524287029 B/s, rate=578041652 B/s, pending=931135488 bytes ([82.66%] 4437573632/5368709120 bytes copied)
+[migrater] timestamp=1779269571.21, migrating=True, epoch=2, total_epochs=3, configured=524111243 B/s, rate=474087533 B/s, pending=880803840 bytes ([83.59%] 4487905280/5368709120 bytes copied)
+[migrater] timestamp=1779269571.31, migrating=True, epoch=2, total_epochs=3, configured=525929432 B/s, rate=576894669 B/s, pending=822083584 bytes ([84.69%] 4546625536/5368709120 bytes copied)
+[migrater] timestamp=1779269571.42, migrating=True, epoch=2, total_epochs=3, configured=525827615 B/s, rate=475827259 B/s, pending=771751936 bytes ([85.62%] 4596957184/5368709120 bytes copied)
+[migrater] timestamp=1779269571.52, migrating=True, epoch=2, total_epochs=3, configured=528025938 B/s, rate=579953735 B/s, pending=713031680 bytes ([86.72%] 4655677440/5368709120 bytes copied)
+[migrater] timestamp=1779269571.62, migrating=True, epoch=2, total_epochs=3, configured=528056296 B/s, rate=477413227 B/s, pending=662700032 bytes ([87.66%] 4706009088/5368709120 bytes copied)
+[migrater] timestamp=1779269571.73, migrating=True, epoch=2, total_epochs=3, configured=523241291 B/s, rate=575924682 B/s, pending=603979776 bytes ([88.75%] 4764729344/5368709120 bytes copied)
+[migrater] timestamp=1779269571.83, migrating=True, epoch=2, total_epochs=3, configured=523977487 B/s, rate=473885378 B/s, pending=553648128 bytes ([89.69%] 4815060992/5368709120 bytes copied)
+[migrater] timestamp=1779269571.93, migrating=True, epoch=2, total_epochs=3, configured=525441978 B/s, rate=577883956 B/s, pending=494927872 bytes ([90.78%] 4873781248/5368709120 bytes copied)
+[migrater] timestamp=1779269572.04, migrating=True, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=494927872 bytes
+[migrater] timestamp=1779269572.04, migrating=True, epoch=2, total_epochs=3, configured=525453970 B/s, rate=475095817 B/s, pending=444596224 bytes ([91.72%] 4924112896/5368709120 bytes copied)
+[migrater] timestamp=1779269572.15, migrating=True, epoch=2, total_epochs=3, configured=556928692 B/s, rate=546573546 B/s, pending=385875968 bytes ([92.81%] 4982833152/5368709120 bytes copied)
+[migrater] timestamp=1779269572.25, migrating=True, epoch=2, total_epochs=3, configured=562036528 B/s, rate=556629934 B/s, pending=327155712 bytes ([93.91%] 5041553408/5368709120 bytes copied)
+[migrater] timestamp=1779269572.36, migrating=True, epoch=2, total_epochs=3, configured=567018842 B/s, rate=562039243 B/s, pending=268435456 bytes ([95.00%] 5100273664/5368709120 bytes copied)
+[migrater] timestamp=1779269572.46, migrating=True, epoch=2, total_epochs=3, configured=572924722 B/s, rate=567619796 B/s, pending=209715200 bytes ([96.09%] 5158993920/5368709120 bytes copied)
+[migrater] timestamp=1779269572.56, migrating=True, epoch=2, total_epochs=3, configured=687731959 B/s, rate=652898966 B/s, pending=142606336 bytes ([97.34%] 5226102784/5368709120 bytes copied)
+[migrater] timestamp=1779269572.67, migrating=True, epoch=2, total_epochs=3, configured=671169980 B/s, rate=682642032 B/s, pending=67108864 bytes ([98.75%] 5301600256/5368709120 bytes copied)
+[migrater] timestamp=1779269572.79, migrating=False, epoch=2, total_epochs=3, configured=633153239 B/s, rate=0 B/s, pending=0 bytes ([100.00%] 5368709120/5368709120 bytes copied)
+[migrater] timestamp=1779269572.95, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269573.05, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269573.15, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269573.25, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269573.35, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269573.45, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269573.55, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269573.65, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269573.75, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269573.85, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269573.95, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269574.05, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269574.15, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269574.25, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269574.35, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269574.45, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269574.55, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269574.66, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269574.76, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269574.86, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269574.96, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269575.06, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269575.16, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269575.26, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269575.36, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269575.46, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269575.56, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269575.66, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269575.76, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269575.86, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269575.96, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269576.06, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269576.16, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269576.26, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269576.36, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269576.47, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269576.57, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269576.67, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269576.77, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269576.87, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269576.97, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269577.07, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269577.17, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269577.27, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269577.37, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269577.47, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269577.57, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269577.67, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269577.77, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269577.87, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269577.97, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269578.07, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269578.17, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269578.27, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269578.37, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269578.47, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269578.57, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269578.67, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269578.78, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269578.88, migrating=False, epoch=2, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
+[migrater] timestamp=1779269578.98, migrating=False, epoch=3, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=5368709120 bytes
+[migrater] timestamp=1779269579.08, migrating=True, epoch=3, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=5368709120 bytes
+[migrater] timestamp=1779269579.16, migrating=True, epoch=3, total_epochs=3, configured=388922444 B/s, rate=197438254 B/s, pending=5335154688 bytes ([0.62%] 33554432/5368709120 bytes copied)
+[migrater] timestamp=1779269579.28, migrating=True, epoch=3, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=5335154688 bytes
+[migrater] timestamp=1779269579.33, migrating=True, epoch=3, total_epochs=3, configured=414249987 B/s, rate=404793822 B/s, pending=5268045824 bytes ([1.88%] 100663296/5368709120 bytes copied)
+[migrater] timestamp=1779269579.43, migrating=True, epoch=3, total_epochs=3, configured=422409101 B/s, rate=720413550 B/s, pending=5192548352 bytes ([3.28%] 176160768/5368709120 bytes copied)
+[migrater] timestamp=1779269579.54, migrating=True, epoch=3, total_epochs=3, configured=429203321 B/s, rate=465863966 B/s, pending=5142216704 bytes ([4.22%] 226492416/5368709120 bytes copied)
+[migrater] timestamp=1779269579.65, migrating=True, epoch=3, total_epochs=3, configured=436319065 B/s, rate=392483984 B/s, pending=5100273664 bytes ([5.00%] 268435456/5368709120 bytes copied)
+[migrater] timestamp=1779269579.75, migrating=True, epoch=3, total_epochs=3, configured=443137901 B/s, rate=483253236 B/s, pending=5049942016 bytes ([5.94%] 318767104/5368709120 bytes copied)
+[migrater] timestamp=1779269579.86, migrating=True, epoch=3, total_epochs=3, configured=449171407 B/s, rate=404261065 B/s, pending=5007998976 bytes ([6.72%] 360710144/5368709120 bytes copied)
+[migrater] timestamp=1779269579.96, migrating=True, epoch=3, total_epochs=3, configured=454729928 B/s, rate=498139737 B/s, pending=4957667328 bytes ([7.66%] 411041792/5368709120 bytes copied)
+[migrater] timestamp=1779269580.06, migrating=True, epoch=3, total_epochs=3, configured=459799175 B/s, rate=412850638 B/s, pending=4915724288 bytes ([8.44%] 452984832/5368709120 bytes copied)
+[migrater] timestamp=1779269580.17, migrating=True, epoch=3, total_epochs=3, configured=464662027 B/s, rate=463031277 B/s, pending=4865392640 bytes ([9.38%] 503316480/5368709120 bytes copied)
+[migrater] timestamp=1779269580.28, migrating=True, epoch=3, total_epochs=3, configured=469027860 B/s, rate=468168609 B/s, pending=4815060992 bytes ([10.31%] 553648128/5368709120 bytes copied)
+[migrater] timestamp=1779269580.38, migrating=True, epoch=3, total_epochs=3, configured=472724950 B/s, rate=471814740 B/s, pending=4764729344 bytes ([11.25%] 603979776/5368709120 bytes copied)
+[migrater] timestamp=1779269580.49, migrating=True, epoch=3, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=4764729344 bytes
+[migrater] timestamp=1779269580.49, migrating=True, epoch=3, total_epochs=3, configured=481806538 B/s, rate=475315842 B/s, pending=4714397696 bytes ([12.19%] 654311424/5368709120 bytes copied)
+[migrater] timestamp=1779269580.59, migrating=True, epoch=3, total_epochs=3, configured=484138165 B/s, rate=481546366 B/s, pending=4664066048 bytes ([13.12%] 704643072/5368709120 bytes copied)
+[migrater] timestamp=1779269580.70, migrating=True, epoch=3, total_epochs=3, configured=487254595 B/s, rate=484259736 B/s, pending=4613734400 bytes ([14.06%] 754974720/5368709120 bytes copied)
+[migrater] timestamp=1779269580.80, migrating=True, epoch=3, total_epochs=3, configured=490223656 B/s, rate=487093637 B/s, pending=4563402752 bytes ([15.00%] 805306368/5368709120 bytes copied)
+[migrater] timestamp=1779269580.90, migrating=True, epoch=3, total_epochs=3, configured=493062618 B/s, rate=490085280 B/s, pending=4513071104 bytes ([15.94%] 855638016/5368709120 bytes copied)
+[migrater] timestamp=1779269581.01, migrating=True, epoch=3, total_epochs=3, configured=495786669 B/s, rate=493241621 B/s, pending=4462739456 bytes ([16.88%] 905969664/5368709120 bytes copied)
+[migrater] timestamp=1779269581.11, migrating=True, epoch=3, total_epochs=3, configured=498262979 B/s, rate=495865173 B/s, pending=4412407808 bytes ([17.81%] 956301312/5368709120 bytes copied)
+[migrater] timestamp=1779269581.21, migrating=True, epoch=3, total_epochs=3, configured=500794906 B/s, rate=498663332 B/s, pending=4362076160 bytes ([18.75%] 1006632960/5368709120 bytes copied)
+[migrater] timestamp=1779269581.31, migrating=True, epoch=3, total_epochs=3, configured=503097036 B/s, rate=499737044 B/s, pending=4311744512 bytes ([19.69%] 1056964608/5368709120 bytes copied)
+[migrater] timestamp=1779269581.41, migrating=True, epoch=3, total_epochs=3, configured=505477344 B/s, rate=551916927 B/s, pending=4253024256 bytes ([20.78%] 1115684864/5368709120 bytes copied)
+[migrater] timestamp=1779269581.52, migrating=True, epoch=3, total_epochs=3, configured=507183557 B/s, rate=458995528 B/s, pending=4202692608 bytes ([21.72%] 1166016512/5368709120 bytes copied)
+[migrater] timestamp=1779269581.63, migrating=True, epoch=3, total_epochs=3, configured=509286847 B/s, rate=556567462 B/s, pending=4143972352 bytes ([22.81%] 1224736768/5368709120 bytes copied)
+[migrater] timestamp=1779269581.74, migrating=True, epoch=3, total_epochs=3, configured=510871285 B/s, rate=462329444 B/s, pending=4093640704 bytes ([23.75%] 1275068416/5368709120 bytes copied)
+[migrater] timestamp=1779269581.84, migrating=True, epoch=3, total_epochs=3, configured=511198406 B/s, rate=560234293 B/s, pending=4034920448 bytes ([24.84%] 1333788672/5368709120 bytes copied)
+[migrater] timestamp=1779269581.95, migrating=True, epoch=3, total_epochs=3, configured=512947869 B/s, rate=464342505 B/s, pending=3984588800 bytes ([25.78%] 1384120320/5368709120 bytes copied)
+[migrater] timestamp=1779269582.06, migrating=True, epoch=3, total_epochs=3, configured=514854690 B/s, rate=563892193 B/s, pending=3925868544 bytes ([26.88%] 1442840576/5368709120 bytes copied)
+[migrater] timestamp=1779269582.16, migrating=True, epoch=3, total_epochs=3, configured=516535841 B/s, rate=467296760 B/s, pending=3875536896 bytes ([27.81%] 1493172224/5368709120 bytes copied)
+[migrater] timestamp=1779269582.27, migrating=True, epoch=3, total_epochs=3, configured=518387149 B/s, rate=568693525 B/s, pending=3816816640 bytes ([28.91%] 1551892480/5368709120 bytes copied)
+[migrater] timestamp=1779269582.37, migrating=True, epoch=3, total_epochs=3, configured=520018741 B/s, rate=470111033 B/s, pending=3766484992 bytes ([29.84%] 1602224128/5368709120 bytes copied)
+[migrater] timestamp=1779269582.48, migrating=True, epoch=3, total_epochs=3, configured=521832152 B/s, rate=572883207 B/s, pending=3707764736 bytes ([30.94%] 1660944384/5368709120 bytes copied)
+[migrater] timestamp=1779269582.58, migrating=True, epoch=3, total_epochs=3, configured=523431184 B/s, rate=473174832 B/s, pending=3657433088 bytes ([31.87%] 1711276032/5368709120 bytes copied)
+[migrater] timestamp=1779269582.68, migrating=True, epoch=3, total_epochs=3, configured=525222133 B/s, rate=577391813 B/s, pending=3598712832 bytes ([32.97%] 1769996288/5368709120 bytes copied)
+[migrater] timestamp=1779269582.79, migrating=True, epoch=3, total_epochs=3, configured=525683128 B/s, rate=475190954 B/s, pending=3548381184 bytes ([33.91%] 1820327936/5368709120 bytes copied)
+[migrater] timestamp=1779269582.89, migrating=True, epoch=3, total_epochs=3, configured=527447430 B/s, rate=579787501 B/s, pending=3489660928 bytes ([35.00%] 1879048192/5368709120 bytes copied)
+[migrater] timestamp=1779269583.00, migrating=True, epoch=3, total_epochs=3, configured=529002734 B/s, rate=478280913 B/s, pending=3439329280 bytes ([35.94%] 1929379840/5368709120 bytes copied)
+[migrater] timestamp=1779269583.10, migrating=True, epoch=3, total_epochs=3, configured=530773121 B/s, rate=583969576 B/s, pending=3380609024 bytes ([37.03%] 1988100096/5368709120 bytes copied)
+[migrater] timestamp=1779269583.20, migrating=True, epoch=3, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=3380609024 bytes
+[migrater] timestamp=1779269583.20, migrating=True, epoch=3, total_epochs=3, configured=537487573 B/s, rate=480681216 B/s, pending=3330277376 bytes ([37.97%] 2038431744/5368709120 bytes copied)
+[migrater] timestamp=1779269583.31, migrating=True, epoch=3, total_epochs=3, configured=539489034 B/s, rate=537193331 B/s, pending=3271557120 bytes ([39.06%] 2097152000/5368709120 bytes copied)
+[migrater] timestamp=1779269583.42, migrating=True, epoch=3, total_epochs=3, configured=539872793 B/s, rate=539782500 B/s, pending=3212836864 bytes ([40.16%] 2155872256/5368709120 bytes copied)
+[migrater] timestamp=1779269583.53, migrating=True, epoch=3, total_epochs=3, configured=541314706 B/s, rate=540125393 B/s, pending=3154116608 bytes ([41.25%] 2214592512/5368709120 bytes copied)
+[migrater] timestamp=1779269583.64, migrating=True, epoch=3, total_epochs=3, configured=542993558 B/s, rate=541710078 B/s, pending=3095396352 bytes ([42.34%] 2273312768/5368709120 bytes copied)
+[migrater] timestamp=1779269583.75, migrating=True, epoch=3, total_epochs=3, configured=541785983 B/s, rate=542563892 B/s, pending=3036676096 bytes ([43.44%] 2332033024/5368709120 bytes copied)
+[migrater] timestamp=1779269583.85, migrating=True, epoch=3, total_epochs=3, configured=543452308 B/s, rate=542479829 B/s, pending=2977955840 bytes ([44.53%] 2390753280/5368709120 bytes copied)
+[migrater] timestamp=1779269583.96, migrating=True, epoch=3, total_epochs=3, configured=544916776 B/s, rate=543954097 B/s, pending=2919235584 bytes ([45.62%] 2449473536/5368709120 bytes copied)
+[migrater] timestamp=1779269584.07, migrating=True, epoch=3, total_epochs=3, configured=546645439 B/s, rate=545909963 B/s, pending=2860515328 bytes ([46.72%] 2508193792/5368709120 bytes copied)
+[migrater] timestamp=1779269584.18, migrating=True, epoch=3, total_epochs=3, configured=548168914 B/s, rate=547502231 B/s, pending=2801795072 bytes ([47.81%] 2566914048/5368709120 bytes copied)
+[migrater] timestamp=1779269584.28, migrating=True, epoch=3, total_epochs=3, configured=549976310 B/s, rate=549076346 B/s, pending=2743074816 bytes ([48.91%] 2625634304/5368709120 bytes copied)
+[migrater] timestamp=1779269584.39, migrating=True, epoch=3, total_epochs=3, configured=551575652 B/s, rate=551105652 B/s, pending=2684354560 bytes ([50.00%] 2684354560/5368709120 bytes copied)
+[migrater] timestamp=1779269584.50, migrating=True, epoch=3, total_epochs=3, configured=553480285 B/s, rate=553083263 B/s, pending=2625634304 bytes ([51.09%] 2743074816/5368709120 bytes copied)
+[migrater] timestamp=1779269584.60, migrating=True, epoch=3, total_epochs=3, configured=554901715 B/s, rate=554398397 B/s, pending=2566914048 bytes ([52.19%] 2801795072/5368709120 bytes copied)
+[migrater] timestamp=1779269584.71, migrating=True, epoch=3, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=2566914048 bytes
+[migrater] timestamp=1779269584.71, migrating=True, epoch=3, total_epochs=3, configured=563590823 B/s, rate=556704659 B/s, pending=2508193792 bytes ([53.28%] 2860515328/5368709120 bytes copied)
+[migrater] timestamp=1779269584.81, migrating=True, epoch=3, total_epochs=3, configured=564090962 B/s, rate=563158108 B/s, pending=2449473536 bytes ([54.37%] 2919235584/5368709120 bytes copied)
+[migrater] timestamp=1779269584.92, migrating=True, epoch=3, total_epochs=3, configured=566100795 B/s, rate=564327527 B/s, pending=2390753280 bytes ([55.47%] 2977955840/5368709120 bytes copied)
+[migrater] timestamp=1779269585.02, migrating=True, epoch=3, total_epochs=3, configured=568190214 B/s, rate=566074170 B/s, pending=2332033024 bytes ([56.56%] 3036676096/5368709120 bytes copied)
+[migrater] timestamp=1779269585.12, migrating=True, epoch=3, total_epochs=3, configured=570367803 B/s, rate=568000458 B/s, pending=2273312768 bytes ([57.66%] 3095396352/5368709120 bytes copied)
+[migrater] timestamp=1779269585.23, migrating=True, epoch=3, total_epochs=3, configured=572642380 B/s, rate=570671929 B/s, pending=2214592512 bytes ([58.75%] 3154116608/5368709120 bytes copied)
+[migrater] timestamp=1779269585.33, migrating=True, epoch=3, total_epochs=3, configured=574679825 B/s, rate=572990203 B/s, pending=2155872256 bytes ([59.84%] 3212836864/5368709120 bytes copied)
+[migrater] timestamp=1779269585.43, migrating=True, epoch=3, total_epochs=3, configured=575040968 B/s, rate=574489892 B/s, pending=2097152000 bytes ([60.94%] 3271557120/5368709120 bytes copied)
+[migrater] timestamp=1779269585.53, migrating=True, epoch=3, total_epochs=3, configured=577582434 B/s, rate=575265733 B/s, pending=2038431744 bytes ([62.03%] 3330277376/5368709120 bytes copied)
+[migrater] timestamp=1779269585.63, migrating=True, epoch=3, total_epochs=3, configured=579883136 B/s, rate=577931959 B/s, pending=1979711488 bytes ([63.12%] 3388997632/5368709120 bytes copied)
+[migrater] timestamp=1779269585.74, migrating=True, epoch=3, total_epochs=3, configured=582701560 B/s, rate=580497087 B/s, pending=1920991232 bytes ([64.22%] 3447717888/5368709120 bytes copied)
+[migrater] timestamp=1779269585.84, migrating=True, epoch=3, total_epochs=3, configured=585280778 B/s, rate=583148495 B/s, pending=1862270976 bytes ([65.31%] 3506438144/5368709120 bytes copied)
+[migrater] timestamp=1779269585.94, migrating=True, epoch=3, total_epochs=3, configured=588440374 B/s, rate=585631720 B/s, pending=1803550720 bytes ([66.41%] 3565158400/5368709120 bytes copied)
+[migrater] timestamp=1779269586.04, migrating=True, epoch=3, total_epochs=3, configured=591367185 B/s, rate=646426737 B/s, pending=1736441856 bytes ([67.66%] 3632267264/5368709120 bytes copied)
+[migrater] timestamp=1779269586.15, migrating=True, epoch=3, total_epochs=3, configured=593859959 B/s, rate=537120460 B/s, pending=1677721600 bytes ([68.75%] 3690987520/5368709120 bytes copied)
+[migrater] timestamp=1779269586.25, migrating=True, epoch=3, total_epochs=3, configured=591038283 B/s, rate=651014623 B/s, pending=1610612736 bytes ([70.00%] 3758096384/5368709120 bytes copied)
+[migrater] timestamp=1779269586.36, migrating=True, epoch=3, total_epochs=3, configured=594029458 B/s, rate=537476207 B/s, pending=1551892480 bytes ([71.09%] 3816816640/5368709120 bytes copied)
+[migrater] timestamp=1779269586.46, migrating=True, epoch=3, total_epochs=3, configured=598481150 B/s, rate=655017369 B/s, pending=1484783616 bytes ([72.34%] 3883925504/5368709120 bytes copied)
+[migrater] timestamp=1779269586.58, migrating=True, epoch=3, total_epochs=3, configured=601531842 B/s, rate=600264844 B/s, pending=1417674752 bytes ([73.59%] 3951034368/5368709120 bytes copied)
+[migrater] timestamp=1779269586.69, migrating=True, epoch=3, total_epochs=3, configured=605439112 B/s, rate=603844216 B/s, pending=1350565888 bytes ([74.84%] 4018143232/5368709120 bytes copied)
+[migrater] timestamp=1779269586.80, migrating=True, epoch=3, total_epochs=3, configured=605439112 B/s, rate=605584432 B/s, pending=1283457024 bytes ([76.09%] 4085252096/5368709120 bytes copied)
+[migrater] timestamp=1779269586.91, migrating=True, epoch=3, total_epochs=3, configured=613896986 B/s, rate=608590040 B/s, pending=1216348160 bytes ([77.34%] 4152360960/5368709120 bytes copied)
+[migrater] timestamp=1779269587.01, migrating=True, epoch=3, total_epochs=3, configured=747845705 B/s, rate=724469942 B/s, pending=1140850688 bytes ([78.75%] 4227858432/5368709120 bytes copied)
+[migrater] timestamp=1779269587.11, migrating=True, epoch=3, total_epochs=3, configured=749403765 B/s, rate=749919416 B/s, pending=1065353216 bytes ([80.16%] 4303355904/5368709120 bytes copied)
+[migrater] timestamp=1779269587.21, migrating=True, epoch=3, total_epochs=3, configured=753950076 B/s, rate=753463566 B/s, pending=989855744 bytes ([81.56%] 4378853376/5368709120 bytes copied)
+[migrater] timestamp=1779269587.32, migrating=True, epoch=3, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=989855744 bytes
+[migrater] timestamp=1779269587.32, migrating=True, epoch=3, total_epochs=3, configured=999819887 B/s, rate=759599893 B/s, pending=905969664 bytes ([83.12%] 4462739456/5368709120 bytes copied)
+[migrater] timestamp=1779269587.43, migrating=True, epoch=3, total_epochs=3, configured=999603358 B/s, rate=1015563138 B/s, pending=796917760 bytes ([85.16%] 4571791360/5368709120 bytes copied)
+[migrater] timestamp=1779269587.53, migrating=True, epoch=3, total_epochs=3, configured=996698434 B/s, rate=999725328 B/s, pending=696254464 bytes ([87.03%] 4672454656/5368709120 bytes copied)
+[migrater] timestamp=1779269587.63, migrating=True, epoch=3, total_epochs=3, configured=964422303 B/s, rate=992295206 B/s, pending=595591168 bytes ([88.91%] 4773117952/5368709120 bytes copied)
+[migrater] timestamp=1779269587.74, migrating=True, epoch=3, total_epochs=3, configured=958888527 B/s, rate=964219131 B/s, pending=494927872 bytes ([90.78%] 4873781248/5368709120 bytes copied)
+[migrater] timestamp=1779269587.84, migrating=True, epoch=3, total_epochs=3, configured=951451517 B/s, rate=956950028 B/s, pending=394264576 bytes ([92.66%] 4974444544/5368709120 bytes copied)
+[migrater] timestamp=1779269587.95, migrating=True, epoch=3, total_epochs=3, configured=940919216 B/s, rate=948945215 B/s, pending=293601280 bytes ([94.53%] 5075107840/5368709120 bytes copied)
+[migrater] timestamp=1779269588.06, migrating=True, epoch=3, total_epochs=3, configured=924841930 B/s, rate=935950414 B/s, pending=192937984 bytes ([96.41%] 5175771136/5368709120 bytes copied)
+[migrater] timestamp=1779269588.16, migrating=True, epoch=3, total_epochs=3, configured=897259274 B/s, rate=915033387 B/s, pending=100663296 bytes ([98.12%] 5268045824/5368709120 bytes copied)
+[migrater] timestamp=1779269588.26, migrating=True, epoch=3, total_epochs=3, configured=858844472 B/s, rate=883149832 B/s, pending=8388608 bytes ([99.84%] 5360320512/5368709120 bytes copied)
+[migrater] timestamp=1779269588.42, migrating=True, epoch=3, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=8388608 bytes
+[migrater] timestamp=1779269588.46, migrating=True, epoch=3, total_epochs=3, configured=2000000000 B/s, rate=42380477 B/s, pending=0 bytes ([100.00%] 5368709120/5368709120 bytes copied)
+[migrater] timestamp=1779269588.62, migrating=True, epoch=3, total_epochs=3, configured=0 B/s, rate=0 B/s, pending=0 bytes
