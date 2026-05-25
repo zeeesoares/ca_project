@@ -1,0 +1,16 @@
+{
+  "src": "checkpoints/random_small.bin",
+  "dst": "checkpoints/token_bucket_pfs/20260504_184208_x86_64__arch_x86_64__target_PFS__chunk_262144__throughput_10240MiBps.out",
+  "file_size_bytes": 536870912,
+  "throughput_bytes_per_second": 10737418240,
+  "chunk_size_bytes": 262144,
+  "expected_time_seconds": 0.05,
+  "actual_time_seconds": 0.05263157894736842,
+  "expected_effective_throughput_bytes_per_second": 10737418240.0,
+  "actual_effective_throughput_bytes_per_second": 10200547328.0,
+  "time_ratio_actual_expected": 1.0526315789473684,
+  "throughput_ratio_actual_expected": 0.95,
+  "dry_run": true,
+  "arch": "x86_64",
+  "timestamp": "2026-05-04T18:42:12+0100"
+}

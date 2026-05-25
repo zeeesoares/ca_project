@@ -1,0 +1,16 @@
+{
+  "src": "checkpoints/random_small.bin",
+  "dst": "/tmp/token_bucket_local/20260504_184233_x86_64__arch_x86_64__target_Local__chunk_8192__throughput_256MiBps.out",
+  "file_size_bytes": 536870912,
+  "throughput_bytes_per_second": 268435456,
+  "chunk_size_bytes": 8192,
+  "expected_time_seconds": 2.0,
+  "actual_time_seconds": 2.1052631578947367,
+  "expected_effective_throughput_bytes_per_second": 268435456.0,
+  "actual_effective_throughput_bytes_per_second": 255013683.20000002,
+  "time_ratio_actual_expected": 1.0526315789473684,
+  "throughput_ratio_actual_expected": 0.9500000000000001,
+  "dry_run": true,
+  "arch": "x86_64",
+  "timestamp": "2026-05-04T18:42:34+0100"
+}
