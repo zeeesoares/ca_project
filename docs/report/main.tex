@@ -508,7 +508,7 @@ within this partition is equipped with a Fujitsu A64FX processor~\cite{A64FXdata
 NVIDIA Mellanox InfiniBand HDR100 network fabric.
 
 For the intermediate storage tier, each compute node utilizes a portion of its local high-speed NVMe SSD storage layer, which acts as the localized staging
-target to absorb initial write spikes. The centralized, production persistent layer is a shared Lustre Parallel File System~\cite{lustre_pfs} managed by an infrastructure
+target to absorb initial write spikes. The centralized, production persistent layer is a shared Lustre Parallel File System~\cite{macc2026deucalion} managed by an infrastructure
 consisting of 8 Metadata Server (MDS) nodes backing 430~TB of hot pools, and 32 Object Storage Server (OSS) nodes backing 10~PB of aggregate capacity, yielding a
 collective storage throughput ceiling of up to 340~GB/s for read operations and 260~GB/s for write operations.
 
