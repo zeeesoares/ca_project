@@ -3,7 +3,7 @@
     box/.style = {draw, rounded corners, minimum width=3.5cm, minimum height=1.2cm, align=center, font=\sffamily\small, thick},
     database/.style = {cylinder, draw, shape border rotate=90, aspect=0.25, minimum height=1.5cm, minimum width=2.5cm, align=center, font=\sffamily\small, thick},
     arrow/.style = {-{Stealth[length=3mm]}, thick},
-    grpc/.style = {<->, dashed, thick, draw=gray!70, -{Stealth[length=3mm]}},
+    grpc/.style = {{Stealth[length=3mm]}-{Stealth[length=3mm]}, dashed, thick, draw=gray!80},
     signal/.style = {->, dashed, thick, draw=gray!80, -{Stealth[length=3mm]}}
 ]
 
@@ -26,7 +26,7 @@
     \draw[arrow] (manager) -- node[right, font=\sffamily\scriptsize] {Fast Write} (ssd);
 
     % Manager -> Migrater (Sinal)
-    \draw[signal] (manager.east) -| node[above, near start, font=\sffamily\scriptsize] {Signal Ready} ([xshift=10mm,yshift=6mm]migrater.west);
+    \draw[signal] (manager.east) -| node[above, near start, font=\sffamily\scriptsize, text=gray!70!black] {Signal Ready} ([xshift=10mm,yshift=6mm]migrater.west);
 
     % SSD -> Migrater
     \draw[arrow] (ssd) -- node[above, font=\sffamily\scriptsize] {Read} (migrater);
