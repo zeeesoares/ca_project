@@ -63,7 +63,7 @@
 \end{abstract}
 
 \keywords{High-Performance Computing, Deucalion, A64FX, AMD EPYC 7742, Memory Hierarchy, Large Language Models, Checkpointing, Parallel File Systems,
-I/O Contention, Quality of Service (QoS), Distributed Systems, Resource Management..}
+I/O Contention, Distributed Systems, Resource Management..}
 
 \received{25 May 2026}
 
@@ -95,7 +95,7 @@ stability without sacrificing fault tolerance.
 
 To address this challenge, we propose a policy-driven, two-tier storage orchestration system that combines node-local SSD staging
 with centralized rate control. The system is designed to transparently intercept checkpoint writes, redirect them to fast local
-storage, and asynchronously migrate them to the PFS under strict Quality of Service (QoS) constraints. By doing so, we minimize
+storage, and asynchronously migrate them to the PFS under strict QoS constraints. By doing so, we minimize
 the stall time experienced by training jobs while regulating global I/O pressure to prevent PFS saturation.
 
 \section{Background and Motivation}
@@ -131,7 +131,7 @@ complete the massive write operations.
 
 \subsection{Quality of Service in HPC Storage}
 
-To mitigate this severe I/O contention, Quality of Service (QoS) mechanisms are increasingly necessary in HPC environments. QoS refers to the
+To mitigate this severe I/O contention, QoS mechanisms are increasingly necessary in HPC environments. QoS refers to the
 ability to control and prioritize resource allocation -- such as storage bandwidth -- to ensure fairness, predictability, and overall cluster stability.
 In the context of parallel file systems, QoS can be enforced dynamically to prevent concurrent deep learning jobs from monopolizing shared resources
 during their massive, synchronized checkpointing phases.
@@ -358,8 +358,8 @@ bandwidth enforcement.
 
 \subsection{Scheduling Policy}
 
-The scheduling policies are implemented following a standard interface; these are responsible for guiding the ''orchestrator'' to transmit the responses of 4 possible actions (\texttt{START_FLUSH}, \texttt{CHANGE_RATE}, \texttt{HOLD}, and \texttt{EXIT}). A \texttt{CHANGE_RATE} is sent whenever a policy assigns a \texttt{rate_limit_bps} to a worker that is already flushing; the token bucket in the migrator rereads the rate at runtime and adjusts it without needing a restart. This allows the policies to be chosen via a command-line flag, providing greater versatility during testing.
-A worker is considered active whenever the \texttt{checkpoint_size} in the last heartbeat is greater than 0. Policies that take activity into account send a \texttt{HOLD} message to currently inactive workers, and the bandwidth is only distributed among active workers.
+The scheduling policies are implemented following a standard interface; these are responsible for guiding the ''orchestrator'' to transmit the responses of 4 possible actions (\texttt{START\_FLUSH}, \texttt{CHANGE\_RATE}, \texttt{HOLD}, and \texttt{EXIT}). A \texttt{CHANGE\_RATE} is sent whenever a policy assigns a \texttt{rate\_limit\_bps} to a worker that is already flushing; the token bucket in the migrator rereads the rate at runtime and adjusts it without needing a restart. This allows the policies to be chosen via a command-line flag, providing greater versatility during testing.
+A worker is considered active whenever the \texttt{checkpoint\_size} in the last heartbeat is greater than 0. Policies that take activity into account send a \texttt{HOLD} message to currently inactive workers, and the bandwidth is only distributed among active workers.
 
 The state of each worker, maintained in the orchestrator's \texttt{ClusterState} and updated at every heartbeat, is represented by the \texttt{WorkerState} structure. Table~\ref{tab:worker-state} summarizes its fields, indicating the origin of each one and the policies that consume them.
 \begin{table}[h]
@@ -385,7 +385,7 @@ The state of each worker, maintained in the orchestrator's \texttt{ClusterState}
 \subsubsection{NoLimit}
 \label{sec:policy-nolimit}
 
-The baseline policy always returns \texttt{START_FLUSH} with the \texttt{rate_limit_bps} fixed at 1GB/s, regardless of the number of workers, the cluster state, or the provided PFS bandwidth. Since it has no notion of activity, all existing workers receive bandwidth even if they are not currently active.
+The baseline policy always returns \texttt{START\_FLUSH} with the \texttt{rate\_limit\_bps} fixed at 1GB/s, regardless of the number of workers, the cluster state, or the provided PFS bandwidth. Since it has no notion of activity, all existing workers receive bandwidth even if they are not currently active.
 \subsubsection{FixedRate}
 \label{sec:policy-fixedrate}
 
@@ -417,7 +417,7 @@ The ActiveFairShare policy is an upgrade of UniformFairShare, it has the same fo
     \end{cases}
     \label{eq:active-fair-share}
 \end{equation}
-where $r_i$ is the rate assigned to worker $i$, $B_{\text{PFS}}$ is the aggregate PFS bandwidth ceiling, and $A \subseteq W$ is the subset of active workers (with \texttt{checkpoint_size} $> 0$). In other words, bandwidth is not wasted on workers that are currently inactive. Since workers become active and inactive, whenever a change of this kind occurs, the bandwidths must be adjusted via the \texttt{CHANGE_RATE} instruction.
+where $r_i$ is the rate assigned to worker $i$, $B_{\text{PFS}}$ is the aggregate PFS bandwidth ceiling, and $A \subseteq W$ is the subset of active workers (with \texttt{checkpoint\_size} $> 0$). In other words, bandwidth is not wasted on workers that are currently inactive. Since workers become active and inactive, whenever a change of this kind occurs, the bandwidths must be adjusted via the \texttt{CHANGE\_RATE} instruction.
 \subsubsection{StaticPriority}
 \label{sec:policy-static}
 
@@ -425,7 +425,7 @@ This policy allocates bandwidth following weights that give workers certain degr
     r_i = B_{\text{PFS}} \cdot \frac{w_i}{\sum_{j \in A} w_j}, \quad i \in A,
     \label{eq:static-priority}
 \end{equation}
-where $r_i$ is the rate assigned to worker $i$, $B_{\text{PFS}}$ is the aggregate bandwidth ceiling, $A$ is the subset of active workers, and $w_i > 0$ is the weight assigned to worker $i$ in the priority file (workers missing from the map fall back to a configurable \texttt{default_priority}). In this policy, unlike the others, the orchestrator does not decide which worker deserves more bandwidth; this is decided by a file created by someone.
+where $r_i$ is the rate assigned to worker $i$, $B_{\text{PFS}}$ is the aggregate bandwidth ceiling, $A$ is the subset of active workers, and $w_i > 0$ is the weight assigned to worker $i$ in the priority file (workers missing from the map fall back to a configurable \texttt{default\_priority}). In this policy, unlike the others, the orchestrator does not decide which worker deserves more bandwidth; this is decided by a file created by someone.
 \subsubsection{AgePriority}
 \label{sec:policy-age}
 
@@ -451,12 +451,12 @@ with $\alpha, \beta \geq 0$, $\alpha + \beta > 0$, and $\varepsilon = 10^{-6}$. 
 \end{equation}
 where $r_i$ is the rate assigned to worker $i$ and $B_{\text{PFS}}$ is the aggregate bandwidth ceiling.
 
-The \texttt{ClusterState} is responsible for updating the wait time. It is possible to vary the importance of each metric by varying the pair $(\alpha, \beta)$: if $\alpha = 1$ and $\beta = 0$, only the \texttt{checkpoint_size} value will be considered; if $\alpha = 0$ and $\beta = 1$, only a worker's wait time value will be taken into account, that is, a purely anti-starvation policy. The balanced value, giving equal attention to both signals, is $\alpha = 0.5$ and $\beta = 0.5$.
+The \texttt{ClusterState} is responsible for updating the wait time. It is possible to vary the importance of each metric by varying the pair $(\alpha, \beta)$: if $\alpha = 1$ and $\beta = 0$, only the \texttt{checkpoint\_size} value will be considered; if $\alpha = 0$ and $\beta = 1$, only a worker's wait time value will be taken into account, that is, a purely anti-starvation policy. The balanced value, giving equal attention to both signals, is $\alpha = 0.5$ and $\beta = 0.5$.
 
 \subsubsection{EpochPriority}
 \label{sec:policy-epoch}
 
-This dynamic policy uses a signal originating from the training side of the model. The migrator sends \texttt{epoch} and \texttt{total_epochs} at every heartbeat, which are collected by the orchestrator.
+This dynamic policy uses a signal originating from the training side of the model. The migrator sends \texttt{epoch} and \texttt{total\_epochs} at every heartbeat, which are collected by the orchestrator.
 
 The priority is calculated by a linear-with-floor function of the training progress:
 \begin{equation}
@@ -498,10 +498,6 @@ Table~\ref{tab:policies-summary} summarizes all implemented policies, indicating
     \label{tab:policies-summary}
 \end{table}
 
-\subsection{Prototype Design}
-
-\red{TODO: Describe the prototype implementation, including the interception mechanism, local storage management, and control plane architecture.}
-
 \section{Evaluation}
 
 Our evaluation seeks to answer the following architectural and behavioral questions:
@@ -512,8 +508,7 @@ Our evaluation seeks to answer the following architectural and behavioral questi
         synchronous application stalls?
     \item \textbf{Global QoS Enforcement:} Can the central orchestrator
         accurately enforce collective bandwidth constraints across concurrent
-        deep learning jobs without causing parallel file system (PFS)
-        saturation?
+        deep learning jobs without causing PFS saturation?
     \item \textbf{Token Bucket Parameterization:} Which chunk size provides a
         suitable trade-off between throughput accuracy, responsiveness to rate
         changes, and reduced write pressure on the PFS?
@@ -530,7 +525,7 @@ within this partition is equipped with a Fujitsu A64FX processor featuring 48 co
 \textbf{NVIDIA Mellanox InfiniBand HDR100} network fabric.
 
 For the intermediate storage tier, each compute node utilizes a portion of its local high-speed \textbf{NVMe SSD} storage layer, which acts as the localized staging
-target to absorb initial write spikes. The centralized, production persistent layer is a shared \textbf{Lustre Parallel File System (PFS)} managed by an infrastructure
+target to absorb initial write spikes. The centralized, production persistent layer is a shared \textbf{Lustre Parallel File System} managed by an infrastructure
 consisting of 8 Metadata Server (MDS) nodes backing 430~TB of hot pools, and 32 Object Storage Server (OSS) nodes backing 10~PB of aggregate capacity, yielding a
 collective storage throughput ceiling of up to 340~GB/s for read operations and 260~GB/s for write operations.
 
@@ -633,18 +628,6 @@ on local-node behavior.
     \label{fig:token_bucket_pfs_overhead}
 \end{figure}
 
-\subsection{Workloads}
-
-\red{TODO: review this, we could remove this section since we already specify
-the e2e workloads.}
-
-The end-to-end evaluation uses three synthetic checkpointing workloads:
-burst, steady, and dynamic churn. Each workload uses 5~GB checkpoint payloads
-and evaluates how the baseline and orchestrated configurations behave under
-different synchronization patterns. The token bucket microbenchmark is separate
-from these end-to-end workloads and isolates the behavior of the copy primitive
-itself.
-
 \subsection{Metrics}
 
 \begin{itemize}
@@ -660,8 +643,8 @@ itself.
 
 \section{Related Work}
 
-The optimization of checkpointing in High-Performance Computing (HPC) has been extensively studied, primarily focusing on reducing write
-latency and mitigating Parallel File System (PFS) congestion.
+The optimization of checkpointing in HPC has been extensively studied, primarily focusing on reducing write
+latency and mitigating PFS congestion.
 
 \subsection{Architectural and Tiering Approaches}
 Several systems utilize hierarchical storage to hide I/O latency. \textbf{Check-N-Run} \cite{CheckNRun} focuses on staging checkpoints in local node resources
@@ -674,8 +657,7 @@ systems often ignore the "noisy neighbor" effect in shared environments.
 Other research focuses on the frequency and size of checkpoints. \textbf{CheckFreq} \cite{CheckFreq} introduces an algorithmic approach to identify optimal checkpoint
 boundaries and pipelines the process with training iterations, dynamically adjusting frequency to maintain overhead below a threshold.
 \textbf{BitSnap} \cite{BitSnap} addresses the data volume by employing sparsification and quantization, reducing checkpoint sizes from 16-bit to 4-bit weights before
-they reach the I/O layer. While these reduce total I/O pressure, they do not manage the storage hierarchy or provide holistic Quality of Service
-(QoS) guarantees.
+they reach the I/O layer. While these reduce total I/O pressure, they do not manage the storage hierarchy or provide holistic QoS guarantees.
 
 \subsection{Software-Defined Storage and QoS Control}
 Our work is heavily informed by \textbf{PADLL} \cite{PADLL}, a storage middleware that enables application-agnostic QoS control for both data and metadata workflows.
@@ -691,8 +673,7 @@ in shared HPC environments and proposed a policy-driven storage orchestration
 framework to improve the stability and scalability of distributed Deep Learning
 training workloads. The presented architecture combines node-local SSD staging
 with centralized QoS-aware bandwidth control, enabling checkpoints to be
-persisted asynchronously while limiting pressure on the Parallel File System
-(PFS).
+persisted asynchronously while limiting pressure on the PFS.
 
 The evaluation conducted on the Deucalion supercomputer demonstrates that the
 proposed system effectively smooths checkpoint traffic and prevents aggregate
