@@ -86,7 +86,7 @@ gigabytes per save.
 In shared HPC environments, these I/O-intensive workloads are typically directed to a Parallel File System (PFS), such as
 Lustre, which is concurrently accessed by hundreds of users and applications. When multiple deep learning jobs attempt
 to write checkpoints simultaneously -- as is common at the end of training epochs -- the resulting synchronized I/O bursts can saturate
-the PFS, leading to severe contention. This phenomenon, known as the Noisy Neighbor Problem, degrades performance cluster-wide,
+the PFS, leading to severe contention. This phenomenon, known as the "noisy neighbor" problem, degrades performance cluster-wide,
 increasing latency, reducing effective throughput, and even stalling training processes entirely. Such stalls not only waste
 computational resources but also disrupt the workflows of unrelated jobs sharing the same filesystem, creating a cascading effect
 that undermines the efficiency of the entire ecosystem.
@@ -764,7 +764,7 @@ throughput accuracy, responsiveness, and reduced write pressure on the PFS.
 Overall, the proposed architecture demonstrates that combining node-local
 storage staging with centralized, policy-driven QoS enforcement is a viable and
 effective strategy for improving the robustness and scalability of checkpointing
-in modern HPC systems. Beyond reducing the impact of the noisy neighbor problem,
+in modern HPC systems. Beyond reducing the impact of the "noisy neighbor" problem,
 the framework establishes a foundation for storage-aware scheduling and
 fine-grained resource orchestration tailored to the unique I/O behavior of
 Large Language Model training workloads.
