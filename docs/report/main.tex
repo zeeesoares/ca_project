@@ -239,7 +239,7 @@ matches the orchestrator's intended bandwidth envelope.
 \subsection{Local Storage Tier}
 
 To decouple the checkpoint generation from the global storage bottleneck, our architecture employs a two-tier storage strategy. Each compute node provides
-local SSD storage used as a temporary checkpoint staging area. Compared to remote PFS access, local SSDs offer dedicated, uncontended bandwidth. Initially,
+local SSD storage used as a temporary checkpoint staging area. Compared to remote PFS access, local SSDs offer dedicated, uncontested bandwidth. Initially,
 the core hypothesis was that staging data locally would drastically reduce the training stall time when compared to the traditional synchronous write directly
 to the shared PFS.
 
@@ -344,7 +344,7 @@ bandwidth enforcement.
 
 \subsection{Scheduling Policy}
 
-The scheduling policies are implemented following a standard interface; these are responsible for guiding the ''orchestrator'' to transmit the responses of 4 possible actions (\texttt{START\_FLUSH}, \texttt{CHANGE\_RATE}, \texttt{HOLD}, and \texttt{EXIT}). An action (\texttt{CHANGE\_RATE}) is sent whenever a policy assigns a rate limit to a worker that is already flushing; the token bucket in the migrator rereads the rate at runtime and adjusts it without needing a restart. This allows the policies to be chosen via a command-line flag, providing greater versatility during testing.
+The scheduling policies are implemented following a standard interface; these are responsible for guiding the ''orchestrator'' to transmit the responses of 4 possible actions (\texttt{START\_FLUSH}, \texttt{CHANGE\_RATE}, \texttt{HOLD}, and \texttt{EXIT}). An action (\texttt{CHANGE\_RATE}) is sent whenever a policy assigns a rate limit to a worker that is already flushing; the token bucket in the migrater rereads the rate at runtime and adjusts it without needing a restart. This allows the policies to be chosen via a command-line flag, providing greater versatility during testing.
 A worker is considered active whenever the \texttt{checkpoint\_size} in the last heartbeat is greater than 0. Policies that take activity into account send a \texttt{HOLD} message to currently inactive workers, and the bandwidth is only distributed among active workers.
 
 The state of each worker, maintained in the orchestrator's \texttt{ClusterState} and updated at every heartbeat, is represented by the \texttt{WorkerState} structure. Table~\ref{tab:worker-state} summarizes its fields, indicating the origin of each one and the policies that consume them.
@@ -442,7 +442,7 @@ The \texttt{ClusterState} is responsible for updating the wait time. It is possi
 \subsubsection{EpochPriority}
 \label{sec:policy-epoch}
 
-This dynamic policy uses a signal originating from the training side of the model. The migrator sends \texttt{epoch} and \texttt{total\_epochs} at every heartbeat, which are collected by the orchestrator.
+This dynamic policy uses a signal originating from the training side of the model. The migrater sends \texttt{epoch} and \texttt{total\_epochs} at every heartbeat, which are collected by the orchestrator.
 
 The priority is calculated by a linear-with-floor function of the training progress:
 % \begin{equation}
@@ -547,7 +547,7 @@ predefined collective storage bandwidth bottleneck. We evaluate system performan
     expand the active bandwidth shares of running tasks on-the-fly.
 \end{itemize}
 
-The training loop metadata replicates the lifecycle of LLM distributed checkpointing. Each individual checkpoint save operation dumps a payload
+The training loop metadata replicates the life cycle of LLM distributed checkpointing. Each individual checkpoint save operation dumps a payload
 size of 5 GB representing model weights, gradients, and optimizer states. The global persistent bandwidth allocated to the orchestrator ceiling is set to 2 GB/s to
 simulate high-contention saturation boundaries. Telemetry and effective aggregate network throughput curves are continuously written to structured metric logs
 (\texttt{.jsonl} format) across all evaluating configurations.
@@ -719,7 +719,7 @@ latency and mitigating PFS congestion.
 \subsection{Architectural and Tiering Approaches}
 Several systems utilize hierarchical storage to hide I/O latency. \textbf{Check-N-Run} \cite{CheckNRun} focuses on staging checkpoints in local node resources
 (DRAM or SSDs), allowing training to resume immediately while data is moved to the PFS in the background. However, it lacks a global coordination
-mechanism to prevent PFS saturation during the background flush. \textbf{DeepFreeze} \cite{DeepFreeze} (similar to Monarch) employs transparent storage tiering to
+mechanism to prevent PFS saturation during the background flush. \textbf{DeepFreeze} \cite{DeepFreeze} (similar to Monarch) employs transparent storage Tiering to
 accelerate the write path by abstracting complex local tiers like NVMe or PMEM from the user. While effective at the node level, these
 systems often ignore the "noisy neighbor" effect in shared environments.
 
@@ -733,7 +733,7 @@ they reach the I/O layer. While these reduce total I/O pressure, they do not man
 Our work is heavily informed by \textbf{PADLL} \cite{PADLL}, a storage middleware that enables application-agnostic QoS control for both data and metadata workflows.
 PADLL utilizes a decoupled Software-Defined Storage (SDS) architecture, where data plane stages intercept POSIX calls and a centralized
 control plane coordinates I/O rates across all jobs. While PADLL is a general-purpose QoS framework, our system specializes this paradigm for
-the specific lifecycle of LLM checkpoints -- integrating node-local SSD staging with PADLL-inspired Token Bucket rate limiting to ensure cluster harmony
+the specific life cycle of LLM checkpoints -- integrating node-local SSD staging with PADLL-inspired Token Bucket rate limiting to ensure cluster harmony
 during massive model state migrations.
 
 \section{Conclusions}
