@@ -344,7 +344,7 @@ bandwidth enforcement.
 
 \subsection{Scheduling Policy}
 
-The scheduling policies are implemented following a standard interface; these are responsible for guiding the ''orchestrator'' to transmit the responses of 4 possible actions (\texttt{START\_FLUSH}, \texttt{CHANGE\_RATE}, \texttt{HOLD}, and \texttt{EXIT}). A \texttt{CHANGE\_RATE} is sent whenever a policy assigns a \texttt{rate\_limit\_bps} to a worker that is already flushing; the token bucket in the migrator rereads the rate at runtime and adjusts it without needing a restart. This allows the policies to be chosen via a command-line flag, providing greater versatility during testing.
+The scheduling policies are implemented following a standard interface; these are responsible for guiding the ''orchestrator'' to transmit the responses of 4 possible actions (\texttt{START\_FLUSH}, \texttt{CHANGE\_RATE}, \texttt{HOLD}, and \texttt{EXIT}). An action (\texttt{CHANGE\_RATE}) is sent whenever a policy assigns a rate limit to a worker that is already flushing; the token bucket in the migrator rereads the rate at runtime and adjusts it without needing a restart. This allows the policies to be chosen via a command-line flag, providing greater versatility during testing.
 A worker is considered active whenever the \texttt{checkpoint\_size} in the last heartbeat is greater than 0. Policies that take activity into account send a \texttt{HOLD} message to currently inactive workers, and the bandwidth is only distributed among active workers.
 
 The state of each worker, maintained in the orchestrator's \texttt{ClusterState} and updated at every heartbeat, is represented by the \texttt{WorkerState} structure. Table~\ref{tab:worker-state} summarizes its fields, indicating the origin of each one and the policies that consume them.
@@ -371,7 +371,7 @@ The state of each worker, maintained in the orchestrator's \texttt{ClusterState}
 \subsubsection{NoLimit}
 \label{sec:policy-nolimit}
 
-The baseline policy always returns a action (\texttt{START\_FLUSH}) with the \texttt{rate\_limit\_bps} fixed at 1GB/s, regardless of the number of workers, the cluster state, or the provided PFS bandwidth. Since it has no notion of activity, all existing workers receive bandwidth even if they are not currently active.
+The baseline policy always returns an action (\texttt{START\_FLUSH}) with the \texttt{rate\_limit\_bps} fixed at 1GB/s, regardless of the number of workers, the cluster state, or the provided PFS bandwidth. Since it has no notion of activity, all existing workers receive bandwidth even if they are not currently active.
 \subsubsection{FixedRate}
 \label{sec:policy-fixedrate}
 
@@ -615,7 +615,7 @@ on local-node behavior.
     \label{fig:token_bucket_pfs_overhead}
 \end{figure}
 
-\section{Experimental Evaluation and Discussion}
+\section{Discussion}
 \label{sec:evaluation}
 
 In this section, we present a comprehensive performance evaluation and discussion of the experimental results obtained from the benchmarks 
