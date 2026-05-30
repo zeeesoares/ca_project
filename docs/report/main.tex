@@ -18,7 +18,7 @@
 
 \begin{document}
 
-\title[Advanced Computing Project (2025/26)]{Orchestration for efficient LLM Checkpointing within HPC}
+\title[Advanced Computing Project (2025/26)]{CHORUS: Checkpoint Orchestration with Rate-limiting and Unified Service-policies}
 
 \author{André Miranda}
 \email{pg60238@alunos.uminho.pt}
@@ -526,9 +526,7 @@ Across all experimental scenarios, workloads are evaluated under two structural 
     archives directly to the shared Lustre PFS concurrently using synchronous \texttt{torch.save} primitives.
     \item \textbf{Orchestrated:} Represents the proposed framework where storage interactions are transparently redirected to the high-speed local staging tier. Upon
     local write completion, the training process immediately returns to execution, while background data daemons migrate the staged checkpoints to the PFS, regulated
-    in real-time by dynamic token-bucket rate limits dictated by the central orchestrator. For methodological purposes, and due to the scaling problem comparison for
-    all available policies, it was decided to compare only the few we consider most relevant, which are \textit{Uniform Fair Share}, \textit{Active Fair Share},
-    \textit{Age-Priority}, and \textit{Epoch-Priority}.
+        in real-time by dynamic token-bucket rate limits dictated by the central orchestrator. For methodological reasons, and because comparing all available policies would introduce unnecessary redundancy, we chose to limit our focus to the most relevant: \textit{Uniform Fair Share}, \textit{Active Fair Share}, and \textit{Age-Priority}.
 \end{itemize}
 
 \subsection{Benchmarks and Workloads}
@@ -805,12 +803,19 @@ our prototype evaluation highlights several open paths for future research and o
 \onecolumn
 \appendix
 \section*{Appendix}
+
+\noindent\textbf{Project repository:} \url{https://github.com/zeeesoares/ca_project}
+
+\vspace{1em}
+
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{img/summary_table.png}
     \caption{Comprehensive Benchmark Summary capturing structural metrics across Baseline and Orchestrated deployments for Burst, Steady, and Dynamic Churn traffic workloads.}
     \label{fig:appendix_summary_table}
 \end{figure}
+
+% https://github.com/zeeesoares/ca_project
 
 \end{document}
 \endinput
