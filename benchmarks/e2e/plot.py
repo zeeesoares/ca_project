@@ -266,6 +266,107 @@ def plot_migration_throughput(agg: pd.DataFrame, output: Path):
     fig.tight_layout()
     save(fig, output)
 
+def plot_workload_throughput_comparison(agg: pd.DataFrame, output: Path):
+    """
+    Gera um gráfico científico composto por 3 subplots (Burst, Steady, Dynamic Churn).
+    Garante que a Baseline aparece sempre em cada cenário como termo de comparação.
+    """
+    # 1. Mapeamento e limpeza das tags reais do teu log
+    def clean_tag(t):
+        t = str(t).lower()
+        if "burst" in t: return "Burst"
+        if "steady" in t: return "Steady"
+        if "dynamic" in t: return "Dynamic Churn"
+        return "Baseline"
+
+    agg = agg.copy()
+    agg["workload_group"] = agg["experiment_tag"].apply(clean_tag)
+    
+    # Isolar a linha da baseline
+    baseline_row = agg[agg["mode"] == "baseline"]
+    if baseline_row.empty:
+        print("Aviso: Dados da Baseline não encontrados.")
+        return
+
+    # Isolar políticas orquestradas
+    orch_data = agg[agg["mode"] == "orchestrated"]
+    policies = sorted(orch_data["policy"].dropna().unique().tolist())
+    
+    workload_groups = ["Burst", "Steady", "Dynamic Churn"]
+    
+    # Criar a janela com 3 gráficos lado a lado (1 linha, 3 colunas)
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
+    
+    # Cores sóbrias e com alto contraste para a Baseline
+    colors = {
+        "Baseline": "#dc2626",           # Vermelho Vivo
+        "active-fair-share": "#2563eb",  # Azul
+        "age-priority": "#16a34a",       # Verde
+        "epoch-priority": "#ea580c",     # Laranja
+        "uniform-fair-share": "#7c3aed"  # Roxo
+    }
+
+    for ax, group in zip(axes, workload_groups):
+        group_orch = orch_data[orch_data["workload_group"] == group]
+        
+        # A Baseline entra SEMPRE à esquerda em cada um dos 3 gráficos
+        display_items = [("Baseline", float(baseline_row["mean_throughput_mbps"].iloc[0]), 
+                          float(baseline_row["std_throughput_mbps"].fillna(0).iloc[0]))]
+        
+        for pol in policies:
+            sub = group_orch[group_orch["policy"] == pol]
+            if not sub.empty:
+                display_items.append((
+                    pol, 
+                    float(sub["mean_throughput_mbps"].iloc[0]), 
+                    float(sub["std_throughput_mbps"].fillna(0).iloc[0])
+                ))
+            else:
+                display_items.append((pol, 0.0, 0.0))
+
+        names = [item[0] for item in display_items]
+        means = [item[1] for item in display_items]
+        errs  = [item[2] for item in display_items]
+        
+        x_pos = np.arange(len(names))
+        bar_colors = [colors.get(n, "#64748b") for n in names]
+        
+        # Desenhar as barras
+        bars = ax.bar(x_pos, means, yerr=errs, capsize=4, color=bar_colors, edgecolor="#1e293b", width=0.6)
+        
+        # Desenhar os valores numéricos por cima de cada barra para análise imediata
+        for bar in bars:
+            height = bar.get_height()
+            if height > 0:
+                ax.annotate(f'{height:.0f}',
+                            xy=(bar.get_x() + bar.get_width() / 2, height),
+                            xytext=(0, 3),
+                            textcoords="offset points",
+                            ha='center', va='bottom', fontsize=8, fontweight='bold')
+
+        # Estética do Subplot
+        ax.set_title(f"Workload: {group}", fontsize=12, fontweight="bold", pad=10)
+        ax.set_xticks(x_pos)
+        # Quebra as strings longas com um '\n' para não se sobreporem no eixo X
+        ax.set_xticklabels([n.replace("-", "\n").title() for n in names], fontsize=9)
+        ax.grid(True, axis="y", linestyle=":", alpha=0.4)
+        ax.set_axisbelow(True)
+        
+        for spine in ["top", "right"]:
+            ax.spines[spine].set_visible(False)
+
+    # Label do eixo Y comum a todos (apenas no primeiro painel da esquerda)
+    axes[0].set_ylabel("Effective Throughput (MB/s)", fontsize=11, fontweight="bold")
+    
+    # Criar uma legenda única global centralizada no topo da figura
+    legend_patches = [mpatches.Patch(color=color, label=name.replace("-", " ").title()) 
+                      for name, color in colors.items() if name == "Baseline" or name in policies]
+    
+    fig.legend(handles=legend_patches, loc="upper center", bbox_to_anchor=(0.5, 1.08), 
+               ncol=len(legend_patches), frameon=True, fontsize=10)
+
+    fig.tight_layout()
+    save(fig, output)
 
 # ---------------------------------------------------------------------------
 # CLI
@@ -295,6 +396,7 @@ def main():
     out = args.output_dir
     plot_summary_table(agg, pw, out / "summary_table.png")
     plot_stall_comparison(agg, out / "stall_comparison.png")
+    plot_workload_throughput_comparison(agg, out / "workload_throughput_comparison.png")
     plot_migration_throughput(agg, out / "migration_throughput.png")
     print("Done.")
 

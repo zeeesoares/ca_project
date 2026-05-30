@@ -21,13 +21,17 @@
 
 \usepackage{graphicx}
 \usepackage{ragged2e}
+\usepackage{booktabs} 
+\usepackage{tikz}
 
+% BIBLIOTECAS TIKZ NECESSÁRIAS PARA O DIAGRAMA -----------------------------------------------------
+\usetikzlibrary{positioning, fit, shapes.geometric, arrows.meta, backgrounds}
 
 % DOCUMENT INFORMATION -----------------------------------------------------------------------------
 
 \title
-    [Title]
-    {Orchestration for efficient LLM Checkpointing within HPC}
+    [LLM Checkpointing]
+    {CHORUS: Checkpoint Orchestration with Rate-limiting and Unified Service-policies}
 \subtitle{\color{black} \small Advanced Computing Project 25/26}
 
 \author[André Miranda, Gustavo Barros, José Soares, Miguel Carvalho]{
@@ -42,8 +46,7 @@
 
 \institute[DIUM]{Department of Informatics -- School of Engineering -- University of Minho}
 
-\date[2026/04/24]{\scriptsize April 24\textsuperscript{st} 2026}
-
+\date[2026/06/02]{\scriptsize June 02, 2026}
 
 
 % Document Content ---------------------------------------------------------------------------------
@@ -57,170 +60,209 @@
 \end{frame}
 
 \section{Introduction}
-
-\subsection{Context}
-\begin{frame}{Context}
-    \justifying
-    Training Large Language Models (LLMs) involves refining billions of parameters over several weeks of continuous computation.
-    
-    \vspace{1em}
-    To ensure resilience against hardware failures and prevent total progress loss, model states must be periodically saved to a Parallel File System (PFS).
-    
-\end{frame}
-
-\subsection{Problem}
-\begin{frame}{Problem: The Checkpointing Overhead}
-    \centering
+\begin{frame}{Context \& Problem}
     \small
-    \begin{tabular}{l p{0.6\textwidth}}
-        \hline
-        \textbf{Challenge} & \textbf{Impact} \\ \hline
-        \noalign{\smallskip}
-        PFS Contention & Simultaneous writes from multiple nodes saturate the shared storage bandwidth. \\ 
-        \noalign{\smallskip}
-        Training Stalls & Heavy I/O operations block the training process, leading to significant idling. \\ 
-        \noalign{\smallskip}
-        Noisy Neighbor & Large-scale checkpointing bursts degrade performance for all concurrent HPC jobs.  \\
-        \hline
-    \end{tabular}
-
-    \vspace{1em}
-    \footnotesize
-    \textit{Table 1: Technical bottlenecks of direct checkpointing to PFS.}
-\end{frame}
-
-\subsection{Motivation}
-\begin{frame}{Motivation}
-    \small
-    The goal is to design a checkpointing system that:
-
-    \centering
     \begin{itemize}
-        \small
-        \item Mitigates I/O contention on the PFS, ensuring fair resource sharing and Cluster Harmony.
-        \item Provides resilience against hardware failures, minimizing training disruptions.
-        \item Ensures QoS policies for checkpoint reliability with overall cluster performance. 
+        \item \textbf{Context:} LLM training generates massive checkpoints (GBs to TBs).
+        \item \textbf{The Bottleneck:} Parallel File Systems (PFS) like Lustre suffer from synchronized I/O bursts ("Noisy Neighbor" problem).
+        \item \textbf{Consequence:} GPU compute nodes stall while waiting for slow synchronous writes, wasting expensive resources.
     \end{itemize}
+    \begin{block}{Central Insight}
+        Checkpointing is \textbf{latency-critical for training continuation}, but not for long-term persistence.
+    \end{block}
 \end{frame}
 
-\section{Approach and Architecture}
-\subsection{Approach}
-\begin{frame}{Approach: Policy-Driven Checkpointing}
-    \centering
-    \small
+\section{System Design}
 
-    \begin{columns}[t]
-        \begin{column}{0.31\textwidth}
-            \begin{block}{Tiered Persistence}
-                \footnotesize \textbf{Local Storage} as a buffer, decoupling training from PFS latency.
-            \end{block}
-        \end{column}
-        \begin{column}{0.31\textwidth}
-            \begin{block}{Controlled PFS Access}
-                \footnotesize Mitigate I/O contention via a centralized \textbf{Orchestrator}.
-            \end{block}
-        \end{column}
-    \end{columns}
+\subsection{Components}
+\begin{frame}{System Components}
+    \begin{figure}[htbp]
+        \centering
+        \resizebox{0.95\columnwidth}{!}{%
+            \begin{tikzpicture}[
+                node distance = 1.5cm and 2.5cm,
+                    box/.style = {draw, rounded corners, minimum width=3.5cm, minimum height=1.2cm, align=center, font=\sffamily\small, thick},
+                    database/.style = {cylinder, draw, shape border rotate=90, aspect=0.25, minimum height=1.5cm, minimum width=2.5cm, align=center, font=\sffamily\small, thick},
+                    arrow/.style = {-{Stealth[length=3mm]}, thick},
+                    grpc/.style = {{Stealth[length=3mm]}-{Stealth[length=3mm]}, dashed, thick, draw=gray!80},
+                    signal/.style = {->, dashed, thick, draw=gray!80, -{Stealth[length=3mm]}}
+                ]
 
-    \vspace{1em}
+                \node[box, fill=gray!20, draw=gray!70!black] (train) {DL Training Loop\\(PyTorch)};
+                \node[box, fill=gray!20, draw=gray!70!black, below=of train] (manager) {\textbf{PyTorch Manager}\\(Client Wrapper)};
+                \node[database, fill=gray!20, draw=gray!70!black, below=of manager] (ssd) {Local Storage\\(RAM/SSD)};
+                \node[box, fill=gray!20, draw=gray!70!black, right=of ssd] (migrater) {\textbf{Node Migrater}\\(Local Daemon)};
 
-    \begin{columns}[t]
-        \begin{column}{0.31\textwidth}
-            \begin{block}{Policy-Driven}
-                \footnotesize Dynamic migration based on cluster-wide scheduling policies.
-            \end{block}
-        \end{column}
-        \begin{column}{0.31\textwidth}
-            \begin{block}{Traffic Shaping}
-                \footnotesize \textbf{Token Bucket} to smooth traffic and eliminate noisy neighbors.
-            \end{block}
-        \end{column}
-    \end{columns}
-\end{frame}
+                \begin{scope}[on background layer]
+                    \node[fit=(train)(manager)(ssd)(migrater), draw, dashed, fill=gray!5, inner sep=0.6cm, rounded corners, label={[font=\sffamily\bfseries]above:Compute Node}] (node) {};
+                \end{scope}
 
-\subsection{Architecture}
-\begin{frame}{Architecture}
-    \begin{figure}
-        \setlength{\abovecaptionskip}{0pt}
-        \setlength{\belowcaptionskip}{0pt}
+                \node[box, fill=gray!20, draw=gray!70!black, right=2cm of node, yshift=2.5cm] (orchestrator) {\textbf{Central Orchestrator}\\(Global Scheduler)};
+                \node[database, fill=gray!20, draw=gray!70!black, right=3cm of migrater] (pfs) {Parallel File System\\(Lustre)};
 
-        \includegraphics[width=\textwidth]{assets/arch.png}
-        \caption{
-            System Architecture.
+                \draw[arrow] (train) -- node[right, font=\sffamily\scriptsize] {Save State} (manager);
+                \draw[arrow] (manager) -- node[right, font=\sffamily\scriptsize] {Fast Write} (ssd);
+                \draw[signal] (manager.east) -| node[above, near start, font=\sffamily\scriptsize, text=gray!70!black] {Signal Ready} ([xshift=10mm,yshift=6mm]migrater.west);
+                \draw[arrow] (ssd) -- node[above, font=\sffamily\scriptsize] {Read} (migrater);
+                \draw[arrow] (migrater) -- node[above, font=\sffamily\scriptsize] {Throttled Flush} node[below, font=\sffamily\scriptsize] {(Token Bucket)} (pfs);
+                \draw[grpc] (migrater.north) |- node[near end ,above, font=\sffamily\scriptsize, text=gray!70!black] {gRPC Heartbeats \& Rate Limits} (orchestrator.west);
+
+            \end{tikzpicture}
         }
+        \caption{System architecture of the framework.}
+        \label{fig:architecture}
     \end{figure}
 \end{frame}
 
-\section{Current Work}
-
-\begin{frame}{Current Work}
-    \begin{itemize}
-        % \small
-
-        \item \textbf{End-to-end checkpointing pipeline}:
-        \begin{itemize}
-            \item Checkpoints saved locally with asynchronous support for \texttt{torch.save}.
-            \item Fallback to direct PFS copy if Migrater notification fails.
-            \item Background migration to PFS.
-        \end{itemize}
-
-        \item \textbf{gRPC-based coordination layer}:
-        \begin{itemize}
-            \item PyTorch $\rightarrow$ Migrater: notify checkpoint completion + timestamp.
-            \item Migrater $\rightarrow$ Orchestrator: checkpoint metadata + node state.
-            \item Orchestrator $\rightarrow$ Migrater: \texttt{START\_FLUSH / CHANGE\_RATE / HOLD}.
-        \end{itemize}
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Current Work (Cont.)}
-    \begin{itemize}
-        % \small
-
-        \item \textbf{Policy-driven scheduling}:
-        \begin{itemize}
-            \small
-            \item \textbf{Fixed-Rate}: same bandwidth cap for every worker.
-            \item \textbf{Uniform Fair-Share}: equal split across all registered workers.
-            \item \textbf{Active Fair-Share}: equal split across workers with pending data only.
-        \end{itemize}
-    \end{itemize}
-\end{frame}
-
-\section{Evaluation \& Future Work}
-
-\subsection{Next Steps}
-\begin{frame}{Next Steps: Scaling and Benchmarking}
-    \centering
+\subsection{Storage Tiering}
+\begin{frame}{Two-Tier Storage Strategy}
     \small
-
-    \begin{columns}[t]
-        \begin{column}{0.35\textwidth}
-            \begin{block}{Deucalion Deployment}
-                \footnotesize Transition from local testing to the \textbf{Deucalion supercomputer} to validate scalability across multiple ARM/X86 nodes.
-            \end{block}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{Local SSD Staging:}
+            \begin{itemize}
+                \item Acts as a "Shock Absorber".
+                \item Dedicated, uncontested bandwidth per node.
+                \item Decouples training loop from network/PFS latency.
+            \end{itemize}
         \end{column}
-        \begin{column}{0.35\textwidth}
-            \begin{block}{Policy Refinement}
-                \footnotesize Evaluate different \textbf{scheduling policies} within the Orchestrator to find the optimal balance for PFS throughput.
+        \begin{column}{0.5\textwidth}
+            \begin{block}{Predictability Result}
+                Writing to local SSDs showed \textbf{near-zero variance} in stall times compared to the high volatility of direct PFS writes.
             \end{block}
         \end{column}
     \end{columns}
+\end{frame}
 
+\section{Implementation}
+
+\subsection{Policies}
+\begin{frame}{Pluggable Scheduling Policies}
+    \scriptsize
+    \centering
+    \begin{tabular}{lp{7cm}}
+        \toprule
+        \textbf{Policy} & \textbf{Logic} \\
+        \midrule
+        \textbf{Uniform Fair Share} & Splits bandwidth $B_{\text{PFS}}$ equally among all $N$ nodes, regardless of pending data. \\
+        \textbf{Active Fair Share} & Splits bandwidth $B_{\text{PFS}}$ equally among nodes with pending data only. \\
+        \textbf{Age Priority}      & Normalized combination of \textit{pending size} and \textit{waiting time} (anti-starvation). \\
+        \textbf{Epoch Priority}    & Prioritizes jobs closer to completion (higher training progress $\rho_i$). \\
+        \bottomrule
+    \end{tabular}
+    
     \vspace{1em}
+    \small \justifying
+    \textbf{Dynamic Control:} Orchestrator sends \texttt{CHANGE\_RATE} or \texttt{HOLD} signals via persistent gRPC streams.
+\end{frame}
 
+\subsection{Traffic Shaping}
+\begin{frame}{Token Bucket \& Traffic Shaping}
+    \small
+    \begin{itemize}
+        \item \textbf{Mechanism:} Migrater read/write operations consume tokens refilled at the Orchestrator-assigned rate.
+        \item \textbf{Chunk Size Tuning:} Evaluated trade-off between throughput accuracy and PFS syscall pressure.
+    \end{itemize}
+    \begin{exampleblock}{Optimal Configuration}
+        \textbf{4 MiB chunks} provided the best balance: high throughput accuracy with significantly reduced write frequency.
+    \end{exampleblock}
+\end{frame}
+
+\section{Evaluation}
+
+\subsection{Performance}
+\begin{frame}{Results: Throughput Profiles}
+    % Top Half: 3 Columns with minimal text and no blocks
     \begin{columns}[t]
-        \begin{column}{0.35\textwidth}
-            \begin{block}{Profiling}
-                \footnotesize Extract performance data using the \textbf{PyTorch Profiler} during large-scale runs (already configured).
-            \end{block}
+        \begin{column}{0.33\textwidth}
+            \centering
+            \footnotesize
+            \textbf{Burst Traffic}
+            \begin{itemize}
+                \item Simultaneous dumps.
+            \end{itemize}
         \end{column}
-        \begin{column}{0.35\textwidth}
-            \begin{block}{System Robustness}
-                \footnotesize Ensure the Token Bucket performs reliably during massive concurrent transfers, preventing any bypass of the defined I/O policies.
-            \end{block}
+        
+        \begin{column}{0.33\textwidth}
+            \centering
+            \footnotesize
+            \textbf{Steady Traffic}
+            \begin{itemize}
+                \item Staggered intervals.
+            \end{itemize}
+        \end{column}
+        
+        \begin{column}{0.33\textwidth}
+            \centering
+            \footnotesize
+            \textbf{Dynamic Churn}
+            \begin{itemize}
+                \item Job arrivals/departures.
+            \end{itemize}
         \end{column}
     \end{columns}
+
+    \begin{center}
+        \includegraphics[width=0.9\textwidth]{assets/performance.png}
+    \end{center}
+
+    \scriptsize
+    \begin{columns}[t]
+        \begin{column}{0.5\textwidth}
+            \textbf{Setup Parameters:}
+            \begin{itemize}
+                \item 5 GB checkpoint payload.
+                \item 2 GB PFS bandwidth.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \textbf{Cluster Environment:}
+            \begin{itemize}
+                \item Tracked concurrent SLURM jobs to account for shared network background noise.
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+\subsection{QoS Enforcement}
+\begin{frame}{Bandwidth Convergence}
+    \begin{center}
+        \includegraphics[width=1\textwidth]{assets/bw.png}
+    \end{center}
+    \begin{center}
+        \textit{The system successfully transforms uncoordinated I/O bursts into smooth, regulated storage traffic. However...}
+    \end{center}
+\end{frame}
+
+\subsection{QoS Enforcement}
+\begin{frame}{Bandwidth Convergence (Issues)}
+    \begin{center}
+        \includegraphics[width=0.85\textwidth]{assets/bad_bw.png}
+    \end{center}
+    \scriptsize
+    \begin{itemize}
+        \item \textbf{Signaling Latency Layer:} Caused by the 0.1s gRPC heartbeat sampling stream.
+        \item \textbf{Token Accumulation Spikes:} Empty initial bucket balance prevents initial bursts, but sub-second spikes remain at block boundaries.
+    \end{itemize}
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}{Conclusions \& Future Work}
+    \small
+    \textbf{Conclusions:}
+    \begin{itemize}
+        \item Two-tier orchestration provides \textbf{predictability} for LLM training.
+        \item Centralized rate control ensures \textbf{Cluster Harmony}.
+        \item Local SSD staging is a scalable "shock absorber" as hardware evolves.
+    \end{itemize}
+    
+    \vspace{0.5em}
+    \textbf{Future Work:}
+    \begin{itemize}
+        \item \textbf{Exascale:} Stress testing with thousands of concurrent nodes and weak scalability constraints.
+        \item \textbf{Non-Blocking Queue Management:} Support queuing or pipelining new checkpoint requests if a worker generates a new state while the previous one is still migrating to the PFS.
+        \item \textbf{Resilience:} Fault-tolerant Orchestrator (single point of failure).
+    \end{itemize}
 \end{frame}
 
 \frame{\titlepage}

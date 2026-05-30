@@ -129,7 +129,7 @@ def align_series(
 
 
 def to_mib_per_second(values: list[float]) -> list[float]:
-    return [value / (1024 ** 2) for value in values]
+    return [value / (1000 ** 2) for value in values]
 
 
 def build_accumulated_rates(
@@ -182,7 +182,7 @@ def plot_accumulated_bandwidth(
         )
 
     plt.axhline(
-        y=orch_bw / (1024 ** 2),
+        y=orch_bw / (1000 ** 2),
         linestyle="--",
         label="Orchestrator bandwidth",
     )

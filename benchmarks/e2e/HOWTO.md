@@ -53,7 +53,6 @@ for POLICY in "${POLICIES[@]}"; do
         --pfs-dir $PFS_DIR/checkpoints \
         --results-dir $PFS_DIR/results
 done
-
 for POLICY in "${POLICIES[@]}"; do
     ./scripts/submit-orchestrated.sh \
         --policy "$POLICY" \
@@ -64,7 +63,6 @@ for POLICY in "${POLICIES[@]}"; do
         --pfs-dir $PFS_DIR/checkpoints \
         --results-dir $PFS_DIR/results
 done
-
 for POLICY in "${POLICIES[@]}"; do
     ./scripts/submit-orchestrated.sh \
         --policy "$POLICY" \
