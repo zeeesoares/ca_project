@@ -65,7 +65,7 @@
     \begin{itemize}
         \item \textbf{Context:} LLM training generates massive checkpoints (GBs to TBs).
         \item \textbf{The Bottleneck:} Parallel File Systems (PFS) like Lustre suffer from synchronized I/O bursts ("Noisy Neighbor" problem).
-        \item \textbf{Consequence:} GPU compute nodes stall while waiting for slow synchronous writes, wasting expensive resources.
+        \item \textbf{Consequence:} Compute nodes stall while waiting for slow synchronous writes, wasting expensive resources.
     \end{itemize}
     \begin{block}{Central Insight}
         Checkpointing is \textbf{latency-critical for training continuation}, but not for long-term persistence.
@@ -223,7 +223,7 @@
         \end{column}
     \end{columns}
 \end{frame}
-\subsection{QoS Enforcement}
+\subsection{Bandwidth Convergence}
 \begin{frame}{Bandwidth Convergence}
     \begin{center}
         \includegraphics[width=1\textwidth]{assets/bw.png}
@@ -233,7 +233,7 @@
     \end{center}
 \end{frame}
 
-\subsection{QoS Enforcement}
+\subsection{Limitations}
 \begin{frame}{Bandwidth Convergence (Issues)}
     \begin{center}
         \includegraphics[width=0.85\textwidth]{assets/bad_bw.png}
@@ -253,7 +253,7 @@
     \begin{itemize}
         \item Two-tier orchestration provides \textbf{predictability} for LLM training.
         \item Centralized rate control ensures \textbf{Cluster Harmony}.
-        \item Local SSD staging is a scalable "shock absorber" as hardware evolves.
+        \item Local SSD staging is a scalable option to absorb bursty I/O patterns.
     \end{itemize}
     
     \vspace{0.5em}
