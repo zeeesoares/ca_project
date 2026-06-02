@@ -21,7 +21,7 @@
 
 \usepackage{graphicx}
 \usepackage{ragged2e}
-\usepackage{booktabs} 
+\usepackage{booktabs}
 \usepackage{tikz}
 
 % BIBLIOTECAS TIKZ NECESSÁRIAS PARA O DIAGRAMA -----------------------------------------------------
@@ -150,7 +150,7 @@
         \textbf{Epoch Priority}    & Prioritizes jobs closer to completion (higher training progress $\rho_i$). \\
         \bottomrule
     \end{tabular}
-    
+
     \vspace{1em}
     \small \justifying
     \textbf{Dynamic Control:} Orchestrator sends \texttt{CHANGE\_RATE} or \texttt{HOLD} signals via persistent gRPC streams.
@@ -182,7 +182,7 @@
                 \item Simultaneous dumps.
             \end{itemize}
         \end{column}
-        
+
         \begin{column}{0.33\textwidth}
             \centering
             \footnotesize
@@ -191,7 +191,7 @@
                 \item Staggered intervals.
             \end{itemize}
         \end{column}
-        
+
         \begin{column}{0.33\textwidth}
             \centering
             \footnotesize
@@ -212,7 +212,7 @@
             \textbf{Setup Parameters:}
             \begin{itemize}
                 \item 5 GB checkpoint payload.
-                \item 2 GB PFS bandwidth.
+                \item 2 GB/s PFS bandwidth.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
@@ -255,7 +255,7 @@
         \item Centralized rate control ensures \textbf{Cluster Harmony}.
         \item Local SSD staging is a scalable option to absorb bursty I/O patterns.
     \end{itemize}
-    
+
     \vspace{0.5em}
     \textbf{Future Work:}
     \begin{itemize}
